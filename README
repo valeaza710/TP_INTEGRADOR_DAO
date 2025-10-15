@@ -1,0 +1,9 @@
+*Objetivo*
+Desarrollar una aplicación de gestión completa que combine:
+- Interfaz de usuario (desktop con Tkinter, Flet, pyQt, etc. o web con flask, fastAPI, django, etc. y angular o react).
+- Base de datos relacional (SQLite o MySQL).
+- Operaciones CRUD (Altas, Bajas, Modificaciones, Consultas).
+- Validaciones de datos y consistencia en los registros.
+- Transacciones operativas (ventas, compras, alquileres, turnos, reservas, etc.).
+- Generación de reportes detallados y estadísticos.
+La aplicación debe resolver la gestión de un negocio o área simple, elegido por cada grupo y con alcances aprobados por la cátedra.

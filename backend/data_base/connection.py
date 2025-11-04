@@ -17,8 +17,8 @@ class DataBaseConnection:
                 user=self.user,
                 password=self.password,
                 database=self.database,
-                charset="armscii8",
-                collation="armscii8_bin"
+                charset="utf8mb4",
+                collation="utf8mb4_general_ci"
             )
             return conn
         except Error as e:

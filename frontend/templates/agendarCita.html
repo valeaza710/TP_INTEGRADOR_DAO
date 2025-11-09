@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediCare - Nueva Cita</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+  <div class="container">
+    <h1>Agendar Nueva Cita</h1>
+
+    <!-- Paso 1 -->
+    <div id="step1" class="step">
+      <h2>Selecciona una especialidad</h2>
+      <div id="specialty-list" class="options">
+        {% for specialty in specialties %}
+          <button class="option-btn" onclick="selectSpecialty('{{ specialty }}')">
+            {{ specialty }}
+          </button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Paso 2 -->
+    <div id="step2" class="step hidden">
+      <h2>Selecciona un médico</h2>
+      <select id="doctor-select"></select>
+      <button onclick="goToCalendar()">Ver turnos disponibles</button>
+      <button class="back-btn" onclick="goBack(1)">← Volver</button>
+    </div>
+
+    <!-- Paso 3 -->
+    <div id="step3" class="step hidden">
+      <h2>Selecciona una fecha</h2>
+      <input type="date" id="date-input" onchange="loadSlots()">
+      <div id="slots"></div>
+      <button class="back-btn" onclick="goBack(2)">← Volver</button>
+    </div>
+  </div>
+    <script src="{{ url_for('static', filename='js/agendarCita.js') }}"></script>
+</body>
+</html>

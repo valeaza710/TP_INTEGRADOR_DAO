@@ -1,0 +1,216 @@
+/* En tu carpeta 'static/css/estilos.css' */
+
+:root {
+    --primary-color: #00BCD4; /* Azul Turquesa brillante */
+    --light-bg: #E8F7FF; /* Fondo azul claro muy sutil para el body */
+    --card-bg: #FFFFFF;
+    --text-dark: #333333;
+    --text-secondary: #6c757d;
+    --border-radius-card: 20px;
+    --border-radius-input: 10px;
+    --box-shadow-card: 0 15px 40px rgba(0, 0, 0, 0.08); /* Sombra sutil y profunda */
+    --input-placeholder-color: #AAAAAA;
+}
+
+/* Reset y Estilos Base */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--light-bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: var(--text-dark);
+}
+
+/* --- Contenedor Principal (Centrado) --- */
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    width: 100%;
+}
+
+/* --- Estilos de la Tarjeta del Formulario (La caja blanca) --- */
+.form-card {
+    background-color: var(--card-bg);
+    padding: 45px 40px;
+    border-radius: var(--border-radius-card);
+    box-shadow: var(--box-shadow-card);
+    width: 380px; /* Ancho fijo para el look profesional */
+    max-width: 95%;
+    text-align: center;
+}
+
+/* --- Logo y Encabezado --- */
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px; /* Separación entre el logo y el título "Iniciar Sesión" */
+}
+
+.logo-icon {
+    background-color: var(--primary-color);
+    color: var(--card-bg);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    margin-bottom: 10px;
+}
+
+.header h1 {
+    font-size: 26px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.tagline {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 400;
+    margin: 0;
+}
+
+/* --- Títulos del Formulario --- */
+h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+}
+
+/* --- Labels y Campos de Entrada (Inputs) --- */
+label {
+    display: block;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+    margin-top: 20px;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    /* Estilo del borde blanco y redondeado del diseño */
+    border: 1px solid #E0E0E0; 
+    border-radius: var(--border-radius-input);
+    padding: 10px 15px;
+    transition: border-color 0.2s;
+}
+
+.input-group:focus-within {
+    border-color: var(--primary-color); /* Borde azul al hacer foco */
+}
+
+.input-group i {
+    color: var(--text-secondary); /* Iconos de color gris claro */
+    margin-right: 12px;
+    font-size: 18px;
+}
+
+.input-group input {
+    flex-grow: 1;
+    border: none;
+    outline: none;
+    padding: 5px 0; /* Ajuste para centrar el texto verticalmente */
+    font-size: 16px;
+    color: var(--text-dark);
+    background: transparent;
+}
+
+.input-group input::placeholder {
+    color: var(--input-placeholder-color);
+}
+
+/* --- Botón de Iniciar Sesión --- */
+.btn-primary {
+    background-color: var(--primary-color);
+    color: var(--card-bg);
+    border: none;
+    width: 100%;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 30px;
+    margin-bottom: 25px;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    /* Sombra sutil del botón */
+    box-shadow: 0 4px 15px rgba(0, 188, 212, 0.3); 
+}
+
+.btn-primary:hover {
+    background-color: #00AEC3; /* Un poco más oscuro */
+}
+
+/* --- Enlace de Olvidó Contraseña --- */
+.forgot-password {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    display: block;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+/* --- Texto del Footer --- */
+.footer-text {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 40px;
+}
+
+
+
+/*---AGENDAR CITAS---*/
+/* Personalización Tailwind para el Calendario */
+.calendar-container {
+    --rdp-cell-size: 40px;
+}
+/* Estilos del Calendario (usando la convención de date-picker) */
+.rdp-day_selected, .rdp-day_selected:hover {
+    /* Usamos el color blue.600 definido por Tailwind */
+    background-color: rgb(37, 99, 235) !important;
+    color: white !important;
+}
+.rdp-day:focus {
+    outline: none;
+    /* Usamos el color blue.200 definido por Tailwind */
+    box-shadow: 0 0 0 2px rgba(191, 219, 254, 1);
+}
+.dialog-overlay {
+    background-color: rgba(0, 0, 0, 0.4);
+    transition: opacity 0.3s;
+}
+.dialog-content {
+    /* La animación de entrada se define aquí */
+    animation: slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes slide-in {
+    from { transform: translate(-50%, -48%) scale(0.96); opacity: 0; }
+    to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}

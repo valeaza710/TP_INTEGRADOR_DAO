@@ -3,20 +3,7 @@
 
 
 #FLASK
-from flask import Flask, render_template
-
-app = Flask(
-    __name__,
-    template_folder="../frontend/templates",  # ruta a tus plantillas
-    static_folder="../frontend/static"        # ruta a tus archivos estáticos
-)
-
-#@app.route('/')
-#def inicio():
-#    return render_template('index.html')
-
-# app.py
-# main.py (o donde inicialices Flask)
+from flask import Flask, render_template, request, redirect, url_for
 import os
 from flask import Flask
 from flask import jsonify
@@ -36,9 +23,22 @@ app = Flask(
     static_folder=STATIC_FOLDER # Opcional, pero bueno para consistencia
 )
 
-# ... El resto de tu código Flask
-from flask import Flask, render_template, request, redirect, url_for
+# Datos simulados para especialidades, doctores y turnos
+MOCK_DOCTORS = {
+    "Medicina General": ["Dr. Juan Pérez", "Dra. María González", "Dr. Carlos Ruiz"],
+    "Cardiología": ["Dr. Sarah Johnson", "Dr. Luis Martínez"],
+    "Dermatología": ["Dra. Ana López", "Dr. Pedro Sánchez"],
+}
 
+MOCK_SLOTS = [
+    {"specialty": "Cardiología", "doctor": "Dr. Sarah Johnson", "date": "2025-12-15", "time": "10:00", "location": "Consultorio A"},
+    {"specialty": "Cardiología", "doctor": "Dr. Luis Martínez", "date": "2025-12-15", "time": "11:30", "location": "Consultorio B"},
+    {"specialty": "Cardiología", "doctor": "Dr. Sarah Johnson", "date": "2025-12-16", "time": "09:00", "location": "Consultorio A"},
+    {"specialty": "Dermatología", "doctor": "Dra. Ana López", "date": "2025-12-15", "time": "14:00", "location": "Consultorio C"},
+    {"specialty": "Medicina General", "doctor": "Dr. Juan Pérez", "date": "2025-12-15", "time": "08:30", "location": "Consultorio D"},
+    {"specialty": "Medicina General", "doctor": "Dr. Juan Pérez", "date": "2025-12-16", "time": "12:00", "location": "Consultorio D"},
+    {"specialty": "Medicina General", "doctor": "Dra. María González", "date": "2025-12-15", "time": "15:00", "location": "Consultorio E"},
+]
 
 
 # Ruta GET para mostrar el formulario de login
@@ -56,7 +56,7 @@ def login_post():
     # --- Aquí va tu lógica de autenticación (Ej: con Flask-Login o una base de datos) ---
     if username == "admin" and password == "12345":
         # Autenticación exitosa
-        return redirect(url_for('home')) # Redirige a una página de inicio (que deberás definir)
+        return redirect(url_for('agendar_cita')) # Redirige a la página de agendamiento de citas
     else:
         # Autenticación fallida
         # Puedes usar flash() para mostrar un mensaje de error
@@ -64,28 +64,63 @@ def login_post():
 
 @app.route('/agendar', methods=['GET'])
 def agendar_cita():
-    """Página de agendamiento de citas médicas."""
-    return render_template('agendarCita.html')
+    # Creamos una lista de objetos o diccionarios con la información
+    specialties_data = []
+    for name, doctors in MOCK_DOCTORS.items():
+        specialties_data.append({
+            'name': name,
+            'doctors_count': len(doctors) # Contamos cuántos doctores hay
+        })
+        
+    # Enviamos esta lista de diccionarios a la plantilla
+    return render_template('agendarCita.html', specialties=specialties_data)
 
-# API SIMULADA (para JS)
-# -----------------------------
-
-MOCK_DOCTORS = {
-    "Medicina General": ["Dr. Juan Pérez", "Dra. María González", "Dr. Carlos Ruiz"],
-    "Cardiología": ["Dr. Sarah Johnson", "Dr. Luis Martínez"],
-    "Dermatología": ["Dra. Ana López", "Dr. Pedro Sánchez"],
-}
 
 @app.route("/api/especialidades", methods=["GET"])
 def get_especialidades():
     """Devuelve las especialidades disponibles."""
     return jsonify(list(MOCK_DOCTORS.keys()))
 
-@app.route("/api/doctores/<especialidad>", methods=["GET"])
-def get_doctores(especialidad):
+@app.route("/api/doctores/<speciality>", methods=["GET"])
+def get_doctores(speciality):
     """Devuelve doctores según especialidad."""
-    doctors = MOCK_DOCTORS.get(especialidad, [])
+    doctors = MOCK_DOCTORS.get(speciality, [])
     return jsonify(doctors)
+
+@app.route('/historial', methods=['GET'])
+def historial_clinico():
+    """Sirve la plantilla del historial clínico."""
+    return render_template('historialClinico.html')
+
+@app.route("/api/turnos", methods=["POST"]) 
+def get_slots():
+    """Recibe especialidad, doctor y fecha, y devuelve los turnos filtrados."""
+    try:
+        data = request.get_json()
+        selected_specialty = data.get('specialty')
+        selected_doctor = data.get('doctor')
+        selected_date = data.get('date')
+    except Exception:
+        # En caso de que el JSON no sea válido, lo cual es raro si viene de JS
+        return jsonify({"error": "Datos de filtrado inválidos o faltantes"}), 400
+
+    slots_disponibles = []
+    
+    # Lógica de Filtrado
+    for slot in MOCK_SLOTS:
+        # 1. Filtrar por Especialidad y Fecha (Obligatorio)
+        if (slot['specialty'] == selected_specialty and 
+            slot['date'] == selected_date):
+            
+            # 2. Filtrar por Doctor (si no es 'all')
+            if selected_doctor == 'all' or slot['doctor'] == selected_doctor:
+                slots_disponibles.append({
+                    'time': slot['time'],
+                    'doctor': slot['doctor'],
+                    'location': slot['location']
+                })
+    
+    return jsonify(slots_disponibles)
 
 @app.route("/api/agendar", methods=["POST"])
 def api_agendar():

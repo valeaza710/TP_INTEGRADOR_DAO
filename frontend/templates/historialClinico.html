@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial Clínico</title>
+    <!-- Asume que este archivo se enlaza con tu estilos.css principal y con el JS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+    <!-- Usamos Font Awesome 5/6, ya que Lucide-React no está disponible en HTML puro -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- El CSS para este componente se añadirá al final del archivo -->
+    <style id="historial-css"></style> 
+</head>
+<body>
+
+    <!-- 🔑 Contenedor principal de la modal (simulación del Dialog) -->
+    <!-- Quitamos la clase 'active' inicial para que se muestre al hacer click en el botón, 
+         pero la mantenemos para que se muestre al cargar la página en el Canvas. -->
+    <div id="medical-history-dialog" class="dialog-overlay active"> 
+        <div class="dialog-content sm:max-w-[768px] max-h-[90vh]">
+            
+            <!-- Header (simulación de DialogHeader) -->
+            <div class="dialog-header">
+                <div>
+                    <h1 class="main-title text-2xl">Historial Clínico</h1>
+                    <p class="subtitle text-sm text-muted-foreground">
+                        Consulta tu información médica y recetas electrónicas
+                    </p>
+                </div>
+                <button class="close-btn" onclick="closeDialog()">&times;</button>
+            </div>
+
+            <!-- Tabs (simulación de Tabs, TabsList, TabsTrigger) -->
+            <div id="history-tabs" class="w-full mt-4">
+                <div class="tabs-list grid grid-cols-2">
+                    <button class="tab-trigger active" data-tab="personal">
+                        <i class="fas fa-user icon"></i> Datos Personales
+                    </button>
+                    <button class="tab-trigger" data-tab="recetas">
+                        <i class="fas fa-prescription-bottle-alt icon"></i> Recetas
+                    </button>
+                </div>
+
+                <!-- TabsContent - Contenido Personal -->
+                <div id="tab-content-personal" class="tab-content active mt-6">
+                    <!-- Necesitamos aplicar el grid-cols-3 directamente al div -->
+                    <div id="patient-data-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4"> 
+                        <!-- Las cards se inyectan aquí con JavaScript -->
+                    </div>
+                </div>
+
+                <!-- TabsContent - Contenido Recetas -->
+                <div id="tab-content-recetas" class="tab-content hidden mt-6">
+                    <!-- Ajuste para el scroll: overflow-y-auto en CSS en lugar de la clase scroll-area -->
+                    <div class="scroll-area-container h-[400px]"> 
+                        <div id="prescriptions-list" class="space-y-4 pr-4">
+                            <!-- Las recetas se inyectan aquí con JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+    
+    <!-- Botón de prueba para abrir la modal (opcional, si no está enlazada) -->
+    <!-- <button onclick="openDialog()">Abrir Historial Clínico</button> -->
+
+    <script>
+        // La data mock se define aquí para que JS la use
+        const patientData = {
+            weight: "70 kg",
+            height: "1.75 m",
+            bloodType: "O+",
+        };
+
+        const prescriptions = [
+            {
+                id: "1",
+                date: "15 de Febrero, 2025",
+                doctorName: "Dr. Sarah Johnson",
+                diagnosis: "Hipertensión leve",
+                medications: [
+                    { name: "Losartán", dosage: "50mg", frequency: "1 vez al día", duration: "30 días" },
+                    { name: "Aspirina", dosage: "100mg", frequency: "1 vez al día", duration: "30 días" },
+                ],
+            },
+            {
+                id: "2",
+                date: "3 de Enero, 2025",
+                doctorName: "Dr. Michael Chen",
+                diagnosis: "Infección respiratoria",
+                medications: [
+                    { name: "Amoxicilina", dosage: "500mg", frequency: "Cada 8 horas", duration: "7 días" },
+                    { name: "Ibuprofeno", dosage: "400mg", frequency: "Cada 6 horas", duration: "5 días" },
+                ],
+            },
+            {
+                id: "3",
+                date: "1 de Julio, 2024",
+                doctorName: "Dra. Carolina Ríos",
+                diagnosis: "Alergia Estacional",
+                medications: [
+                    { name: "Cetirizina", dosage: "10mg", frequency: "1 vez al día", duration: "14 días" },
+                ],
+            },
+             {
+                id: "4",
+                date: "10 de Abril, 2024",
+                doctorName: "Dr. Michael Chen",
+                diagnosis: "Dolor de espalda",
+                medications: [
+                    { name: "Paracetamol", dosage: "500mg", frequency: "Cada 8 horas", duration: "3 días" },
+                ],
+            },
+        ];
+    </script>
+    <script src="{{ url_for('static', filename='js/historialClinico.js') }}"></script>
+</body>
+</html>
+```
+
+## 3. 🎨 CSS Ajuste (`estilos.css` o sección `<style>`)
+
+Necesitamos asegurarnos de que el contenedor de recetas tenga el `overflow-y: auto` para que puedas deslizarte (subir y bajar) si la lista de recetas es muy larga.
+
+```css
+/* Añade o modifica en tu CSS */
+
+/* --- Diálogo/Modal (Simulación) --- */
+/* ... (código anterior) ... */
+
+/* Ajuste para el scroll en Recetas */
+.scroll-area-container {
+    overflow-y: auto;
+    /* Ajusta este valor si el scrollbar es muy ancho */
+}
+
+/* Recetas Específico */
+.icon-pill-link {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background-color: rgba(6, 182, 212, 0.1); /* primary/10 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+/* Cambiamos el ícono de 'link' (que se usó por error) a 'pastillero' */
+.icon-pill-link-icon:before {
+    content: "\f484"; /* Código unicode para fas fa-prescription-bottle-alt */
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    color: var(--primary);
+}
+
+/* Aseguramos que la columna funcione en Datos Personales */
+.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.md\:grid-cols-3 { 
+    /* Simula el breakpoint md: */
+    display: grid; 
+    grid-template-columns: repeat(3, minmax(0, 1fr)); 
+}
+
+@media (max-width: 768px) {
+    /* En móviles, se usa 1 columna */
+    .md\:grid-cols-3 { 
+        grid-template-columns: repeat(1, minmax(0, 1fr)); 
+    }
+}

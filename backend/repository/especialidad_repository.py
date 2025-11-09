@@ -26,6 +26,7 @@ class EspecialidadRepository(Repository):
             print(f"❌ Error al guardar especialidad: {e}")
             return None
 
+
     def get_by_id(self, especialidad_id: int):
         query = "SELECT * FROM especialidad WHERE id = %s"
         data = self.db.execute_query(query, (especialidad_id,), fetch=True)
@@ -57,6 +58,7 @@ class EspecialidadRepository(Repository):
         params = (especialidad.nombre, especialidad.id)
         success = self.db.execute_query(query, params)
         return especialidad if success else None
+
 
     def delete(self, especialidad: Especialidad):
         query = "DELETE FROM especialidad WHERE id = %s"

@@ -32,10 +32,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 3. Puedes agregar más funcionalidad aquí, como un botón para "Nueva Cita"
-    const newAppointmentBtn = document.querySelector('.new-appointment-btn');
-    newAppointmentBtn.addEventListener('click', () => {
-        alert('Redirigiendo a la página de Agendar Nueva Cita...');
-        // window.location.href = '/new-appointment'; // En una app real
-    });
 });

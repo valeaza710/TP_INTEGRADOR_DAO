@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel del Médico - Gestión de Turnos</title>
+    <!-- Carga de Tailwind CSS para utilities -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Definición de fuente y colores principales */
+        :root {
+            --primary: #4f46e5; /* Indigo 600 */
+            --secondary-blue: #06b6d4; /* Cyan 500 para Receta */
+            --secondary-red: #ef4444; /* Red 500 para Cancelar */
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #E8F7FF; /* Fondo muy claro */
+        }
+
+        /* Estilo para la pestaña activa (Agenda de Turnos) */
+        .tab.active {
+            background-color: white;
+            color: var(--primary);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e5e7eb;
+            font-weight: 600;
+        }
+
+        /* Ocultar contenido de pestañas por defecto */
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Estilo para los botones de acción principales */
+        .btn-action {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        /* Estilo del diálogo modal para asegurar que esté en el centro y por encima de todo */
+        .modal-dialog {
+            display: none; /* Controlado por JS */
+            background-color: rgba(31, 41, 55, 0.75);
+            overflow-y: auto; /* Permite scroll si el contenido es largo */
+        }
+
+        /* Clase de utilidad para ocultar el modal */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto">
+        
+        <!-- Header/Navbar Superior -->
+        <header class="bg-white p-4 rounded-lg shadow-sm flex justify-between items-center mb-10 border-b pb-4">
+            <div class="flex items-center space-x-3">
+                <!-- Icono de usuario simple -->
+                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">Dr. Roberto Sánchez</h1>
+                    <p class="text-sm text-gray-500">Médico Clínico</p>
+                </div>
+            </div>
+            <button class="flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                Cerrar Sesión
+            </button>
+        </header>
+
+        <!-- Título principal de la sección -->
+        <section class="mb-8">
+            <h2 class="text-3xl font-extrabold text-gray-900">¡Bienvenido Roberto Sanchez!</h2>
+            <p class="text-gray-500">Gestiona tus turnos y pacientes</p>
+        </section>
+
+        <!-- Contenedor de Pestañas (Tabs) -->
+        <div class="flex space-x-2 mb-8">
+            <button class="tab active text-gray-700 rounded-lg py-2 px-4 flex items-center transition" data-tab="agenda">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h.01M9 14h.01M13 14h.01M15 11h.01M17 14h.01M4 11l4.472 4.472a1 1 0 00.707.293h7.642a1 1 0 00.707-.293L20 11M4 11V7a2 2 0 012-2h4M20 11V7a2 2 0 00-2-2h-4" /></svg>
+                Agenda de Turnos
+            </button>
+            <button class="tab text-gray-500 rounded-lg py-2 px-4 flex items-center hover:bg-white transition" data-tab="history">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                Historial
+            </button>
+        </div>
+
+        <!-- Contenido de la Agenda (Activo por defecto) -->
+        <div id="agenda" class="tab-content active">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Turnos de Hoy (3)
+            </h3>
+            <p class="text-gray-500 mb-6 text-sm">Tienes 3 turnos programados para hoy</p>
+
+            <div class="space-y-6">
+                
+                <!-- Tarjeta de Turno 1 -->
+                <div class="card bg-white p-6 rounded-xl shadow-lg border border-gray-200 transition duration-300 hover:shadow-xl" data-id="turno-1234" data-patient-name="Juan Pérez" data-patient-dni="12345678">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900">Juan Pérez</h4>
+                                <p class="text-sm text-gray-500">DNI: 12345678</p>
+                            </div>
+                        </div>
+                        <span class="text-lg font-bold text-gray-700">09:00</span>
+                    </div>
+
+                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-100 mb-4">
+                        <p class="text-sm font-medium text-gray-600">Motivo: Consulta general</p>
+                        <p class="text-xs text-gray-400 mt-1">2025-11-09</p>
+                    </div>
+
+                    <div class="flex space-x-3">
+                        <button class="btn-recipe btn-action bg-cyan-500 text-white hover:bg-cyan-600 flex-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Generar Receta
+                        </button>
+                        <button class="btn-cancel btn-action bg-red-500 text-white hover:bg-red-600 flex-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Cancelar Turno
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tarjeta de Turno 2 -->
+                <div class="card bg-white p-6 rounded-xl shadow-lg border border-gray-200 transition duration-300 hover:shadow-xl" data-id="turno-1235" data-patient-name="María González" data-patient-dni="23456789">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900">María González</h4>
+                                <p class="text-sm text-gray-500">DNI: 23456789</p>
+                            </div>
+                        </div>
+                        <span class="text-lg font-bold text-gray-700">10:30</span>
+                    </div>
+
+                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-100 mb-4">
+                        <p class="text-sm font-medium text-gray-600">Motivo: Control de presión arterial</p>
+                        <p class="text-xs text-gray-400 mt-1">2025-11-09</p>
+                    </div>
+
+                    <div class="flex space-x-3">
+                        <button class="btn-recipe btn-action bg-cyan-500 text-white hover:bg-cyan-600 flex-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Generar Receta
+                        </button>
+                        <button class="btn-cancel btn-action bg-red-500 text-white hover:bg-red-600 flex-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Cancelar Turno
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Tarjeta de Turno 3 -->
+                <div class="card bg-white p-6 rounded-xl shadow-lg border border-gray-200 transition duration-300 hover:shadow-xl" data-id="turno-1236" data-patient-name="Carlos Rodríguez" data-patient-dni="34567890">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900">Carlos Rodríguez</h4>
+                                <p class="text-sm text-gray-500">DNI: 34567890</p>
+                            </div>
+                        </div>
+                        <span class="text-lg font-bold text-gray-700">11:45</span>
+                    </div>
+
+                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-100 mb-4">
+                        <p class="text-sm font-medium text-gray-600">Motivo: Vacunación</p>
+                        <p class="text-xs text-gray-400 mt-1">2025-11-09</p>
+                    </div>
+
+                    <div class="flex space-x-3">
+                        <button class="btn-recipe btn-action bg-cyan-500 text-white hover:bg-cyan-600 flex-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Generar Receta
+                        </button>
+                        <button class="btn-cancel btn-action bg-red-500 text-white hover:bg-red-600 flex-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Cancelar Turno
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Contenido del Historial -->
+        <div id="history" class="tab-content">
+             <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h.01M9 14h.01M13 14h.01M15 11h.01M17 14h.01M4 11l4.472 4.472a1 1 0 00.707.293h7.642a1 1 0 00.707-.293L20 11M4 11V7a2 2 0 012-2h4M20 11V7a2 2 0 00-2-2h-4" />
+                </svg>
+                Historial de Turnos
+            </h3>
+            <p class="text-gray-500 mb-6 text-sm">Registro de turnos anteriores</p>
+
+            <div class="space-y-6">
+
+                <!-- Tarjeta de Historial - Atendido (Turno 1) -->
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h4 class="text-lg font-semibold text-gray-900">Ana Martínez</h4>
+                            <p class="text-sm text-gray-500">DNI: 45678901</p>
+                        </div>
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">Atendido</span>
+                    </div>
+
+                    <div class="flex items-center space-x-4 text-gray-600 text-sm mb-3">
+                        <span class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h.01M9 14h.01M13 14h.01M15 11h.01M17 14h.01M4 11l4.472 4.472a1 1 0 00.707.293h7.642a1 1 0 00.707-.293L20 11M4 11V7a2 2 0 012-2h4M20 11V7a2 2 0 00-2-2h-4" />
+                            </svg>
+                            2025-11-08
+                        </span>
+                        <span class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            11:00
+                        </span>
+                    </div>
+                    
+                    <p class="font-medium text-gray-800">Consulta general</p>
+                    <p class="text-sm text-gray-700 italic mt-1">Nota: Paciente presentó mejora en síntomas</p>
+                </div>
+
+                <!-- Tarjeta de Historial - Atendido (Turno 2) -->
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h4 class="text-lg font-semibold text-gray-900">Luis Fernández</h4>
+                            <p class="text-sm text-gray-500">DNI: 56789012</p>
+                        </div>
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">Atendido</span>
+                    </div>
+
+                    <div class="flex items-center space-x-4 text-gray-600 text-sm mb-3">
+                        <span class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h.01M9 14h.01M13 14h.01M15 11h.01M17 14h.01M4 11l4.472 4.472a1 1 0 00.707.293h7.642a1 1 0 00.707-.293L20 11M4 11V7a2 2 0 012-2h4M20 11V7a2 2 0 00-2-2h-4" />
+                            </svg>
+                            2025-11-07
+                        </span>
+                        <span class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            15:30
+                        </span>
+                    </div>
+                    
+                    <p class="font-medium text-gray-800">Control post-operatorio</p>
+                    <p class="text-sm text-gray-700 italic mt-1">Nota: Evolución favorable</p>
+                </div>
+
+                <!-- Tarjeta de Historial - Cancelado (Turno 3) -->
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h4 class="text-lg font-semibold text-gray-900">Sofía López</h4>
+                            <p class="text-sm text-gray-500">DNI: 67890123</p>
+                        </div>
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700">Cancelado</span>
+                    </div>
+
+                    <div class="flex items-center space-x-4 text-gray-600 text-sm mb-3">
+                        <span class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h.01M9 14h.01M13 14h.01M15 11h.01M17 14h.01M4 11l4.472 4.472a1 1 0 00.707.293h7.642a1 1 0 00.707-.293L20 11M4 11V7a2 2 0 012-2h4M20 11V7a2 2 0 00-2-2h-4" />
+                            </svg>
+                            2025-11-06
+                        </span>
+                        <span class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            09:30
+                        </span>
+                    </div>
+                    
+                    <p class="font-medium text-gray-800">Consulta de rutina</p>
+                    <p class="text-sm text-red-600 mt-2 font-medium">Motivo de cancelación: Paciente canceló por motivos personales</p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Diálogo Modal de Cancelación -->
+        <div id="cancel-dialog" class="modal-dialog fixed inset-0 items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full p-6 transform transition-all duration-300 scale-100">
+                <h2 class="text-2xl font-bold text-red-600 mb-4 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    Confirmar Cancelación
+                </h2>
+                <p class="text-gray-600 mb-6">
+                    ¿Estás seguro de que deseas cancelar este **Turno**? Esta acción es irreversible y requiere la confirmación del servidor.
+                </p>
+                <div class="flex justify-end space-x-3">
+                    <button id="close-cancel-dialog" class="bg-gray-200 text-gray-700 font-semibold px-4 py-2 rounded-lg hover:bg-gray-300 transition duration-150">
+                        Cerrar
+                    </button>
+                    <button id="confirm-cancel" class="bg-red-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-red-700 transition duration-150 shadow-md">
+                        Sí, Cancelar Turno
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Diálogo Modal de Generar Receta Médica (Nuevo) -->
+        <div id="recipe-dialog" class="modal-dialog fixed inset-0 items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full transform transition-all duration-300">
+                <!-- Header del Modal -->
+                <div class="p-6 border-b flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-cyan-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Generar Receta Médica
+                    </h2>
+                    <button id="close-recipe-dialog" class="text-gray-400 hover:text-gray-600 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="p-6">
+                    <!-- Información del Paciente (Se llena con JS) -->
+                    <p id="patient-info" class="text-sm text-gray-600 mb-4 font-medium"></p>
+
+                    <form id="recipe-form">
+                        <!-- Contenedor Dinámico de Medicamentos -->
+                        <div id="medication-container" class="space-y-6 mb-6">
+                            <!-- Bloque de Medicamento 1 (Estructura inicial) -->
+                            <div class="medication-block p-4 border rounded-lg bg-gray-50">
+                                <h4 class="font-semibold text-gray-800 mb-3">Medicamento 1</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Medicamento</label>
+                                        <input type="text" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-cyan-500 focus:border-cyan-500" placeholder="Ej: Ibuprofeno 600mg">
+                                    </div>
+                                    <div class="flex space-x-4">
+                                        <div class="flex-1">
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Dosis</label>
+                                            <input type="text" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-cyan-500 focus:border-cyan-500" placeholder="Ej: 1 comprimido">
+                                        </div>
+                                        <div class="flex-1">
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Frecuencia</label>
+                                            <input type="text" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-cyan-500 focus:border-cyan-500" placeholder="Ej: Cada 8 horas">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Duración</label>
+                                        <input type="text" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-cyan-500 focus:border-cyan-500" placeholder="Ej: 7 días">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botón para agregar más medicamentos -->
+                        <button type="button" id="add-medication-btn" class="w-full bg-gray-100 text-gray-700 font-semibold py-3 rounded-lg border border-dashed border-gray-300 hover:bg-gray-200 transition duration-150 mb-6 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Agregar otro medicamento
+                        </button>
+
+                        <!-- Observaciones -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
+                            <textarea rows="3" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-cyan-500 focus:border-cyan-500" placeholder="Indicaciones adicionales, precauciones, etc."></textarea>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Footer con Botones de Acción (Generar PDF) -->
+                <div class="p-6 bg-gray-50 border-t flex justify-between space-x-3">
+                    <button id="cancel-recipe-btn" class="bg-gray-200 text-gray-700 font-semibold px-4 py-2 rounded-lg hover:bg-gray-300 transition duration-150">
+                        Cancelar
+                    </button>
+                    <button id="generate-pdf-btn" class="bg-cyan-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-cyan-700 transition duration-150 shadow-md flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.5 3A2.5 2.5 0 003 5.5v9A2.5 2.5 0 005.5 17h9a2.5 2.5 0 002.5-2.5v-9A2.5 2.5 0 0014.5 3h-9zM7 8a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zm1 3a1 1 0 100 2h4a1 1 0 100-2H8z" clip-rule="evenodd" />
+                        </svg>
+                        Generar Receta
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+    <!-- Script JavaScript Integrado -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // --- Declaración de Elementos de los Modales ---
+            // Modal de Cancelación
+            const cancelDialog = document.getElementById("cancel-dialog");
+            const closeCancelDialogBtn = document.getElementById("close-cancel-dialog");
+            const confirmCancelBtn = document.getElementById("confirm-cancel");
+            
+            // Modal de Receta
+            const recipeDialog = document.getElementById("recipe-dialog");
+            const closeRecipeDialogBtn = document.getElementById("close-recipe-dialog");
+            const cancelRecipeBtn = document.getElementById("cancel-recipe-btn");
+            const patientInfoElement = document.getElementById("patient-info");
+            const medicationContainer = document.getElementById("medication-container");
+            const addMedicationBtn = document.getElementById("add-medication-btn");
+
+            let selectedTurnoId = null;
+
+            // --- Lógica de Pestañas ---
+            const tabs = document.querySelectorAll(".tab");
+            const tabContents = document.querySelectorAll(".tab-content");
+
+            tabs.forEach(tab => {
+                tab.addEventListener("click", () => {
+                    // 1. Desactivar y quitar estilos de todas las pestañas
+                    tabs.forEach(t => t.classList.remove("active"));
+                    
+                    // 2. Activar la pestaña clickeada
+                    tab.classList.add("active");
+                    
+                    // 3. Ocultar todos los contenidos y mostrar el contenido de la pestaña
+                    const target = tab.getAttribute("data-tab");
+                    tabContents.forEach(c => c.classList.remove("active"));
+                    document.getElementById(target).classList.add("active");
+                });
+            });
+
+            // --- Lógica de Cancelación con Modal ---
+            document.querySelectorAll(".btn-cancel").forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    // Cerrar modal de receta si está abierto
+                    recipeDialog.style.display = "none";
+                    // Obtener el ID del turno (del atributo data-id de la tarjeta .card más cercana)
+                    selectedTurnoId = e.target.closest(".card").dataset.id;
+                    cancelDialog.style.display = "flex"; // Muestra el modal
+                });
+            });
+
+            // Cerrar modal de cancelación
+            closeCancelDialogBtn.addEventListener("click", () => {
+                cancelDialog.style.display = "none";
+            });
+
+            // Confirmar cancelación (funcionalidad simulada)
+            confirmCancelBtn.addEventListener("click", () => {
+                if (selectedTurnoId) {
+                    console.log(`Simulando cancelación del turno con ID: ${selectedTurnoId}`);
+                    // Simulación de eliminación de la tarjeta de la interfaz
+                    const cardToRemove = document.querySelector(`[data-id="${selectedTurnoId}"]`);
+                    if (cardToRemove) {
+                        cardToRemove.remove();
+                    }
+                }
+                cancelDialog.style.display = "none";
+                selectedTurnoId = null;
+            });
+            
+            // --- Lógica de Generar Receta con Modal (NUEVO) ---
+
+            // Función para generar un nuevo bloque de medicamento
+            let medicationCounter = 1;
+            const createMedicationBlock = () => {
+                medicationCounter++; // Incrementa el contador para el nuevo bloque
+                const block = document.createElement('div');
+                block.className = 'medication-block p-4 border rounded-lg bg-gray-50 relative';
+                block.innerHTML = `
+                    <h4 class="font-semibold text-gray-800 mb-3">Medicamento ${medicationCounter}</h4>
+                    <button type="button" class="remove-medication-btn absolute top-3 right-3 text-red-500 hover:text-red-700 transition" aria-label="Eliminar medicamento">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Medicamento</label>
+                            <input type="text" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-cyan-500 focus:border-cyan-500" placeholder="Ej: Amoxicilina 500mg">
+                        </div>
+                        <div class="flex space-x-4">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Dosis</label>
+                                <input type="text" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-cyan-500 focus:border-cyan-500" placeholder="Ej: 1 cápsula">
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Frecuencia</label>
+                                <input type="text" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-cyan-500 focus:border-cyan-500" placeholder="Ej: Cada 12 horas">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Duración</label>
+                            <input type="text" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-cyan-500 focus:border-cyan-500" placeholder="Ej: 10 días">
+                        </div>
+                    </div>
+                `;
+                return block;
+            };
+
+            // 1. Abrir el modal de receta al hacer clic en el botón 'Generar Receta'
+            document.querySelectorAll(".btn-recipe").forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    // Cerrar modal de cancelación si está abierto
+                    cancelDialog.style.display = "none";
+                    
+                    const card = e.target.closest(".card");
+                    
+                    // Obtener info del paciente
+                    const patientName = card.dataset.patientName;
+                    const patientDni = card.dataset.patientDni;
+                    
+                    // Actualizar información del paciente en el modal
+                    patientInfoElement.textContent = `Paciente: ${patientName} - DNI: ${patientDni}`;
+                    
+                    // Restablecer el contador y el contenido del formulario de medicamentos
+                    medicationCounter = 1;
+                    medicationContainer.innerHTML = document.querySelector('.medication-block').outerHTML; // Restablece al primer bloque
+                    
+                    // Muestra el modal de receta
+                    recipeDialog.style.display = "flex"; 
+                });
+            });
+
+            // 2. Cerrar el modal de receta
+            closeRecipeDialogBtn.addEventListener("click", () => {
+                recipeDialog.style.display = "none";
+            });
+
+            cancelRecipeBtn.addEventListener("click", () => {
+                recipeDialog.style.display = "none";
+            });
+
+            // 3. Lógica para agregar otro medicamento
+            addMedicationBtn.addEventListener("click", () => {
+                const newBlock = createMedicationBlock();
+                medicationContainer.appendChild(newBlock);
+            });
+
+            // 4. Lógica para eliminar medicamento (delegación de eventos)
+            medicationContainer.addEventListener('click', (e) => {
+                if (e.target.closest('.remove-medication-btn')) {
+                    const blockToRemove = e.target.closest('.medication-block');
+                    // No permitir eliminar el único bloque si lo deseas, aunque se permite con esta implementación
+                    blockToRemove.remove();
+                    // Opcional: Re-etiquetar los títulos (Medicamento 1, 2, 3...)
+                    medicationCounter = 0;
+                    document.querySelectorAll('.medication-block').forEach((block) => {
+                        medicationCounter++;
+                        block.querySelector('h4').textContent = `Medicamento ${medicationCounter}`;
+                    });
+                }
+            });
+
+            // 5. Lógica para Generar PDF (simulado)
+            document.getElementById("generate-pdf-btn").addEventListener("click", () => {
+                alert("Simulando generación de Receta Médica en formato PDF/Impresión.");
+                // Aquí iría la lógica real de recopilación de datos y generación del documento
+                recipeDialog.style.display = "none";
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+:root {
+    --primary: #4f46e5; /* Índigo 600 */
+    --secondary: #8b5cf6; /* Púrpura 500 */
+}
+
+/* Manejo de visibilidad y transición del contenido de las pestañas */
+.tab-content {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.tab-content.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Estilo para la pestaña activa */
+.tab.active {
+    color: var(--primary);
+    border-bottom: 3px solid var(--primary);
+    font-weight: 600;
+}
+
+/* Pequeño efecto de interacción para el botón de cancelar */
+.btn-cancel:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}

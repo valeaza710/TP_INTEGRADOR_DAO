@@ -1,0 +1,25 @@
+/* Colores y estilos personalizados para MediCare */
+        .bg-primary { background-color: #3b82f6; } 
+        .text-primary { color: #3b82f6; }
+        .hover\:bg-primary-dark:hover { background-color: #2563eb; }
+        .tab-item {
+            padding: 1rem 1.5rem;
+            color: #6b7280; /* gray-500 */
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab-item:hover {
+            color: #1f2937; /* gray-800 */
+        }
+        .tab-item.active {
+            color: #10b9b0; /* teal-500 */
+            border-bottom-color: #10b9a5;
+            font-weight: 600;
+        }
+        #toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 50;
+        }

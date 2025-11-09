@@ -131,33 +131,43 @@ const renderTabContent = (tabName) => {
                 </div>
             `;
         case 'medicos':
-            title = 'Gestión de Médicos';
-            placeholder = 'Buscar por nombre, apellido o matrícula...';
-            break;
+        title = 'Gestión de Médicos';
+        placeholder = 'Buscar por nombre, apellido o matrícula...';
+        // CAMBIO: Definimos el texto del botón aquí
+        var buttonText = '+ Nuevo Médico'; 
+        break;
         case 'especialidades':
-            title = 'Gestión de Especialidades';
-            placeholder = 'Buscar por nombre de especialidad...';
-            break;
+        title = 'Gestión de Especialidades';
+        placeholder = 'Buscar por nombre de especialidad...';
+        // CAMBIO: Definimos el texto del botón aquí
+        var buttonText = '+ Nueva Especialidad'; 
+        break;
         case 'enfermedades':
-            title = 'Gestión de Enfermedades';
-            placeholder = 'Buscar por nombre de enfermedad...';
-            break;
-    }
+        title = 'Gestión de Enfermedades';
+        placeholder = 'Buscar por nombre de enfermedad...';
+        // CAMBIO: Definimos el texto del botón aquí
+        var buttonText = '+ Nueva Enfermedad';
+        break;
+        default:
+            return '<div>Error al cargar la pestaña.</div>';
+}
 
-    // Estructura genérica para Médicos, Especialidades y Enfermedades
+// Estructura genérica (usamos 'buttonText' en lugar de la lógica compleja):
     return `
         <div class="bg-white shadow overflow-hidden sm:rounded-lg p-6">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-gray-900">${title}</h2>
                 <button 
                     id="new-item-btn" 
-                    onclick="openFormModal('${tabName}', 'Registrar Nueva ${tabName.slice(0, -1).charAt(0).toUpperCase() + tabName.slice(0, -1).slice(1)}')" 
+                    onclick="openFormModal('${tabName}', 'Registrar ${buttonText.replace('+ ', '')}')" 
                     class="bg-teal-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-teal-600 transition-colors duration-150 flex items-center"
                 >
-                    + Nueva ${tabName.slice(0, -1).charAt(0).toUpperCase() + tabName.slice(0, -1).slice(1)}
+                    ${buttonText} 
                 </button>
             </div>
+            
             <input type="text" id="search-input" placeholder="${placeholder}" class="p-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 w-full mb-6">
+
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead>
@@ -353,7 +363,8 @@ const closeFormModal = () => {
     }, 300);
 };
 
-const renderForm = (itemType, item = {}) => {
+const renderForm = (itemType, item) => {
+    item = item || {};
     // Función de ayuda para crear campos de formulario
     const createField = (id, label, type = 'text', value = '', required = true, placeholder = '') => `
         <div class="mb-4">

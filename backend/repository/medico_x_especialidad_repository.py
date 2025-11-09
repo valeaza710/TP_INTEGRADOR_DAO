@@ -1,4 +1,4 @@
-from backend.data_base.connection import DataBaseConnection
+from data_base.connection import DataBaseConnection
 
 class MedicoXEspecialidadRepository:
     def __init__(self):

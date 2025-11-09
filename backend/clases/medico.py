@@ -1,6 +1,6 @@
 from typing import List
-from backend.clases.usuario import Usuario
-from backend.clases.especialidad import Especialidad
+from .usuario import Usuario
+from .especialidad import Especialidad
 
 class Medico:
     def __init__(

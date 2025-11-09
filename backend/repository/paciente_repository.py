@@ -1,7 +1,7 @@
-from backend.data_base.connection import DataBaseConnection
-from backend.clases.paciente import Paciente
-from backend.clases.usuario import Usuario
-from backend.repository.repository import Repository
+from data_base.connection import DataBaseConnection
+from clases.paciente import Paciente
+from clases.usuario import Usuario
+from repository.repository import Repository
 
 class PacienteRepository(Repository):
     def __init__(self):

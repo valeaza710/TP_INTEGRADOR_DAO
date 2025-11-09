@@ -5,3 +5,4 @@ class Especialidad:
 
     def __repr__(self):
         return f"Especialidad(id={self.id}, nombre='{self.nombre}')"
+

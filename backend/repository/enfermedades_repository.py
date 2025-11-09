@@ -1,5 +1,5 @@
-from backend.data_base.connection import DataBaseConnection
-from backend.clases.enfermedad import Enfermedad
+from data_base.connection import DataBaseConnection
+from clases.enfermedad import Enfermedad
 
 class EnfermedadRepository:
     def __init__(self):

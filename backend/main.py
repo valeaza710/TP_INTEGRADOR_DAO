@@ -93,7 +93,7 @@ def login_post():
     # --- Aquí va tu lógica de autenticación (Ej: con Flask-Login o una base de datos) ---
     if username == "xiodied" and password == "12345":
         # Autenticación exitosa
-        return redirect(url_for('agendar_cita')) # Redirige a la página de agendamiento de citas
+        return redirect(url_for('home')) # Redirige a la página de agendamiento de citas
     else:
         # Autenticación fallida
         return render_template('login.html', error="Credenciales incorrectas")

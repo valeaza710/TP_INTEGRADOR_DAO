@@ -3,7 +3,7 @@
 
 
 #FLASK
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 
 app = Flask(
     __name__,
@@ -18,8 +18,7 @@ app = Flask(
 # app.py
 # main.py (o donde inicialices Flask)
 import os
-from flask import Flask
-from flask import jsonify
+
 # 1. Obtén la ruta base de tu proyecto (TP_INTEGRADOR)
 # Esto asume que main.py está en TP_INTEGRADOR/backend
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) 
@@ -36,10 +35,35 @@ app = Flask(
     static_folder=STATIC_FOLDER # Opcional, pero bueno para consistencia
 )
 
-# ... El resto de tu código Flask
-from flask import Flask, render_template, request, redirect, url_for
-
-
+# --- DATOS DE CITA DE EJEMPLO (MOCK DATA) ---
+# Usaremos esto para renderizar la página principal
+CITAS_EJEMPLO = [
+    {
+        "doctor": "Dr. Sarah Johnson",
+        "especialidad": "Cardiology",
+        "fecha": "March 15, 2025",
+        "hora": "10:00 AM",
+        "lugar": "City Medical Center, Room 301",
+        "id": 1
+    },
+    {
+        "doctor": "Dr. Michael Chen",
+        "especialidad": "General Practice",
+        "fecha": "March 20, 2025",
+        "hora": "2:30 PM",
+        "lugar": "Wellness Clinic, Floor 2",
+        "id": 2
+    },
+    {
+        "doctor": "Dra. Ana López",
+        "especialidad": "Dermatología",
+        "fecha": "April 5, 2025",
+        "hora": "9:00 AM",
+        "lugar": "Clínica Piel Sana, Consultorio 5",
+        "id": 3
+    }
+]
+# --------------------------------------------
 
 # Ruta GET para mostrar el formulario de login
 @app.route('/', methods=['GET'])
@@ -61,6 +85,14 @@ def login_post():
         # Autenticación fallida
         # Puedes usar flash() para mostrar un mensaje de error
         return render_template('login.html', error="Credenciales incorrectas")
+
+# --- RUTA DE LA PÁGINA PRINCIPAL (HOME) ---
+@app.route('/home', methods=['GET'])
+def home():
+    """Página principal de gestión de citas."""
+    # Pasa los datos de las citas a la plantilla para que Jinja los muestre
+    return render_template('home.html', citas=CITAS_EJEMPLO)
+
 
 @app.route('/agendar', methods=['GET'])
 def agendar_cita():

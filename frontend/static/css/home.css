@@ -1,0 +1,265 @@
+/* Asegúrate de tener esta importación al principio de tu archivo CSS si usas iconos */
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+/* Estilos Generales y Reseteo Básico */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa; /* Fondo general de la página */
+    color: #343a40;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* --- Encabezado (Header) --- */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 5%;
+    background-color: #fff;
+    border-bottom: 1px solid #dee2e6;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+/* Contenedor principal del logo (icono + textos) */
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Espacio entre el cuadrado del icono y el texto */
+}
+
+/* El cuadro del icono */
+.logo-icon-box {
+    background-color: #00bcd4; /* Color de fondo del cuadrado */
+    width: 48px; /* Ancho del cuadrado */
+    height: 48px; /* Alto del cuadrado */
+    border-radius: 8px; /* Bordes redondeados */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+}
+
+/* El icono de corazón dentro del cuadrado */
+.logo-icon-box .material-icons {
+    color: white; /* Color del icono */
+    font-size: 28px; /* Tamaño del icono */
+}
+
+/* Contenedor para los textos "MediCare" y "Gestor de Citas" */
+.logo-text-group {
+    display: flex;
+    flex-direction: column; /* Apila los textos verticalmente */
+    justify-content: center;
+}
+
+/* Estilo para "MediCare" */
+.logo-title {
+    font-size: 24px; /* Tamaño de fuente más grande */
+    font-weight: 700; /* Negrita */
+    color: #00BCD4; /* Color de texto oscuro */
+    margin: 0; /* Elimina márgenes por defecto */
+    margin-bottom: 0px;
+    line-height: 1; /* Ajusta la altura de línea */
+}
+/* Estilo para "Gestor de Citas" */
+.logo-subtitle {
+    font-size: 14px;
+    color: #6c757d;
+    
+    /* 2. CLAVE: Eliminar el margen superior por defecto */
+    margin-top: 0px; 
+    
+    line-height: 1; /* Asegura que el espacio vertical alrededor de "Gestor de Citas" sea mínimo */
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #00bcd4; /* Color principal de la marca */
+}
+
+.new-appointment-btn {
+    background-color: #00bcd4; /* Color de botón principal */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.new-appointment-btn:hover {
+    background-color: #0097a7;
+}
+
+/* --- Área Principal de Título --- */
+.container:first-of-type { /* Selecciona el primer contenedor, donde está el título */
+    text-align: center;
+    padding: 50px 20px 70px 20px;
+    background-color: #e9f8fa; /* Fondo ligeramente azulado en la parte superior */
+}
+
+.subtitle-tag {
+    display: inline-block;
+    background-color: #00BCD4;
+    color: #f8f9fa;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.main-title {
+    font-size: 36px;
+    color: #343a40;
+    margin: 0 0 10px 0;
+}
+
+.main-description {
+    font-size: 16px;
+    color: #6c757d;
+    max-width: 600px;
+    margin: 0 auto 40px auto;
+}
+
+/* --- Contenedor de Tarjetas de Características --- */
+.features-grid {
+    display: flex;
+    justify-content: center;
+    gap: 30px; /* Espacio entre las tarjetas */
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.feature-card {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    flex: 1; /* Distribuye el espacio equitativamente */
+    text-align: center;
+    min-height: 150px;
+}
+
+.feature-card .icon {
+    font-size: 36px;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.feature-card h3 {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0 0 10px 0;
+}
+
+.feature-card p {
+    font-size: 14px;
+    color: #6c757d;
+    margin: 0;
+}
+
+/* --- Sección Próximas Citas --- */
+.section-title {
+    font-size: 24px;
+    font-weight: bold;
+    border-top: 1px solid #dee2e6;
+    padding-top: 20px;
+    margin-top: 50px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.appointments-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* 1, 2 o 3 columnas dependiendo del espacio */
+    gap: 20px;
+    padding-bottom: 50px;
+}
+
+.appointment-card {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid #00bcd4; /* Barra de color en el lado izquierdo */
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.doctor-name {
+    font-size: 18px;
+    margin: 0;
+    color: #343a40;
+}
+
+.status-tag {
+    background-color: #00bcd4;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.specialty {
+    color: #6c757d;
+    font-size: 14px;
+    margin: 0 0 15px 0;
+}
+
+.details {
+    margin-bottom: 15px;
+}
+
+.detail-item {
+    font-size: 14px;
+    color: #495057;
+    margin: 5px 0;
+    display: flex;
+    align-items: center;
+}
+
+.detail-item .icon {
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+.cancel-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    width: 100%;
+    transition: background-color 0.3s;
+}
+
+.cancel-btn:hover {
+    background-color: #c82333;
+}
+
+/* Responsive: Las tarjetas se apilan en pantallas pequeñas */
+@media (max-width: 768px) {
+    .features-grid {
+        flex-direction: column;
+    }
+    .header {
+        padding: 15px 20px;
+    }
+}

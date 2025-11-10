@@ -1,59 +1,127 @@
+from repository.agenda_turno_repository import AgendaTurnoRepository
 from clases.agenda_turno import AgendaTurno
 from clases.paciente import Paciente
 from clases.estado_turno import EstadoTurno
 from clases.horario_medico import HorarioMedico
-from repository.agenda_turno_repository import AgendaTurnoRepository
+
 
 class AgendaTurnoService:
     def __init__(self):
-        self.repo = AgendaTurnoRepository()
+        self.repository = AgendaTurnoRepository()
 
-    def crear_agenda(self, data):
-        """
-        Crea un nuevo turno en la agenda a partir de un diccionario (JSON del body).
-        """
+    # ------------------------------------
+    # GET ALL
+    # ------------------------------------
+    def get_all(self):
         try:
+            agendas = self.repository.get_all()
+            return [self._to_dict(a) for a in agendas]
+        except Exception as e:
+            print(f"Error en get_all: {e}")
+            raise Exception("Error al obtener las agendas")
+
+    # ------------------------------------
+    # GET BY ID
+    # ------------------------------------
+    def get_by_id(self, agenda_id: int):
+        try:
+            agenda = self.repository.get_by_id(agenda_id)
+            return self._to_dict(agenda) if agenda else None
+        except Exception as e:
+            print(f"Error en get_by_id: {e}")
+            raise Exception("Error al obtener la agenda")
+
+    # ------------------------------------
+    # CREATE
+    # ------------------------------------
+    def create(self, data: dict):
+        try:
+            if not data.get("fecha") or not data.get("hora"):
+                raise ValueError("Los campos 'fecha' y 'hora' son obligatorios")
+
             paciente = Paciente(id=data.get("id_paciente")) if data.get("id_paciente") else None
             estado = EstadoTurno(id=data.get("id_estado_turno")) if data.get("id_estado_turno") else None
             horario = HorarioMedico(id=data.get("id_horario_medico")) if data.get("id_horario_medico") else None
 
-            agenda = AgendaTurno(
-                fecha=data.get("fecha"),
-                hora=data.get("hora"),
+            nueva_agenda = AgendaTurno(
+                fecha=data["fecha"],
+                hora=data["hora"],
                 paciente=paciente,
                 estado_turno=estado,
                 horario_medico=horario
             )
-            return self.repo.save(agenda)
+
+            guardada = self.repository.save(nueva_agenda)
+            if not guardada:
+                raise Exception("No se pudo guardar la agenda")
+
+            completa = self.repository.get_by_id(guardada.id)
+            return self._to_dict(completa)
+
+        except ValueError as e:
+            raise e
         except Exception as e:
-            print(f"Error en crear_agenda: {e}")
+            print(f"Error en create: {e}")
+            raise Exception("Error al crear la agenda")
+
+    # ------------------------------------
+    # UPDATE
+    # ------------------------------------
+    def update(self, agenda_id: int, data: dict):
+        try:
+            agenda = self.repository.get_by_id(agenda_id)
+            if not agenda:
+                return None
+
+            if "fecha" in data and data["fecha"] is not None:
+                agenda.fecha = data["fecha"]
+            if "hora" in data and data["hora"] is not None:
+                agenda.hora = data["hora"]
+            if data.get("id_paciente"):
+                agenda.paciente = Paciente(id=data["id_paciente"])
+            if data.get("id_estado_turno"):
+                agenda.estado_turno = EstadoTurno(id=data["id_estado_turno"])
+            if data.get("id_horario_medico"):
+                agenda.horario_medico = HorarioMedico(id=data["id_horario_medico"])
+
+            actualizada = self.repository.modify(agenda)
+            if not actualizada:
+                raise Exception("No se pudo actualizar la agenda")
+
+            completa = self.repository.get_by_id(agenda_id)
+            return self._to_dict(completa)
+
+        except Exception as e:
+            print(f"Error en update: {e}")
+            raise Exception("Error al actualizar la agenda")
+
+    # ------------------------------------
+    # DELETE
+    # ------------------------------------
+    def delete(self, agenda_id: int):
+        try:
+            agenda = self.repository.get_by_id(agenda_id)
+            if not agenda:
+                return None
+
+            eliminado = self.repository.delete(agenda)
+            return eliminado
+        except Exception as e:
+            print(f"Error en delete: {e}")
+            raise Exception("Error al eliminar la agenda")
+
+    # ------------------------------------
+    # SERIALIZADOR
+    # ------------------------------------
+    def _to_dict(self, a: AgendaTurno):
+        if not a:
             return None
 
-    def obtener_todos(self):
-        return self.repo.get_all()
-
-    def obtener_por_id(self, agenda_id):
-        return self.repo.get_by_id(agenda_id)
-
-    def modificar(self, agenda_id, data):
-        agenda = self.repo.get_by_id(agenda_id)
-        if not agenda:
-            return None
-
-        agenda.fecha = data.get("fecha", agenda.fecha)
-        agenda.hora = data.get("hora", agenda.hora)
-
-        if data.get("id_paciente"):
-            agenda.paciente = Paciente(id=data.get("id_paciente"))
-        if data.get("id_estado_turno"):
-            agenda.estado_turno = EstadoTurno(id=data.get("id_estado_turno"))
-        if data.get("id_horario_medico"):
-            agenda.horario_medico = HorarioMedico(id=data.get("id_horario_medico"))
-
-        return self.repo.modify(agenda)
-
-    def eliminar(self, agenda_id):
-        agenda = self.repo.get_by_id(agenda_id)
-        if not agenda:
-            return False
-        return self.repo.delete(agenda)
+        return {
+            "id": a.id,
+            "fecha": a.fecha,
+            "hora": a.hora,
+            "id_paciente": getattr(a.paciente, "id", None),
+            "id_estado_turno": getattr(a.estado_turno, "id", None),
+            "id_horario_medico": getattr(a.horario_medico, "id", None)
+        }

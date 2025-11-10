@@ -15,6 +15,10 @@ from routers.estado_turno_routers import estado_turnos_bp
 from routers.tipo_usuario_routers import tipo_usuario_bp
 from routers.visita_routers import visitas_bp
 from routers.enfermedad_routers import enfermedades_bp
+from routers.horario_medico_routers import horario_medico_bp
+from routers.agenda_turno_routers import agenda_turno_bp
+from routers.historial_clinico_routers import historial_bp
+
 
 
 def create_app():
@@ -46,7 +50,10 @@ def create_app():
     app.register_blueprint(estado_turnos_bp)
     app.register_blueprint(tipo_usuario_bp)
     app.register_blueprint(visitas_bp) 
-    # app.register_blueprint(turnos_bp)
+    app.register_blueprint(horario_medico_bp)
+    app.register_blueprint(agenda_turno_bp)
+    app.register_blueprint(historial_bp)
+
 
 
     # --- RUTA DE LOGIN ---

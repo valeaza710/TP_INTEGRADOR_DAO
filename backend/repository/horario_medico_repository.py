@@ -17,14 +17,14 @@ class HorarioMedicoRepository(Repository):
         """
         # Asegurar que exista medico.id
         if horario.medico is None:
-            print("❌ Error al guardar horario: el atributo 'medico' es None")
+            print("Error al guardar horario: el atributo 'medico' es None")
             return None
 
         if horario.medico.id is None:
             # si el médico no tiene id, lo guardamos primero
             saved_med = self.med_repo.save(horario.medico)
             if saved_med is None:
-                print("❌ Error al guardar horario: no se pudo guardar el médico asociado")
+                print("Error al guardar horario: no se pudo guardar el médico asociado")
                 return None
             horario.medico = saved_med
 
@@ -44,7 +44,7 @@ class HorarioMedicoRepository(Repository):
 
         conn = self.db.connect()
         if not conn:
-            print("❌ Error al guardar horario: no hay conexión a la BD")
+            print("Error al guardar horario: no hay conexión a la BD")
             return None
         try:
             cursor = conn.cursor()
@@ -55,7 +55,7 @@ class HorarioMedicoRepository(Repository):
             conn.close()
             return horario
         except Exception as e:
-            print(f"❌ Error al guardar horario médico: {e}")
+            print(f"Error al guardar horario médico: {e}")
             try:
                 conn.close()
             except:
@@ -153,14 +153,14 @@ class HorarioMedicoRepository(Repository):
         Actualiza registro. Espera horario.medico como objeto (si tiene id distinto se usa el id).
         """
         if horario.medico is None:
-            print("❌ Error al modificar horario: 'medico' es None")
+            print("Error al modificar horario: 'medico' es None")
             return None
 
         if horario.medico.id is None:
             # intentamos persistir el médico si no tiene id
             saved_med = self.med_repo.save(horario.medico)
             if saved_med is None:
-                print("❌ Error al modificar horario: no se pudo guardar el médico asociado")
+                print("Error al modificar horario: no se pudo guardar el médico asociado")
                 return None
             horario.medico = saved_med
 

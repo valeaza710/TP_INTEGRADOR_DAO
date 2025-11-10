@@ -141,6 +141,16 @@ def historial_clinico():
     """Sirve la plantilla del historial clínico."""
     return render_template('historialClinico.html')
 
+@app.route('/secretaria', methods=['GET'])
+def gestor_secretaria():
+    """Sirve la plantilla de la secretaria."""
+    return render_template('gestorSecretaria.html')
+
+@app.route('/administrador', methods=['GET'])
+def gestor_administrador():
+    """Sirve la plantilla del administrador."""
+    return render_template('gestorAdministrador.html')
+
 @app.route("/api/turnos", methods=["POST"]) 
 def get_slots():
     """Recibe especialidad, doctor y fecha, y devuelve los turnos filtrados."""

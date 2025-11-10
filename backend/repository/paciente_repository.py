@@ -1,7 +1,7 @@
-from backend.data_base.connection import DataBaseConnection
-from backend.clases.paciente import Paciente
-from backend.clases.usuario import Usuario
-from backend.repository.repository import Repository
+from data_base.connection import DataBaseConnection
+from clases.paciente import Paciente
+from clases.usuario import Usuario
+from repository.repository import Repository
 
 class PacienteRepository(Repository):
     def __init__(self):
@@ -124,3 +124,34 @@ class PacienteRepository(Repository):
         query = "DELETE FROM paciente WHERE id = %s"
         success = self.db.execute_query(query, (paciente.id,))
         return success
+
+    # """Buscar pacientes por coincidencia parcial de DNI"""
+    def search_by_dni(self, dni_parcial: str):
+        query = "SELECT * FROM paciente WHERE CAST(dni AS CHAR) LIKE %s"
+        pacientes_data = self.db.execute_query(query, (f'%{dni_parcial}%',), fetch=True)
+        pacientes = []
+
+        if pacientes_data:
+            for row in pacientes_data:
+                usuario = None
+                if row["id_usuario"]:
+                    usuario_data = self.db.execute_query("SELECT * FROM usuario WHERE id = %s", (row["id_usuario"],), fetch=True)
+                    if usuario_data:
+                        u = usuario_data[0]
+                        usuario = Usuario(u["id"], u["nombre_usuario"], u["contrasena"], u["rol"])
+
+                paciente = Paciente(
+                    id=row["id"],
+                    nombre=row["nombre"],
+                    apellido=row["apellido"],
+                    dni=row["dni"],
+                    edad=row["edad"],
+                    fecha_nacimiento=row["fecha_nacimiento"],
+                    mail=row["mail"],
+                    telefono=row["telefono"],
+                    direccion=row["direccion"],
+                    usuario=usuario
+                )
+                pacientes.append(paciente)
+
+        return pacientes

@@ -1,9 +1,9 @@
-from backend.data_base.connection import DataBaseConnection
-from backend.clases.agenda_turno import AgendaTurno
-from backend.repository.paciente_repository import PacienteRepository
-from backend.repository.estado_turno_repository import EstadoTurnoRepository
-from backend.repository.horario_medico_repository import HorarioMedicoRepository
-from backend.repository.repository import Repository
+from data_base.connection import DataBaseConnection
+from clases.agenda_turno import AgendaTurno
+from repository.paciente_repository import PacienteRepository
+from repository.estado_turno_repository import EstadoTurnoRepository
+from repository.horario_medico_repository import HorarioMedicoRepository
+from repository.repository import Repository
 
 class AgendaTurnoRepository(Repository):
     def __init__(self):

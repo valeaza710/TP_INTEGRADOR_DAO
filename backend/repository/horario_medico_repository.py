@@ -1,8 +1,8 @@
-from backend.data_base.connection import DataBaseConnection
-from backend.clases.horario_medico import HorarioMedico
-from backend.clases.medico import Medico
-from backend.repository.medico_repository import MedicoRepository
-from backend.repository.repository import Repository
+from data_base.connection import DataBaseConnection
+from clases.horario_medico import HorarioMedico
+from clases.medico import Medico
+from repository.medico_repository import MedicoRepository
+from repository.repository import Repository
 
 class HorarioMedicoRepository(Repository):
     def __init__(self):

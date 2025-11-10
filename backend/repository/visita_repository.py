@@ -1,9 +1,9 @@
 # backend/repository/visita_repository.py
-from backend.data_base.connection import DataBaseConnection
-from backend.clases.visita import Visita
-from backend.repository.historial_clinico_repository import HistorialClinicoRepository
-from backend.repository.agenda_turno_repository import AgendaTurnoRepository
-from backend.repository.repository import Repository
+from data_base.connection import DataBaseConnection
+from clases.visita import Visita
+from repository.historial_clinico_repository import HistorialClinicoRepository
+from repository.agenda_turno_repository import AgendaTurnoRepository
+from repository.repository import Repository
 
 class VisitaRepository(Repository):
     def __init__(self):

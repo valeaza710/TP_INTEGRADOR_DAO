@@ -1,58 +1,184 @@
+#from clases import *
+#from repository import *
 #FLASK
 from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask_cors import CORS
 
-app = Flask(
+# Importar blueprints (routers)
+from routers.especialidad_routes import especialidades_bp
+from routers.paciente_routers import pacientes_bp
+from routers.usuario_routers import usuarios_bp
+from routers.receta_routers import recetas_bp
+from routers.medico_routers import medicos_bp     # Descomentar cuando lo crees
+# from routers.turnos import turnos_bp        # Descomentar cuando lo crees
+from routers.estado_turno_routers import estado_turnos_bp
+from routers.tipo_usuario_routers import tipo_usuario_bp
+from routers.visita_routers import visitas_bp
+from routers.enfermedad_routers import enfermedades_bp
+
+
+def create_app():
+    import os
+    # Obtener la ruta base del proyecto
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    # Definir rutas absolutas a las carpetas del frontend
+    TEMPLATES_FOLDER = os.path.join(BASE_DIR, 'frontend', 'templates')
+    STATIC_FOLDER = os.path.join(BASE_DIR, 'frontend', 'static')
+
+    app = Flask(
     __name__,
-    template_folder="../frontend/templates",  # ruta a tus plantillas
-    static_folder="../frontend/static"        # ruta a tus archivos estáticos
-)
-
-import os
-
-# 1. Obtén la ruta base de tu proyecto (TP_INTEGRADOR)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) 
-
-# 2. Define la ruta completa a la carpeta 'templates'
-TEMPLATES_FOLDER = os.path.join(BASE_DIR, 'frontend', 'templates')
-STATIC_FOLDER = os.path.join(BASE_DIR, 'frontend', 'static') # También para los estáticos
-
-# 3. Inicializa Flask con la ruta específica
-app = Flask(
-    __name__, 
     template_folder=TEMPLATES_FOLDER,
-    static_folder=STATIC_FOLDER # Opcional, pero bueno para consistencia
-)
-
-@app.route('/')
-def ingreso():
-    # Muestra la página principal (la que tiene los botones)
-    return render_template('ingreso.html')
-
-@app.route('/registro')
-def registro():
-    # Página de registro (asegurate de tener registro.html en templates)
-    return render_template('registro.html')
+    static_folder=STATIC_FOLDER        # ruta a tus archivos estáticos
+    )
 
 
-# Ruta GET para mostrar el formulario de login
-@app.route('/login', methods=['GET'])
-def login():
-    # Asume que 'login.html' está en la carpeta 'templates'
-    return render_template('login.html')
-
-# Ruta POST para manejar el envío del formulario
-@app.route('/login', methods=['POST'])
-def login_post():
-    username = request.form.get('username')
-    password = request.form.get('password')
+    # Habilitar CORS para que el frontend pueda hacer peticiones
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
     
-    # --- Aquí va tu lógica de autenticación (Ej: con Flask-Login o una base de datos) ---
-    if username == "xiodied" and password == "12345":
-        # Autenticación exitosa
-        return redirect(url_for('home')) # Redirige a la página de agendamiento de citas
-    else:
-        # Autenticación fallida
-        return render_template('login.html', error="Credenciales incorrectas")
+    # Registrar blueprints (endpoints)
+    app.register_blueprint(especialidades_bp)
+    app.register_blueprint(recetas_bp)
+    app.register_blueprint(medicos_bp)
+    app.register_blueprint(enfermedades_bp)
+    app.register_blueprint(pacientes_bp)
+    app.register_blueprint(usuarios_bp)
+    app.register_blueprint(estado_turnos_bp)
+    app.register_blueprint(tipo_usuario_bp)
+    app.register_blueprint(visitas_bp) 
+    # app.register_blueprint(turnos_bp)
+
+    @app.route('/')
+    def ingreso():
+        # Muestra la página principal (la que tiene los botones)
+        return render_template('ingreso.html')
+
+    @app.route('/registro')
+    def registro():
+        # Página de registro (asegurate de tener registro.html en templates)
+        return render_template('registro.html')
+
+
+    # Ruta GET para mostrar el formulario de login
+    @app.route('/login', methods=['GET'])
+    def login():
+        # Asume que 'login.html' está en la carpeta 'templates'
+        return render_template('login.html')
+
+    # Ruta POST para manejar el envío del formulario
+    @app.route('/login', methods=['POST'])
+    def login_post():
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        # --- Aquí va tu lógica de autenticación (Ej: con Flask-Login o una base de datos) ---
+        if username == "xiodied" and password == "12345":
+            # Autenticación exitosa
+            return redirect(url_for('home')) # Redirige a la página de agendamiento de citas
+        else:
+            # Autenticación fallida
+            return render_template('login.html', error="Credenciales incorrectas")
+
+        # --- RUTA DE LA PÁGINA PRINCIPAL (HOME) ---
+    @app.route('/home', methods=['GET'])
+    def home():
+            """Página principal de gestión de citas."""
+            # Pasa los datos de las citas a la plantilla para que Jinja los muestre
+            return render_template('home.html', citas=CITAS_EJEMPLO)
+
+
+    @app.route('/agendar', methods=['GET'])
+    def agendar_cita():
+            # Creamos una lista de objetos o diccionarios con la información
+            specialties_data = []
+            for name, doctors in MOCK_DOCTORS.items():
+                specialties_data.append({
+                    'name': name,
+                    'doctors_count': len(doctors) # Contamos cuántos doctores hay
+                })
+                
+            # Enviamos esta lista de diccionarios a la plantilla
+            return render_template('agendarCita.html', specialties=specialties_data)
+
+
+    @app.route("/api/especialidades", methods=["GET"])
+    def get_especialidades():
+            """Devuelve las especialidades disponibles."""
+            return jsonify(list(MOCK_DOCTORS.keys()))
+
+    @app.route("/api/doctores/<speciality>", methods=["GET"])
+    def get_doctores(speciality):
+            """Devuelve doctores según especialidad."""
+            doctors = MOCK_DOCTORS.get(speciality, [])
+            return jsonify(doctors)
+
+    @app.route('/historial', methods=['GET'])
+    def historial_clinico():
+            """Sirve la plantilla del historial clínico."""
+            return render_template('historialClinico.html')
+
+
+    @app.route('/secretaria', methods=['GET'])
+    def gestor_secretaria():
+        """Sirve la plantilla de la secretaria."""
+        return render_template('gestorSecretaria.html')
+
+
+    @app.route('/administrador', methods=['GET'])
+    def gestor_administrador():
+        """Sirve la plantilla del administrador."""
+        return render_template('gestorAdministrador.html')
+
+    @app.route("/api/turnos", methods=["POST"]) 
+    def get_slots():
+        """Recibe especialidad, doctor y fecha, y devuelve los turnos filtrados."""
+        try:
+            data = request.get_json()
+            selected_specialty = data.get('specialty')
+            selected_doctor = data.get('doctor')
+            selected_date = data.get('date')
+        except Exception:
+            # En caso de que el JSON no sea válido, lo cual es raro si viene de JS
+            return jsonify({"error": "Datos de filtrado inválidos o faltantes"}), 400
+
+            slots_disponibles = []
+            
+            # Lógica de Filtrado
+            for slot in MOCK_SLOTS:
+                # 1. Filtrar por Especialidad y Fecha (Obligatorio)
+                if (slot['specialty'] == selected_specialty and 
+                    slot['date'] == selected_date):
+                    
+                    # 2. Filtrar por Doctor (si no es 'all')
+                    if selected_doctor == 'all' or slot['doctor'] == selected_doctor:
+                        slots_disponibles.append({
+                            'time': slot['time'],
+                            'doctor': slot['doctor'],
+                            'location': slot['location']
+                        })
+            
+            return jsonify(slots_disponibles)
+
+    @app.route("/api/agendar", methods=["POST"])
+    def api_agendar():
+            """Recibe los datos del turno desde el frontend."""
+            data = request.get_json()
+            print("📅 Nueva cita recibida:", data)
+            return jsonify({"message": "Cita agendada exitosamente"}), 201
+        
+    @app.route("/panel-medico")
+    def doctor_dashboard():
+            return render_template("medicoDashboard.html", appointments=appointments, history=history)
+
+    @app.route("/cancel", methods=["POST"])
+    def cancel_appointment():
+            data = request.json
+            appointment_id = data.get("id")
+            global appointments
+            appointments = [a for a in appointments if a["id"] != appointment_id]
+            return jsonify({"success": True, "remaining": appointments})
+    
+    return app
 
 
 # Datos simulados para especialidades, doctores y turnos
@@ -101,96 +227,6 @@ CITAS_EJEMPLO = [
     }
 ]
 # --------------------------------------------
-
-
-# --- RUTA DE LA PÁGINA PRINCIPAL (HOME) ---
-@app.route('/home', methods=['GET'])
-def home():
-    """Página principal de gestión de citas."""
-    # Pasa los datos de las citas a la plantilla para que Jinja los muestre
-    return render_template('home.html', citas=CITAS_EJEMPLO)
-
-
-@app.route('/agendar', methods=['GET'])
-def agendar_cita():
-    # Creamos una lista de objetos o diccionarios con la información
-    specialties_data = []
-    for name, doctors in MOCK_DOCTORS.items():
-        specialties_data.append({
-            'name': name,
-            'doctors_count': len(doctors) # Contamos cuántos doctores hay
-        })
-        
-    # Enviamos esta lista de diccionarios a la plantilla
-    return render_template('agendarCita.html', specialties=specialties_data)
-
-
-@app.route("/api/especialidades", methods=["GET"])
-def get_especialidades():
-    """Devuelve las especialidades disponibles."""
-    return jsonify(list(MOCK_DOCTORS.keys()))
-
-@app.route("/api/doctores/<speciality>", methods=["GET"])
-def get_doctores(speciality):
-    """Devuelve doctores según especialidad."""
-    doctors = MOCK_DOCTORS.get(speciality, [])
-    return jsonify(doctors)
-
-@app.route('/historial', methods=['GET'])
-def historial_clinico():
-    """Sirve la plantilla del historial clínico."""
-    return render_template('historialClinico.html')
-
-@app.route('/secretaria', methods=['GET'])
-def gestor_secretaria():
-    """Sirve la plantilla de la secretaria."""
-    return render_template('gestorSecretaria.html')
-
-@app.route('/administrador', methods=['GET'])
-def gestor_administrador():
-    """Sirve la plantilla del administrador."""
-    return render_template('gestorAdministrador.html')
-
-@app.route("/api/turnos", methods=["POST"]) 
-def get_slots():
-    """Recibe especialidad, doctor y fecha, y devuelve los turnos filtrados."""
-    try:
-        data = request.get_json()
-        selected_specialty = data.get('specialty')
-        selected_doctor = data.get('doctor')
-        selected_date = data.get('date')
-    except Exception:
-        # En caso de que el JSON no sea válido, lo cual es raro si viene de JS
-        return jsonify({"error": "Datos de filtrado inválidos o faltantes"}), 400
-
-    slots_disponibles = []
-    
-    # Lógica de Filtrado
-    for slot in MOCK_SLOTS:
-        # 1. Filtrar por Especialidad y Fecha (Obligatorio)
-        if (slot['specialty'] == selected_specialty and 
-            slot['date'] == selected_date):
-            
-            # 2. Filtrar por Doctor (si no es 'all')
-            if selected_doctor == 'all' or slot['doctor'] == selected_doctor:
-                slots_disponibles.append({
-                    'time': slot['time'],
-                    'doctor': slot['doctor'],
-                    'location': slot['location']
-                })
-    
-    return jsonify(slots_disponibles)
-
-@app.route("/api/agendar", methods=["POST"])
-def api_agendar():
-    """Recibe los datos del turno desde el frontend."""
-    data = request.get_json()
-    print("📅 Nueva cita recibida:", data)
-    return jsonify({"message": "Cita agendada exitosamente"}), 201
-
-
-
-
 # Mock data
 appointments = [
     {
@@ -255,25 +291,12 @@ history = [
     }
 ]
 
-@app.route("/panel-medico")
-def doctor_dashboard():
-    return render_template("medicoDashboard.html", appointments=appointments, history=history)
-
-@app.route("/cancel", methods=["POST"])
-def cancel_appointment():
-    data = request.json
-    appointment_id = data.get("id")
-    global appointments
-    appointments = [a for a in appointments if a["id"] != appointment_id]
-    return jsonify({"success": True, "remaining": appointments})
-
-
-
 
 
 
 if __name__ == '__main__':
-    # Asegúrate de que Flask encuentre la carpeta 'static' y 'templates'
-    app.run(debug=True)
-
+    app = create_app()
+    print("🚀 Servidor iniciado en http://localhost:5000")
+    print("📚 Documentación: http://localhost:5000")
+    app.run(debug=True, port=5000, host='0.0.0.0')
 

@@ -1,7 +1,7 @@
-from backend.data_base.connection import DataBaseConnection
-from backend.clases.historial_enfermedad import HistorialEnfermedad
-from backend.clases.historial_clinico import HistorialClinico
-from backend.clases.enfermedad import Enfermedad
+from data_base.connection import DataBaseConnection
+from clases.historial_enfermedad import HistorialEnfermedad
+from clases.historial_clinico import HistorialClinico
+from clases.enfermedad import Enfermedad
 
 
 class HistorialEnfermedadRepository:

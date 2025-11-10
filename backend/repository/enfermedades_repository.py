@@ -1,5 +1,5 @@
-from backend.data_base.connection import DataBaseConnection
-from backend.clases.enfermedad import Enfermedad
+from data_base.connection import DataBaseConnection
+from clases.enfermedad import Enfermedad
 
 class EnfermedadRepository:
     def __init__(self):
@@ -67,3 +67,18 @@ class EnfermedadRepository:
         query = "DELETE FROM enfermedad WHERE id=%s"
         success = self.db.execute_query(query, (enfermedad.id,))
         return success
+
+    def search_by_nombre(self, nombre_parcial: str):
+        query = "SELECT * FROM enfermedad WHERE nombre LIKE %s"
+        rows = self.db.execute_query(query, (f'%{nombre_parcial}%',), fetch=True)
+        enfermedades = []
+        if rows:
+            for row in rows:
+                enfermedades.append(
+                    Enfermedad(
+                        id=row["id"],
+                        nombre=row["nombre"],
+                        descripcion=row["descripcion"]
+                    )
+                )
+        return enfermedades

@@ -1,4 +1,4 @@
-from backend.clases.paciente import Paciente
+from .paciente import Paciente
 
 class HistorialClinico:
     def __init__(

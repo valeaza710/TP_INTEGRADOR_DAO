@@ -1,6 +1,6 @@
 from datetime import date
-from backend.clases.historial_clinico import HistorialClinico
-from backend.clases.enfermedad import Enfermedad
+from .historial_clinico import HistorialClinico
+from .enfermedad import Enfermedad
 
 
 class HistorialEnfermedad:

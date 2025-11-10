@@ -7,7 +7,9 @@ estado_turnos_bp = Blueprint("estado_turnos", __name__, url_prefix="/api/estado_
 # Instanciar el servicio
 estado_turno_service = EstadoTurnoService()
 
-# Listar todos
+# -----------------------------------
+# GET /api/estado_turnos
+# -----------------------------------
 @estado_turnos_bp.route("/", methods=["GET"])
 def listar_estados():
     try:
@@ -21,7 +23,9 @@ def listar_estados():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
-# Obtener uno por ID
+# -----------------------------------
+# GET /api/estado_turnos/<id>
+# -----------------------------------
 @estado_turnos_bp.route("/<int:id>", methods=["GET"])
 def obtener_estado(id):
     try:
@@ -33,7 +37,9 @@ def obtener_estado(id):
         return jsonify({"success": False, "error": str(e)}), 500
 
 
-# Crear uno nuevo
+# -----------------------------------
+# POST /api/estado_turnos
+# -----------------------------------
 @estado_turnos_bp.route("/", methods=["POST"])
 def crear_estado():
     try:
@@ -53,7 +59,9 @@ def crear_estado():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
-# Modificar uno existente
+# -----------------------------------
+# PUT /api/estado_turnos/<id>
+# -----------------------------------
 @estado_turnos_bp.route("/<int:id>", methods=["PUT"])
 def actualizar_estado(id):
     try:
@@ -71,7 +79,9 @@ def actualizar_estado(id):
         return jsonify({"success": False, "error": str(e)}), 500
 
 
-# Eliminar uno
+# -----------------------------------
+# DELETE /api/estado_turnos/<id>
+# -----------------------------------
 @estado_turnos_bp.route("/<int:id>", methods=["DELETE"])
 def eliminar_estado(id):
     try:

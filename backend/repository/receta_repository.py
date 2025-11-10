@@ -1,8 +1,8 @@
-from data_base.connection import DataBaseConnection
-from clases.receta import Receta
-from repository.repository import Repository
-from repository.visita_repository import VisitaRepository
-from repository.paciente_repository import PacienteRepository
+from backend.data_base.connection import DataBaseConnection
+from backend.clases.receta import Receta
+from backend.repository.repository import Repository
+from backend.repository.visita_repository import VisitaRepository
+from backend.repository.paciente_repository import PacienteRepository
 
 class RecetaRepository(Repository):
     def __init__(self):

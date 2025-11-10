@@ -1,6 +1,6 @@
-from repository.paciente_repository import PacienteRepository
-from clases.paciente import Paciente
-from clases.usuario import Usuario
+from backend.repository.paciente_repository import PacienteRepository
+from backend.clases.paciente import Paciente
+from backend.clases.usuario import Usuario
 
 class PacienteService:
     def __init__(self):

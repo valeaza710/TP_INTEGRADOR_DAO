@@ -1,6 +1,6 @@
 from datetime import date
-from .visita import Visita
-from .paciente import Paciente
+from backend.clases.visita import Visita
+from backend.clases.paciente import Paciente
 
 class Receta:
     def __init__(

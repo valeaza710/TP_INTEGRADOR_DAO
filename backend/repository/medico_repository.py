@@ -1,9 +1,9 @@
-from data_base.connection import DataBaseConnection
-from clases.medico import Medico
-from clases.especialidad import Especialidad
-from clases.usuario import Usuario
-from repository.medico_x_especialidad_repository import MedicoXEspecialidadRepository
-from repository.repository import Repository
+from backend.data_base.connection import DataBaseConnection
+from backend.clases.medico import Medico
+from backend.clases.especialidad import Especialidad
+from backend.clases.usuario import Usuario
+from backend.repository.medico_x_especialidad_repository import MedicoXEspecialidadRepository
+from backend.repository.repository import Repository
 
 class MedicoRepository(Repository):
     def __init__(self):

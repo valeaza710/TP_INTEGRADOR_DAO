@@ -5,16 +5,16 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_cors import CORS
 
 # Importar blueprints (routers)
-from routers.especialidad_routes import especialidades_bp
-from routers.paciente_routers import pacientes_bp
-from routers.usuario_routers import usuarios_bp
-from routers.receta_routers import recetas_bp
-from routers.medico_routers import medicos_bp     # Descomentar cuando lo crees
+from backend.routers.especialidad_routes import especialidades_bp
+from backend.routers.paciente_routers import pacientes_bp
+from backend.routers.usuario_routers import usuarios_bp
+from backend.routers.receta_routers import recetas_bp
+from backend.routers.medico_routers import medicos_bp     # Descomentar cuando lo crees
 # from routers.turnos import turnos_bp        # Descomentar cuando lo crees
-from routers.estado_turno_routers import estado_turnos_bp
-from routers.tipo_usuario_routers import tipo_usuario_bp
-from routers.visita_routers import visitas_bp
-from routers.enfermedad_routers import enfermedades_bp
+from backend.routers.estado_turno_routers import estado_turnos_bp
+from backend.routers.tipo_usuario_routers import tipo_usuario_bp
+from backend.routers.visita_routers import visitas_bp
+from backend.routers.enfermedad_routers import enfermedades_bp
 
 
 def create_app():

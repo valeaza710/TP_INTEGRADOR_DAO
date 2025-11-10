@@ -1,6 +1,6 @@
-from repository.usuario_repository import UsuarioRepository
-from clases.usuario import Usuario
-from clases.tipo_usuario import TipoUsuario
+from backend.repository.usuario_repository import UsuarioRepository
+from backend.clases.usuario import Usuario
+from backend.clases.tipo_usuario import TipoUsuario
 
 class UsuarioService:
     def __init__(self):

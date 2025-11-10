@@ -1,5 +1,5 @@
-from repository.especialidad_repository import EspecialidadRepository
-from clases.especialidad import Especialidad
+from backend.repository.especialidad_repository import EspecialidadRepository
+from backend.clases.especialidad import Especialidad
 
 class EspecialidadService:
     def __init__(self):

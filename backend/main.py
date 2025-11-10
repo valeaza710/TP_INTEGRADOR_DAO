@@ -6,9 +6,16 @@ from flask_cors import CORS
 
 # Importar blueprints (routers)
 from routers.especialidad_routes import especialidades_bp
-# from routers.pacientes import pacientes_bp  # Descomentar cuando lo crees
-# from routers.medicos import medicos_bp      # Descomentar cuando lo crees
+from routers.paciente_routers import pacientes_bp
+from routers.usuario_routers import usuarios_bp
+from routers.receta_routers import recetas_bp
+from routers.medico_routers import medicos_bp     # Descomentar cuando lo crees
 # from routers.turnos import turnos_bp        # Descomentar cuando lo crees
+from routers.estado_turno_routers import estado_turnos_bp
+from routers.tipo_usuario_routers import tipo_usuario_bp
+from routers.visita_routers import visitas_bp
+from routers.enfermedad_routers import enfermedades_bp
+
 
 def create_app():
     import os
@@ -31,8 +38,14 @@ def create_app():
     
     # Registrar blueprints (endpoints)
     app.register_blueprint(especialidades_bp)
-    # app.register_blueprint(pacientes_bp)  # Descomentar cuando lo crees
-    # app.register_blueprint(medicos_bp)
+    app.register_blueprint(recetas_bp)
+    app.register_blueprint(medicos_bp)
+    app.register_blueprint(enfermedades_bp)
+    app.register_blueprint(pacientes_bp)
+    app.register_blueprint(usuarios_bp)
+    app.register_blueprint(estado_turnos_bp)
+    app.register_blueprint(tipo_usuario_bp)
+    app.register_blueprint(visitas_bp) 
     # app.register_blueprint(turnos_bp)
 
 

@@ -1,4 +1,4 @@
-from .tipo_usuario import TipoUsuario
+from backend.clases.tipo_usuario import TipoUsuario
 
 class Usuario:
     def __init__(self, id: int = None, nombre_usuario: str = None, contrasena: str = None, tipo_usuario: TipoUsuario = None):

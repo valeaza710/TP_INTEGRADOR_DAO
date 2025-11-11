@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from services.especialidad_service import EspecialidadService
+from backend.services.especialidad_service import EspecialidadService
 
 # Crear blueprint
 especialidades_bp = Blueprint('especialidades', __name__, url_prefix='/api/especialidades')

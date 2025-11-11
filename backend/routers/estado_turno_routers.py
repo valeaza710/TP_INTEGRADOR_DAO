@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from services.estado_turno_service import EstadoTurnoService
+from backend.services.estado_turno_service import EstadoTurnoService
 
 # Crear blueprint
 estado_turnos_bp = Blueprint("estado_turnos", __name__, url_prefix="/api/estado_turnos")

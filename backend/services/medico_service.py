@@ -1,6 +1,6 @@
-from repository.medico_repository import MedicoRepository
-from clases.medico import Medico
-from clases.usuario import Usuario
+from backend.repository.medico_repository import MedicoRepository
+from backend.clases.medico import Medico
+from backend.clases.usuario import Usuario
 
 
 class MedicoService:

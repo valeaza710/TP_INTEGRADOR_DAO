@@ -1,6 +1,6 @@
-from data_base.connection import DataBaseConnection
-from clases.especialidad import Especialidad
-from repository.repository import Repository
+from backend.data_base.connection import DataBaseConnection
+from backend.clases.especialidad import Especialidad
+from backend.repository.repository import Repository
 
 
 class EspecialidadRepository(Repository):

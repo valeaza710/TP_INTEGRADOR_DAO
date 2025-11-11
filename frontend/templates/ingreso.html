@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido a MediCare</title>
+    <!-- Carga de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Carga de Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e6f7ff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .text-custom-blue {
+        color: #00BCD4;
+    }
+    </style>
+</head>
+<body>
+
+    <!-- Contenedor principal -->
+    <div id="welcome-screen" class="w-full max-w-sm bg-white p-8 md:p-10 rounded-3xl shadow-2xl transition-all duration-300 transform hover:shadow-xl">
+        <div class="text-center">
+
+            <!-- Icono del corazón -->
+            <div class="mb-6">
+                <i data-lucide="heart" class="w-16 h-16 text-custom-blue mx-auto"></i>
+            </div>
+            
+            <!-- Logo / Nombre -->
+            <h2 class="text-3xl font-bold text-custom-blue mb-1">MediCare</h2>
+            
+
+            
+            <p class="text-lg text-gray-500 mb-12">
+                Tu salud, a un clic de distancia.
+            </p>
+
+            <!-- Botones de acción -->
+            <div class="space-y-4">
+
+                <!-- Botón REGISTRARSE -->
+                <a 
+                    href="{{ url_for('registro') }}" 
+                    class="w-full block text-center py-3 px-6 text-lg font-semibold text-white rounded-xl shadow-lg transition duration-200 transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4"
+                    style="background-color: #00BCD4;"
+                >
+                    REGISTRARSE
+                </a>
+
+
+
+                <!-- Botón INICIAR SESIÓN -->
+                <a 
+                    href="{{ url_for('login') }}" 
+                    class="w-full block text-center py-3 px-6 text-lg font-semibold bg-white rounded-xl hover:bg-gray-50 transition duration-200 transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4"
+                    style="color: #00BCD4; border: 2px solid #00BCD4;"
+                >
+                    INICIAR SESIÓN
+                </a>
+            </div>
+
+            <!-- Enlace de información -->
+            <p class="mt-8 text-sm text-gray-400">
+                Sistema de gestión médica
+            </p>
+
+        </div>
+    </div>
+    
+    <!-- Pie de página -->
+    <footer class="mt-8 text-xs text-gray-400 text-center">
+        © 2025 MediCare. GRUPO 54.
+    </footer>
+
+    <!-- Inicialización de iconos -->
+    <script>
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+            lucide.createIcons();
+        }
+    </script>
+
+</body>
+</html>

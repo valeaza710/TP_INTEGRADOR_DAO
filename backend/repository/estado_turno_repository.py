@@ -1,6 +1,6 @@
-from data_base.connection import DataBaseConnection
-from clases.estado_turno import EstadoTurno
-from repository.repository import Repository
+from backend.data_base.connection import DataBaseConnection
+from backend.clases.estado_turno import EstadoTurno
+from backend.repository.repository import Repository
 
 class EstadoTurnoRepository(Repository):
     def __init__(self):

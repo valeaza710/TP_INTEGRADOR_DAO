@@ -1,5 +1,5 @@
-from repository.tipo_usuario_repository import TipoUsuarioRepository
-from clases.tipo_usuario import TipoUsuario
+from backend.repository.tipo_usuario_repository import TipoUsuarioRepository
+from backend.clases.tipo_usuario import TipoUsuario
 
 class TipoUsuarioService:
     def __init__(self):

@@ -1,7 +1,7 @@
-from repository.receta_repository import RecetaRepository
-from clases.receta import Receta
-from clases.visita import Visita
-from clases.paciente import Paciente
+from backend.repository.receta_repository import RecetaRepository
+from backend.clases.receta import Receta
+from backend.clases.visita import Visita
+from backend.clases.paciente import Paciente
 from datetime import date
 
 class RecetaService:

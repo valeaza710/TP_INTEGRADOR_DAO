@@ -1,7 +1,7 @@
 from datetime import date, time
-from .paciente import Paciente
-from .estado_turno import EstadoTurno
-from .horario_medico import HorarioMedico
+from backend.clases.paciente import Paciente
+from backend.clases.estado_turno import EstadoTurno
+from backend.clases.horario_medico import HorarioMedico
 
 class AgendaTurno:
     def __init__(

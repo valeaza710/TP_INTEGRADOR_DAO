@@ -1,7 +1,8 @@
-from data_base.connection import DataBaseConnection
-from clases.historial_clinico import HistorialClinico
-from repository.paciente_repository import PacienteRepository
-from repository.repository import Repository
+
+from backend.data_base.connection import DataBaseConnection
+from backend.clases.historial_clinico import HistorialClinico
+from backend.repository.paciente_repository import PacienteRepository
+from backend.repository.repository import Repository
 from clases.paciente import Paciente
 
 class HistorialClinicoRepository(Repository):

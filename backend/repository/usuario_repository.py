@@ -1,7 +1,7 @@
-from data_base.connection import DataBaseConnection
-from clases.usuario import Usuario
-from clases.tipo_usuario import TipoUsuario
-from repository.repository import Repository
+from backend.data_base.connection import DataBaseConnection
+from backend.clases.usuario import Usuario
+from backend.clases.tipo_usuario import TipoUsuario
+from backend.repository.repository import Repository
 
 class UsuarioRepository(Repository):
     def __init__(self):

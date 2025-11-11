@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Usuario - MediCare</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <style>
+        /* Fuente general */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e6f7ff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* 🔹 Colores personalizados */
+        .text-custom-blue { color: #00BCD4; }
+        .bg-custom-blue { background-color: #00BCD4; }
+        .border-custom-blue { border-color: #00BCD4; }
+        .focus-ring-custom-blue:focus {
+            box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.4);
+        }
+
+        /* Inputs */
+        .input-style {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid rgb(209 213 219);
+            border-radius: 0.5rem;
+            transition-duration: 150ms;
+            outline: none;
+        }
+        .input-style:focus {
+            border-color: #00BCD4;
+            box-shadow: 0 0 0 1px #00BCD4;
+        }
+
+        /* Recuadro principal sin scroll */
+        .scrollable-card {
+            max-height: none;
+            overflow: visible;
+        }
+
+        /* Sección de encabezado */
+        .card-header {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #00BCD4;
+            border-bottom: 1px solid #B2EBF2;
+            padding-bottom: 0.4rem;
+            margin-bottom: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Contenedor principal -->
+    <div id="main-card-container" 
+         class="w-full max-w-2xl bg-white p-6 md:p-8 rounded-3xl shadow-2xl transition-all duration-300 transform hover:shadow-xl scrollable-card">
+        
+        <!-- Encabezado -->
+        <div class="text-center mb-4">
+            <div class="mb-4">
+                <i data-lucide="user-plus" class="w-12 h-12 text-custom-blue mx-auto"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-custom-blue mb-1">MediCare</h1>
+            <p class="text-sm text-gray-500 mb-6">Sistema de gestión médica</p>
+        </div>
+
+        <!-- Formulario -->
+        <form id="register-form" class="space-y-4">
+
+            <h3 class="card-header">1. Credenciales de Acceso</h3>
+            
+            <div>
+                <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Nombre de Usuario</label>
+                <input type="text" id="username" name="username" class="input-style" placeholder="Ej: jlopez_medic" required>
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                <input type="password" id="password" name="password" class="input-style" placeholder="Mínimo 8 caracteres" required>
+            </div>
+
+            <h3 class="card-header pt-2">2. Información Personal</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                    <input type="text" id="name" name="name" class="input-style" placeholder="Ej: Juan" required>
+                </div>
+                <div>
+                    <label for="lastname" class="block text-sm font-medium text-gray-700 mb-1">Apellido</label>
+                    <input type="text" id="lastname" name="lastname" class="input-style" placeholder="Ej: López" required>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                    <label for="dni" class="block text-sm font-medium text-gray-700 mb-1">DNI</label>
+                    <input type="text" id="dni" name="dni" class="input-style" placeholder="Ej: 12345678" required>
+                </div>
+                <div>
+                    <label for="age" class="block text-sm font-medium text-gray-700 mb-1">Edad</label>
+                    <input type="number" id="age" name="age" class="input-style" placeholder="Ej: 30" min="18" required>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                    <label for="dob" class="block text-sm font-medium text-gray-700 mb-1">Fecha de Nacimiento</label>
+                    <input type="date" id="dob" name="dob" class="input-style" required>
+                </div>
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" id="email" name="email" class="input-style" placeholder="Ej: juan.lopez@mail.com" required>
+                </div>
+            </div>
+
+            <!-- Botón -->
+            <button 
+                type="submit"
+                class="w-full mt-4 py-2.5 px-6 text-lg font-semibold text-white bg-custom-blue rounded-xl shadow-lg hover:bg-[#00ACC1] transition duration-200 transform hover:scale-[1.01] active:scale-[0.99] focus:outline-none focus:ring-4 focus:ring-[#80DEEA]"
+            >
+                FINALIZAR REGISTRO
+            </button>
+
+            <!-- Enlace inferior -->
+            <p class="text-center text-sm mt-3">
+                ¿Ya tienes cuenta? 
+                <a 
+                    href="{{ url_for('ingreso') }}" 
+                    class="text-custom-blue font-semibold hover:text-[#00ACC1] transition duration-150"
+                >
+                    Volver al Inicio
+                </a>
+
+            </p>
+        </form>
+
+    </div>
+    
+    <!-- Footer -->
+    <footer class="mt-6 text-xs text-gray-400 text-center">
+        © 2025 MediCare. GRUPO 54.
+    </footer>
+
+    <script>
+        // Manejador del formulario
+        function handleRegisterSubmit(e) {
+            e.preventDefault();
+            const form = e.target;
+            
+            const formData = {
+                username: form.username.value,
+                password: form.password.value,
+                name: form.name.value,
+                lastname: form.lastname.value,
+                dni: form.dni.value,
+                age: form.age.value,
+                dob: form.dob.value,
+                email: form.email.value,
+            };
+
+            console.log('Datos de Registro:', formData);
+            alertMessage('¡Registro exitoso! Datos enviados a la consola.', 'success');
+        }
+
+        // Alertas
+        function alertMessage(message, type = 'info') {
+            const containerId = 'custom-alert-container';
+            let container = document.getElementById(containerId);
+            
+            if (!container) {
+                container = document.createElement('div');
+                container.id = containerId;
+                container.className = 'fixed top-4 right-4 z-50 space-y-2 pointer-events-none';
+                document.body.appendChild(container);
+            }
+
+            let bgColor = 'bg-blue-500';
+            let icon = 'ℹ️';
+            if (type === 'success') { bgColor = 'bg-green-500'; icon = '✅'; } 
+            else if (type === 'error') { bgColor = 'bg-red-500'; icon = '❌'; } 
+            else if (type === 'warning') { bgColor = 'bg-yellow-500'; icon = '⚠️'; }
+
+            const alertElement = document.createElement('div');
+            alertElement.className = `${bgColor} text-white px-4 py-3 rounded-xl shadow-lg flex items-center transform transition-all duration-300 ease-out translate-x-full opacity-0`;
+            alertElement.innerHTML = `<span class="mr-2">${icon}</span><span>${message}</span>`;
+            
+            container.appendChild(alertElement);
+
+            setTimeout(() => {
+                alertElement.classList.remove('translate-x-full', 'opacity-0');
+                alertElement.classList.add('translate-x-0', 'opacity-100');
+            }, 10);
+
+            setTimeout(() => {
+                alertElement.classList.remove('translate-x-0', 'opacity-100');
+                alertElement.classList.add('translate-x-full', 'opacity-0');
+                alertElement.addEventListener('transitionend', () => alertElement.remove());
+            }, 3000);
+        }
+
+        // Inicialización
+        window.onload = function() {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+            document.getElementById('register-form')?.addEventListener('submit', handleRegisterSubmit);
+            document.getElementById('btn-go-to-welcome')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                alertMessage('Simulación: Volviendo a la pantalla de Bienvenida...', 'info');
+            });
+        };
+    </script>
+
+</body>
+</html>

@@ -1,5 +1,5 @@
-from repository.estado_turno_repository import EstadoTurnoRepository
-from clases.estado_turno import EstadoTurno
+from backend.repository.estado_turno_repository import EstadoTurnoRepository
+from backend.clases.estado_turno import EstadoTurno
 
 
 class EstadoTurnoService:

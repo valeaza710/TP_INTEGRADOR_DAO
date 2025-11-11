@@ -1,12 +1,1 @@
-from .agenda_turno import AgendaTurno
-from .enfermedad import Enfermedad
-from .especialidad import Especialidad
-from .estado_turno import EstadoTurno
-from .historial_clinico import HistorialClinico
-from .historial_enfermedad import HistorialEnfermedad
-from .medico import Medico
-from .paciente import Paciente
-from .receta import Receta
-from .tipo_usuario import TipoUsuario
-from .usuario import Usuario
-from .visita import Visita
+

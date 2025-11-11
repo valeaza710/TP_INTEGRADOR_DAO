@@ -1,5 +1,5 @@
-from repository.medico_repository import MedicoRepository
-from clases.medico import Medico
+from backend.repository.medico_repository import MedicoRepository
+from backend.clases.medico import Medico
 
 class MedicoService:
     def __init__(self):

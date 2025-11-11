@@ -1037,6 +1037,8 @@ label {
     .appointments-grid {
         grid-template-columns: 1fr; /* Una columna en móviles */
     }
+<<<<<<< HEAD
+=======
 }
 * Ajuste para el scroll en Recetas */
 .scroll-area-container {
@@ -1075,4 +1077,5 @@ label {
     .md\:grid-cols-3 { 
         grid-template-columns: repeat(1, minmax(0, 1fr)); 
     }
+>>>>>>> origin/main
 }

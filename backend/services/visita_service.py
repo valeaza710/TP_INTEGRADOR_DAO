@@ -1,7 +1,7 @@
-from repository.visita_repository import VisitaRepository
-from clases.visita import Visita
-from clases.historial_clinico import HistorialClinico
-from clases.agenda_turno import AgendaTurno
+from backend.repository.visita_repository import VisitaRepository
+from backend.clases.visita import Visita
+from backend.clases.historial_clinico import HistorialClinico
+from backend.clases.agenda_turno import AgendaTurno
 
 class VisitaService:
     def __init__(self):

@@ -1,5 +1,5 @@
-from .historial_clinico import HistorialClinico
-from .agenda_turno import AgendaTurno
+from backend.clases.historial_clinico import HistorialClinico
+from backend.clases.agenda_turno import AgendaTurno
 
 class Visita:
     def __init__(

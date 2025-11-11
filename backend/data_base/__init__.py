@@ -1,1 +1,1 @@
-from .connection import DataBaseConnection
+from backend.data_base.connection import DataBaseConnection

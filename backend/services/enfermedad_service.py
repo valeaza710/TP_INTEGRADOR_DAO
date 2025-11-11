@@ -1,5 +1,5 @@
-from repository.enfermedad_repository import EnfermedadRepository
-from clases.enfermedad import Enfermedad
+from backend.repository.enfermedades_repository import EnfermedadRepository
+from backend.clases.enfermedad import Enfermedad
 
 class EnfermedadService:
     def __init__(self):

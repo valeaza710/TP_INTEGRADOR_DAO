@@ -16,13 +16,16 @@
         </div>
         <div class="logo-text-group"> 
             <h1 class="logo-title">MediCare</h1>
+            <h1 class="logo-title"></h1>
             <p class="logo-subtitle">Gestor de Citas</p>
         </div>
     </div>
-    <a href="/agendar" class="new-appointment-btn">
-        + Nueva Cita
-    </a>
-</header>
+    
+    <div class="button-group-right"> 
+        <a href="/historial" class="new-appointment-btn historial-btn">Ver Historial Clínico</a>
+        <a href="/agendar" class="new-appointment-btn nueva-cita-btn">+ Nueva Cita</a>
+    </div>
+    </header>
 
     <main class="container">
         <div class="subtitle-tag">📅 Salud Simplificada</div>
@@ -51,8 +54,7 @@
         <h2 class="section-title">Próximas Citas</h2>
         
         <section class="appointments-grid">
-            {% for cita in citas %}
-            <div class="appointment-card" data-appointment-id="{{ cita.id }}">
+            <section id="appointments-container" class="appointments-grid"></section>
                 <div class="card-header">
                     <h3 class="doctor-name">{{ cita.doctor }}</h3>
                     <span class="status-tag">Próxima</span>
@@ -64,10 +66,8 @@
                     <p class="detail-item"><span class="icon">📍</span> {{ cita.lugar }}</p>
                 </div>
                 <button class="cancel-btn">Cancelar Cita</button>
-            </div>
-            {% endfor %}
             </section>
-
+            </section>
     </main>
 
     <script src="{{ url_for('static', filename='js/home.js') }}"></script>

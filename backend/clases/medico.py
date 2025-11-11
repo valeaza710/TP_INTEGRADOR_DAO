@@ -1,9 +1,9 @@
 from typing import List
-from clases.usuario import Usuario
-from clases.especialidad import Especialidad
+from backend.clases.usuario import Usuario
+from backend.clases.especialidad import Especialidad
 
 class Medico:
-    def init(
+    def __init__(
         self,
         id: int = None,
         nombre: str = None,
@@ -27,7 +27,7 @@ class Medico:
         self.especialidades = especialidades or []
         self.usuario = usuario
 
-    def repr(self):
+    def __repr__(self):
         return (
             f"Medico(id={self.id}, nombre='{self.nombre}', apellido='{self.apellido}', "
             f"dni='{self.dni}', matricula='{self.matricula}', telefono='{self.telefono}', "

@@ -1,4 +1,4 @@
-from .medico import Medico
+from backend.clases.medico import Medico
 
 class HorarioMedico:
     def __init__(

@@ -1,10 +1,21 @@
-from repository.usuario_repository import UsuarioRepository
-from clases.usuario import Usuario
-from clases.tipo_usuario import TipoUsuario
+from backend.repository.usuario_repository import UsuarioRepository
+from backend.clases.usuario import Usuario
+from backend.clases.tipo_usuario import TipoUsuario
 
 class UsuarioService:
     def __init__(self):
         self.repository = UsuarioRepository()
+
+    # -------------------------------
+    # LOGIN
+    # -------------------------------
+    def login(self, username, password):
+        usuarios = self.repository.get_all()
+        for u in usuarios:
+            if u.nombre_usuario == username and u.contrasena == password:
+                return u
+
+        return None    
 
     # -------------------------------
     # LECTURAS
@@ -131,3 +142,8 @@ class UsuarioService:
                 "tipo": u.tipo_usuario.tipo
             } if u.tipo_usuario else None
         }
+    
+    #-----------------
+
+
+

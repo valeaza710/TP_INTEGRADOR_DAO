@@ -155,3 +155,19 @@ class PacienteRepository(Repository):
                 pacientes.append(paciente)
 
         return pacientes
+
+
+    def get_by_dni(self, dni: str):
+        query = "SELECT * FROM paciente WHERE dni = %s"
+        data = self.db.execute_query(query, (dni,), fetch=True)
+
+        if not data:
+            return None
+
+        row = data[0]
+        return Paciente(
+            id=row["id"],
+            nombre=row["nombre"],
+            dni=row["dni"],
+            fecha_nacimiento=row["fecha_nacimiento"]
+        )

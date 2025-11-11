@@ -7,6 +7,17 @@ class UsuarioService:
         self.repository = UsuarioRepository()
 
     # -------------------------------
+    # LOGIN
+    # -------------------------------
+    def login(self, username, password):
+        usuarios = self.repository.get_all()
+        for u in usuarios:
+            if u.nombre_usuario == username and u.contrasena == password:
+                return u
+
+        return None    
+
+    # -------------------------------
     # LECTURAS
     # -------------------------------
     def get_all(self):
@@ -131,3 +142,8 @@ class UsuarioService:
                 "tipo": u.tipo_usuario.tipo
             } if u.tipo_usuario else None
         }
+    
+    #-----------------
+
+
+

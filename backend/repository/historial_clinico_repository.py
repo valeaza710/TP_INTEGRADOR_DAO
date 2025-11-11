@@ -3,7 +3,7 @@ from backend.data_base.connection import DataBaseConnection
 from backend.clases.historial_clinico import HistorialClinico
 from backend.repository.paciente_repository import PacienteRepository
 from backend.repository.repository import Repository
-from clases.paciente import Paciente
+from backend.clases.paciente import Paciente
 
 class HistorialClinicoRepository(Repository):
     def __init__(self):
@@ -101,22 +101,22 @@ class HistorialClinicoRepository(Repository):
         return success
 
     def get_by_paciente(self, id_paciente: int):
-    """
-        Devuelve el historial clínico asociado a un paciente.
-    """
-    query = "SELECT * FROM historial_clinico WHERE id_paciente = %s"
-    rows = self.db.execute_query(query, (id_paciente,), fetch=True)
+    # """
+    #     Devuelve el historial clínico asociado a un paciente.
+    # """
+        query = "SELECT * FROM historial_clinico WHERE id_paciente = %s"
+        rows = self.db.execute_query(query, (id_paciente,), fetch=True)
 
-    if not rows:
-        return None
+        if not rows:
+            return None
 
-    row = rows[0]
-    paciente = self.paciente_repo.get_by_id(row["id_paciente"]) if row.get("id_paciente") else None
+        row = rows[0]
+        paciente = self.paciente_repo.get_by_id(row["id_paciente"]) if row.get("id_paciente") else None
 
-    return HistorialClinico(
-        id=row["id"],
-        paciente=paciente,
-        peso=row.get("peso", 0.0),
-        altura=row.get("altura", 0.0),
-        grupo_sanguineo=row.get("grupo_sanguineo", "")
+        return HistorialClinico(
+            id=row["id"],
+            paciente=paciente,
+            peso=row.get("peso", 0.0),
+            altura=row.get("altura", 0.0),
+            grupo_sanguineo=row.get("grupo_sanguineo", "")
     )

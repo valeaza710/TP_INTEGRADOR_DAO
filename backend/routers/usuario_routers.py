@@ -105,3 +105,34 @@ def eliminar_usuario(id):
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
         
+# -----------------------------------
+# POST /api/usuarios/login
+# -----------------------------------
+@usuarios_bp.route('/login', methods=['POST'])
+def login_usuario():
+    try:
+        data = request.get_json()
+
+        username = data.get("username")
+        password = data.get("password")
+
+        if not username or not password:
+            return jsonify({"success": False, "error": "Faltan credenciales"}), 400
+
+        usuario = usuario_service.login(username, password)
+
+        if not usuario:
+            return jsonify({"success": False, "error": "Credenciales inválidas"}), 401
+
+        # Armamos respuesta con datos del usuario
+        return jsonify({
+            "success": True,
+            "user": {
+                "id": usuario.id,
+                "username": usuario.nombre_usuario,
+                "rol": usuario.tipo_usuario.tipo if usuario.tipo_usuario else None
+            }
+        }), 200
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500

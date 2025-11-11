@@ -1,6 +1,6 @@
-from repository.horario_medico_repository import HorarioMedicoRepository
-from clases.horario_medico import HorarioMedico
-from clases.medico import Medico
+from backend.repository.horario_medico_repository import HorarioMedicoRepository
+from backend.clases.horario_medico import HorarioMedico
+from backend.clases.medico import Medico
 
 
 class HorarioMedicoService:

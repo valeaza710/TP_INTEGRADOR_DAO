@@ -137,3 +137,39 @@ class AgendaTurnoRepository(Repository):
             turno = self._map_row_to_agenda_turno(r)
             turnos.append(turno)
         return turnos
+
+    #PARA PODER MANEJAR LOS DATOS EN FORMATO JSON
+    def _to_dict(self, a: AgendaTurno):
+        if not a:
+            return None
+
+        return {
+            "id": a.id,
+            "fecha": str(a.fecha),
+            "hora": str(a.hora),
+
+            # Paciente completo
+            "paciente": {
+                "id": a.paciente.id,
+                "nombre": a.paciente.nombre,
+                "dni": a.paciente.dni
+            } if a.paciente else None,
+
+            # Estado turno
+            "estado_turno": {
+                "id": a.estado_turno.id,
+                "estado": a.estado_turno.estado
+            } if a.estado_turno else None,
+
+            # Horario + información del médico
+            "horario_medico": {
+                "id": a.horario_medico.id,
+                "hora_inicio": str(a.horario_medico.hora_inicio),
+                "hora_fin": str(a.horario_medico.hora_fin),
+                "medico": {
+                    "id": a.horario_medico.medico.id,
+                    "nombre": a.horario_medico.medico.nombre,
+                    "especialidad": a.horario_medico.medico.especialidad.nombre
+                }
+            } if a.horario_medico else None
+    }

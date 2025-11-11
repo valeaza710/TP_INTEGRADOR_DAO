@@ -1,3 +1,4 @@
+from flask import jsonify
 from backend.repository.agenda_turno_repository import AgendaTurnoRepository
 from backend.clases.agenda_turno import AgendaTurno
 from backend.clases.paciente import Paciente
@@ -39,11 +40,24 @@ class AgendaTurnoService:
             if not data.get("fecha") or not data.get("hora"):
                 raise ValueError("Los campos 'fecha' y 'hora' son obligatorios")
 
-            paciente = Paciente(id=data.get("id_paciente")) if data.get("id_paciente") else None
-            estado = EstadoTurno(id=data.get("id_estado_turno")) if data.get("id_estado_turno") else None
-            horario = HorarioMedico(id=data.get("id_horario_medico")) if data.get("id_horario_medico") else None
+            # ================================
+            # ✅ Buscar paciente por DNI
+            # ================================
+            dni = data.get("dni_paciente")
+            if not dni:
+                raise ValueError("Debe ingresar el DNI del paciente")
 
-            nueva_agenda = AgendaTurno(
+            paciente = self.repository.paciente_repo.get_by_dni(dni)
+            if not paciente:
+                raise ValueError(f"No existe un paciente con DNI {dni}")
+
+            # ================================
+            # ✅ Construir data real
+            # ================================
+            estado = EstadoTurno(id=data.get("id_estado_turno", 1))
+            horario = HorarioMedico(id=data.get("id_horario_medico"))
+
+            nueva = AgendaTurno(
                 fecha=data["fecha"],
                 hora=data["hora"],
                 paciente=paciente,
@@ -51,18 +65,16 @@ class AgendaTurnoService:
                 horario_medico=horario
             )
 
-            guardada = self.repository.save(nueva_agenda)
+            guardada = self.repository.save(nueva)
             if not guardada:
-                raise Exception("No se pudo guardar la agenda")
+                raise Exception("No se pudo guardar el turno")
 
             completa = self.repository.get_by_id(guardada.id)
             return self._to_dict(completa)
 
         except ValueError as e:
-            raise e
-        except Exception as e:
-            print(f"Error en create: {e}")
-            raise Exception("Error al crear la agenda")
+            return jsonify({"error": str(e)}), 404
+
 
     # ------------------------------------
     # UPDATE

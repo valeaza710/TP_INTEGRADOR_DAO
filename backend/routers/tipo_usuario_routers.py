@@ -44,6 +44,7 @@ def obtener_tipo_usuario(id):
 def crear_tipo_usuario():
     try:
         data = request.get_json()
+        print(data)
 
         if not data:
             return jsonify({"success": False, "error": "No se enviaron datos"}), 400

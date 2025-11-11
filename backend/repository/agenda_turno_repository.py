@@ -15,7 +15,7 @@ class AgendaTurnoRepository(Repository):
     def save(self, agenda: AgendaTurno):
         query = """
             INSERT INTO agenda_turno (fecha, hora, id_paciente, id_estado_turno, id_horario_medico)
-            VALUES (%s, %s, %s, %s, %s)
+            VALUES (?, ?, ?, ?, ?)
         """
         params = (
             agenda.fecha,
@@ -47,7 +47,7 @@ class AgendaTurnoRepository(Repository):
             return None
 
     def get_by_id(self, agenda_id: int):
-        query = "SELECT * FROM agenda_turno WHERE id = %s"
+        query = "SELECT * FROM agenda_turno WHERE id = ?"
         data = self.db.execute_query(query, (agenda_id,), fetch=True)
         if not data:
             return None
@@ -91,8 +91,8 @@ class AgendaTurnoRepository(Repository):
     def modify(self, agenda: AgendaTurno):
         query = """
             UPDATE agenda_turno
-            SET fecha=%s, hora=%s, id_paciente=%s, id_estado_turno=%s, id_horario_medico=%s
-            WHERE id=%s
+            SET fecha = ?, hora = ?, id_paciente = ?, id_estado_turno = ?, id_horario_medico = ?
+            WHERE id = ?
         """
         params = (
             agenda.fecha,
@@ -107,7 +107,7 @@ class AgendaTurnoRepository(Repository):
         return agenda if success else None
 
     def delete(self, agenda: AgendaTurno):
-        query = "DELETE FROM agenda_turno WHERE id = %s"
+        query = "DELETE FROM agenda_turno WHERE id = ?"
         success = self.db.execute_query(query, (agenda.id,))
         return success
 
@@ -123,7 +123,7 @@ class AgendaTurnoRepository(Repository):
             SELECT a.*
             FROM agenda_turno a
             JOIN horario_medico h ON a.id_horario_medico = h.id
-            WHERE h.id_medico = %s
+            WHERE h.id_medico = ?
               AND a.id_estado_turno NOT IN (1, 4, 5)
             ORDER BY a.fecha, a.hora
         """

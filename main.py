@@ -12,20 +12,19 @@ from backend.routers.estado_turno_routers import estado_turnos_bp
 from backend.routers.tipo_usuario_routers import tipo_usuario_bp
 from backend.routers.visita_routers import visitas_bp
 from backend.routers.enfermedad_routers import enfermedades_bp
-from backend.routers.turno_routers import turnos_bp
 from backend.routers.horario_medico_routers import horario_medico_bp
 from backend.routers.agenda_turno_routers import agenda_turno_bp
 
 
 # Importar rutas del frontend (HTML)
-from backend.views.frontend_routers import frontend_bp
+from frontend.views.frontend_routers import frontend_bp
 
 
 def create_app():
     app = Flask(
         __name__,
-        template_folder="../frontend/templates",  # HTML del frontend
-        static_folder="../frontend/static"       # CSS, JS, imágenes, etc.
+        template_folder="frontend/templates",  # HTML del frontend
+        static_folder="frontend/static"       # CSS, JS, imágenes, etc.
     )
 
     # Habilitar CORS para todas las rutas bajo /api/

@@ -6,7 +6,7 @@ class EnfermedadRepository:
         self.db = DataBaseConnection()
 
     def save(self, enfermedad: Enfermedad):
-        query = "INSERT INTO enfermedad (nombre, descripcion) VALUES (%s, %s)"
+        query = "INSERT INTO enfermedad (nombre, descripcion) VALUES (?, ?)"
         params = (enfermedad.nombre, enfermedad.descripcion)
 
         conn = self.db.connect()
@@ -31,7 +31,7 @@ class EnfermedadRepository:
             return None
 
     def get_by_id(self, enfermedad_id: int):
-        query = "SELECT * FROM enfermedad WHERE id = %s"
+        query = "SELECT * FROM enfermedad WHERE id = ?"
         data = self.db.execute_query(query, (enfermedad_id,), fetch=True)
         if not data:
             return None
@@ -58,18 +58,18 @@ class EnfermedadRepository:
         return enfermedades
 
     def modify(self, enfermedad: Enfermedad):
-        query = "UPDATE enfermedad SET nombre=%s, descripcion=%s WHERE id=%s"
+        query = "UPDATE enfermedad SET nombre = ?, descripcion = ? WHERE id = ?"
         params = (enfermedad.nombre, enfermedad.descripcion, enfermedad.id)
         success = self.db.execute_query(query, params)
         return self.get_by_id(enfermedad.id) if success else None
 
     def delete(self, enfermedad: Enfermedad):
-        query = "DELETE FROM enfermedad WHERE id=%s"
+        query = "DELETE FROM enfermedad WHERE id = ?"
         success = self.db.execute_query(query, (enfermedad.id,))
         return success
 
     def search_by_nombre(self, nombre_parcial: str):
-        query = "SELECT * FROM enfermedad WHERE nombre LIKE %s"
+        query = "SELECT * FROM enfermedad WHERE nombre LIKE ?"
         rows = self.db.execute_query(query, (f'%{nombre_parcial}%',), fetch=True)
         enfermedades = []
         if rows:

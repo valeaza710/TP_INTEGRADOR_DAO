@@ -61,6 +61,8 @@ def login_post():
         # Autenticación fallida
         # Puedes usar flash() para mostrar un mensaje de error
         return render_template('login.html', error="Credenciales incorrectas")
+        #VER DEL BACK LA CONEXION
+        # return jsonify({"error": "Nombre de usuario o contraseña incorrectos."}), 401
 
 @app.route('/agendar', methods=['GET'])
 def agendar_cita():

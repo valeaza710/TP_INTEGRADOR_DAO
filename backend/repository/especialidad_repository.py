@@ -14,20 +14,32 @@ class EspecialidadRepository(Repository):
         """
         params = (especialidad.nombre,)
 
-        conn = self.db.connect()
+        conn = None
+        cursor = None
+
         try:
+            conn = self.db.connect()
+            if not conn:
+                print("❌ Error al conectar con la base de datos.")
+                return None
+
             cursor = conn.cursor()
             cursor.execute(query, params)
             conn.commit()
             especialidad.id = cursor.lastrowid
             return especialidad
+
         except Exception as e:
             print(f"❌ Error al guardar especialidad: {e}")
-            conn.rollback()
+            if conn:
+                conn.rollback()
             return None
+
         finally:
-            cursor.close()
-            conn.close()
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
 
     def get_by_id(self, especialidad_id: int):
         query = "SELECT * FROM especialidad WHERE id = ?"

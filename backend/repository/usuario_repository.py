@@ -3,6 +3,7 @@ from backend.clases.usuario import Usuario
 from backend.clases.tipo_usuario import TipoUsuario
 from backend.repository.repository import Repository
 
+
 class UsuarioRepository(Repository):
     def __init__(self):
         self.db = DataBaseConnection()
@@ -10,26 +11,35 @@ class UsuarioRepository(Repository):
     def save(self, usuario: Usuario):
         query = """
             INSERT INTO usuario (nombre_usuario, contrasena, rol)
-            VALUES (%s, %s, %s)
+            VALUES (?, ?, ?)
         """
         rol_id = usuario.tipo_usuario.id if usuario.tipo_usuario else None
+        print(rol_id)
         params = (usuario.nombre_usuario, usuario.contrasena, rol_id)
 
         conn = self.db.connect()
+        if not conn:
+            print("❌ Error al conectar con la base de datos.")
+            return None
+
+        cursor = None
         try:
             cursor = conn.cursor()
             cursor.execute(query, params)
             conn.commit()
             usuario.id = cursor.lastrowid
-            cursor.close()
-            conn.close()
             return usuario
         except Exception as e:
             print(f"❌ Error al guardar usuario: {e}")
+            conn.rollback()
             return None
+        finally:
+            if cursor:
+                cursor.close()
+            conn.close()
 
     def get_by_id(self, usuario_id: int):
-        query = "SELECT * FROM usuario WHERE id = %s"
+        query = "SELECT * FROM usuario WHERE id = ?"
         data = self.db.execute_query(query, (usuario_id,), fetch=True)
         if not data:
             return None
@@ -37,7 +47,7 @@ class UsuarioRepository(Repository):
 
         tipo_usuario = None
         if row["rol"]:
-            tipo_data = self.db.execute_query("SELECT * FROM tipo_usuario WHERE id = %s", (row["rol"],), fetch=True)
+            tipo_data = self.db.execute_query("SELECT * FROM tipo_usuario WHERE id = ?", (row["rol"],), fetch=True)
             if tipo_data:
                 t = tipo_data[0]
                 tipo_usuario = TipoUsuario(t["id"], t["tipo"])
@@ -58,7 +68,7 @@ class UsuarioRepository(Repository):
             for row in usuarios_data:
                 tipo_usuario = None
                 if row["rol"]:
-                    tipo_data = self.db.execute_query("SELECT * FROM tipo_usuario WHERE id = %s", (row["rol"],), fetch=True)
+                    tipo_data = self.db.execute_query("SELECT * FROM tipo_usuario WHERE id = ?", (row["rol"],), fetch=True)
                     if tipo_data:
                         t = tipo_data[0]
                         tipo_usuario = TipoUsuario(t["id"], t["tipo"])
@@ -75,8 +85,8 @@ class UsuarioRepository(Repository):
     def modify(self, usuario: Usuario):
         query = """
             UPDATE usuario 
-            SET nombre_usuario=%s, contrasena=%s, rol=%s
-            WHERE id=%s
+            SET nombre_usuario = ?, contrasena = ?, rol = ?
+            WHERE id = ?
         """
         rol_id = usuario.tipo_usuario.id if usuario.tipo_usuario else None
         params = (usuario.nombre_usuario, usuario.contrasena, rol_id, usuario.id)
@@ -85,6 +95,6 @@ class UsuarioRepository(Repository):
         return usuario if success else None
 
     def delete(self, usuario: Usuario):
-        query = "DELETE FROM usuario WHERE id = %s"
+        query = "DELETE FROM usuario WHERE id = ?"
         success = self.db.execute_query(query, (usuario.id,))
         return success

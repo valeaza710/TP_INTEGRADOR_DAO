@@ -110,3 +110,30 @@ class AgendaTurnoRepository(Repository):
         query = "DELETE FROM agenda_turno WHERE id = %s"
         success = self.db.execute_query(query, (agenda.id,))
         return success
+
+# ------------------------------------------------------------
+    # Obtener todos los turnos de un médico (excepto estados 1, 4, 5)
+    # ------------------------------------------------------------
+    def get_by_medico(self, id_medico: int):
+        """
+        Devuelve todos los turnos asociados a un médico,
+        excluyendo los estados 1, 4 y 5.
+        """
+        query = """
+            SELECT a.*
+            FROM agenda_turno a
+            JOIN horario_medico h ON a.id_horario_medico = h.id
+            WHERE h.id_medico = %s
+              AND a.id_estado_turno NOT IN (1, 4, 5)
+            ORDER BY a.fecha, a.hora
+        """
+
+        rows = self.db.execute_query(query, (id_medico,), fetch=True)
+        if not rows:
+            return []
+
+        turnos = []
+        for r in rows:
+            turno = self._map_row_to_agenda_turno(r)
+            turnos.append(turno)
+        return turnos

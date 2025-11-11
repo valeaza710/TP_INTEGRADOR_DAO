@@ -57,3 +57,16 @@ def eliminar_historial(historial_id):
     if not eliminado:
         return jsonify({"error": "No se pudo eliminar el historial"}), 400
     return jsonify({"mensaje": "Historial eliminado correctamente"}), 200
+
+# -----------------------------------
+# GET /api/historiales_clinicos/paciente/<id_paciente>
+# -----------------------------------
+@historial_bp.route("/paciente/<int:id_paciente>", methods=["GET"])
+def obtener_por_paciente(id_paciente):
+    try:
+        historial = service.get_by_paciente(id_paciente)
+        if not historial:
+            return jsonify({"success": False, "error": "Historial no encontrado para el paciente"}), 404
+        return jsonify({"success": True, "data": historial}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500

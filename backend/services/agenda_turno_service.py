@@ -125,3 +125,17 @@ class AgendaTurnoService:
             "id_estado_turno": getattr(a.estado_turno, "id", None),
             "id_horario_medico": getattr(a.horario_medico, "id", None)
         }
+
+    # ------------------------------------------------------------
+    # Ver turnos por médico
+    # ------------------------------------------------------------
+    def get_by_medico(self, id_medico: int):
+        """
+        Devuelve los turnos de un médico, excluyendo estados 1, 4 y 5.
+        """
+        try:
+            turnos = self.repository.get_by_medico(id_medico)
+            return [self._to_dict(t) for t in turnos]
+        except Exception as e:
+            print(f"❌ Error en get_by_medico: {e}")
+            raise Exception("Error al obtener turnos del médico")

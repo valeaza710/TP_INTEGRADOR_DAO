@@ -53,3 +53,21 @@ def eliminar(agenda_id):
     if success:
         return jsonify({"mensaje": "Turno eliminado correctamente"}), 200
     return jsonify({"error": "No se pudo eliminar el turno"}), 400
+
+
+# ------------------------------------------------------------
+# GET /api/turnos/medico/<id_medico>
+# ------------------------------------------------------------
+@agenda_turno_bp.route("/turnos/medico/<int:id_medico>", methods=["GET"])
+def obtener_turnos_por_medico(id_medico):
+    """
+    Devuelve todos los turnos de un médico, excluyendo los estados 1, 4 y 5.
+    """
+    try:
+        turnos = service.get_by_medico(id_medico)
+        if not turnos:
+            return jsonify({"mensaje": "No se encontraron turnos para este médico"}), 404
+        return jsonify(turnos), 200
+    except Exception as e:
+        print(f"❌ Error en endpoint /turnos/medico/{id_medico}: {e}")
+        return jsonify({"error": "Error al obtener los turnos del médico"}), 500

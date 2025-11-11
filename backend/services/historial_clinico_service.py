@@ -128,3 +128,14 @@ class HistorialClinicoService:
                 "dni": getattr(h.paciente, "dni", None)
             } if h.paciente else None
         }
+
+    # -----------------------------------
+    # Obtener por paciente
+    # -----------------------------------
+    def get_by_paciente(self, id_paciente: int):
+        try:
+            historial = self.repository.get_by_paciente(id_paciente)
+            return self._to_dict(historial) if historial else None
+        except Exception as e:
+            print(f"Error en get_by_paciente: {e}")
+            raise Exception("Error al obtener historial clínico por paciente")

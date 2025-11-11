@@ -135,3 +135,12 @@ class RecetaService:
                 "id": r.paciente.id
             } if r.paciente else None
         }
+
+
+    def get_by_paciente(self, id_paciente: int):
+        try:
+            recetas = self.repository.get_by_paciente(id_paciente)
+            return [self._to_dict(r) for r in recetas]
+        except Exception as e:
+            print(f"Error en get_by_paciente: {e}")
+            raise Exception("Error al obtener recetas por paciente")

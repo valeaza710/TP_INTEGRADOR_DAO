@@ -1,5 +1,7 @@
 from data_base.connection import DataBaseConnection
 from clases.receta import Receta
+from clases.paciente import Paciente
+from clases.visita import Visita
 from repository.repository import Repository
 from repository.visita_repository import VisitaRepository
 from repository.paciente_repository import PacienteRepository
@@ -100,3 +102,20 @@ class RecetaRepository(Repository):
         query = "DELETE FROM receta WHERE id = %s"
         success = self.db.execute_query(query, (receta.id,))
         return success
+
+    def get_by_paciente(self, id_paciente: int):
+        query = "SELECT * FROM receta WHERE id_paciente = %s ORDER BY fecha_emision DESC"
+        rows = self.db.execute_query(query, (id_paciente,), fetch=True)
+        recetas = []
+        if rows:
+            for row in rows:
+                paciente = self.paciente_repo.get_by_id(row["id_paciente"]) if row.get("id_paciente") else None
+                visita = Visita(id=row["id_visita"]) if row.get("id_visita") else None
+                recetas.append(Receta(
+                    id=row["id"],
+                    paciente=paciente,
+                    visita=visita,
+                    descripcion=row.get("descripcion", ""),
+                    fecha_emision=row.get("fecha_emision")
+                ))
+        return recetas

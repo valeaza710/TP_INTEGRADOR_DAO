@@ -78,6 +78,46 @@ class HistorialEnfermedadRepository:
                 )
         return historial_enfermedades
 
+    def get_by_paciente(self, id_paciente: int):
+        try:
+            query = """
+                SELECT he.id AS id,
+                       he.fecha_diagnostico,
+                       he.observaciones,
+                       he.historial_clinico_id,
+                       he.enfermedad_id,
+                       e.nombre AS enfermedad_nombre
+                FROM historial_enfermedad he
+                JOIN historial_clinico hc ON he.historial_clinico_id = hc.id
+                JOIN enfermedad e ON he.enfermedad_id = e.id
+                WHERE hc.paciente_id = ?
+            """
+
+            rows = self.db.execute_query(query, (id_paciente,), fetch=True)
+
+            if not rows:
+                return []
+
+            historiales = []
+            for r in rows:
+                historial = HistorialEnfermedad(
+                    id=r["id"],
+                    historial_clinico=HistorialClinico(id=r["historial_clinico_id"]),
+                    enfermedad=Enfermedad(
+                        id=r["enfermedad_id"],
+                        nombre=r["enfermedad_nombre"]
+                    ),
+                    fecha_diagnostico=r["fecha_diagnostico"],
+                    observaciones=r["observaciones"]
+                )
+                historiales.append(historial)
+
+            return historiales
+
+        except Exception as e:
+            print(f"❌ Error en get_by_paciente: {e}")
+            return []
+
     def modify(self, historial_enfermedad: HistorialEnfermedad):
         query = """
             UPDATE historial_enfermedad

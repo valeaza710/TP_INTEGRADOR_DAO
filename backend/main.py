@@ -10,11 +10,14 @@ from backend.routers.paciente_routers import pacientes_bp
 from backend.routers.usuario_routers import usuarios_bp
 from backend.routers.receta_routers import recetas_bp
 from backend.routers.medico_routers import medicos_bp     # Descomentar cuando lo crees
-# from routers.turnos import turnos_bp        # Descomentar cuando lo crees
 from backend.routers.estado_turno_routers import estado_turnos_bp
 from backend.routers.tipo_usuario_routers import tipo_usuario_bp
 from backend.routers.visita_routers import visitas_bp
 from backend.routers.enfermedad_routers import enfermedades_bp
+from backend.routers.horario_medico_routers import horario_medico_bp
+from backend.routers.agenda_turno_routers import agenda_turno_bp
+from backend.routers.historial_clinico_routers import historial_bp
+
 
 
 def create_app():
@@ -46,7 +49,10 @@ def create_app():
     app.register_blueprint(estado_turnos_bp)
     app.register_blueprint(tipo_usuario_bp)
     app.register_blueprint(visitas_bp) 
-    # app.register_blueprint(turnos_bp)
+    app.register_blueprint(horario_medico_bp)
+    app.register_blueprint(agenda_turno_bp)
+    app.register_blueprint(historial_bp)
+
 
     @app.route('/')
     def ingreso():

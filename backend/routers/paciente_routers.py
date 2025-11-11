@@ -7,6 +7,9 @@ pacientes_bp = Blueprint('pacientes', __name__, url_prefix='/api/pacientes')
 # Instanciar servicio
 paciente_service = PacienteService()
 
+# -----------------------------------
+# GET /api/pacientes
+# -----------------------------------
 @pacientes_bp.route('/', methods=['GET'])
 def listar_pacientes():
     """GET /api/pacientes - Listar todos los pacientes"""
@@ -21,6 +24,9 @@ def listar_pacientes():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+# -----------------------------------
+# GET /api/pacientes/<id>
+# -----------------------------------
 @pacientes_bp.route('/<int:id>', methods=['GET'])
 def obtener_paciente(id):
     """GET /api/pacientes/:id - Obtener un paciente por ID"""
@@ -34,6 +40,9 @@ def obtener_paciente(id):
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+# -----------------------------------
+# POST /api/pacientes
+# -----------------------------------
 @pacientes_bp.route('/', methods=['POST'])
 def crear_paciente():
     """POST /api/pacientes - Crear nuevo paciente"""
@@ -55,6 +64,9 @@ def crear_paciente():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+# -----------------------------------
+# PUT /api/pacientes/<id>
+# -----------------------------------
 @pacientes_bp.route('/<int:id>', methods=['PUT'])
 def actualizar_paciente(id):
     """PUT /api/pacientes/:id - Actualizar paciente"""
@@ -79,6 +91,9 @@ def actualizar_paciente(id):
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+# -----------------------------------
+# DELETE /api/paciente/<id>
+# -----------------------------------
 @pacientes_bp.route('/<int:id>', methods=['DELETE'])
 def eliminar_paciente(id):
     """DELETE /api/pacientes/:id - Eliminar paciente"""
@@ -97,6 +112,9 @@ def eliminar_paciente(id):
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
+# -----------------------------------
+# GET /api/pacientes/<dni>
+# -----------------------------------
 @pacientes_bp.route('/buscar', methods=['GET'])
 def buscar_pacientes_por_dni():
     """

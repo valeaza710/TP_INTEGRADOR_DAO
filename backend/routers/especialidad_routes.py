@@ -7,6 +7,9 @@ especialidades_bp = Blueprint('especialidades', __name__, url_prefix='/api/espec
 # Instanciar servicio
 especialidad_service = EspecialidadService()
 
+# -----------------------------------
+# GET /api/especialidades
+# -----------------------------------
 @especialidades_bp.route('/', methods=['GET'])
 def listar_especialidades():
     """
@@ -26,6 +29,9 @@ def listar_especialidades():
             'error': str(e)
         }), 500
 
+# -----------------------------------
+# GET /api/especialidades/<id>
+# -----------------------------------
 @especialidades_bp.route('/<int:id>', methods=['GET'])
 def obtener_especialidad(id):
     """
@@ -50,6 +56,9 @@ def obtener_especialidad(id):
             'error': str(e)
         }), 500
 
+# -----------------------------------
+# POST /api/especialidades
+# -----------------------------------
 @especialidades_bp.route('/', methods=['POST'])
 def crear_especialidad():
     """
@@ -84,6 +93,9 @@ def crear_especialidad():
             'error': str(e)
         }), 500
 
+# -----------------------------------
+# PUT /api/especialidades/<id>
+# -----------------------------------
 @especialidades_bp.route('/<int:id>', methods=['PUT'])
 def actualizar_especialidad(id):
     """
@@ -125,6 +137,9 @@ def actualizar_especialidad(id):
             'error': str(e)
         }), 500
 
+# -----------------------------------
+# DELETE /api/especialidades/<id>
+# -----------------------------------
 @especialidades_bp.route('/<int:id>', methods=['DELETE'])
 def eliminar_especialidad(id):
     """

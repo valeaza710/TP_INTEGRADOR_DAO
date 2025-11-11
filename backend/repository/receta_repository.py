@@ -1,4 +1,3 @@
-
 from backend.data_base.connection import DataBaseConnection
 from backend.clases.receta import Receta
 from backend.clases.paciente import Paciente
@@ -17,7 +16,7 @@ class RecetaRepository(Repository):
     def save(self, receta: Receta):
         query = """
             INSERT INTO receta (id_visita, id_paciente, descripcion, fecha_emision)
-            VALUES (%s, %s, %s, %s)
+            VALUES (?, ?, ?, ?)
         """
         params = (
             receta.visita.id if receta.visita else None,
@@ -31,38 +30,38 @@ class RecetaRepository(Repository):
             print("❌ Error al conectar con la base de datos.")
             return None
 
+        cursor = None
         try:
             cursor = conn.cursor()
             cursor.execute(query, params)
             conn.commit()
             receta.id = cursor.lastrowid
-            cursor.close()
-            conn.close()
             return receta
         except Exception as e:
             print(f"❌ Error al guardar receta: {e}")
-            try:
-                conn.close()
-            except:
-                pass
+            conn.rollback()
             return None
+        finally:
+            if cursor:
+                cursor.close()
+            conn.close()
 
     def get_by_id(self, receta_id: int):
-        query = "SELECT * FROM receta WHERE id = %s"
+        query = "SELECT * FROM receta WHERE id = ?"
         rows = self.db.execute_query(query, (receta_id,), fetch=True)
         if not rows:
             return None
         row = rows[0]
 
-        visita = self.visita_repo.get_by_id(row["id_visita"]) if row.get("id_visita") else None
-        paciente = self.paciente_repo.get_by_id(row["id_paciente"]) if row.get("id_paciente") else None
+        visita = self.visita_repo.get_by_id(row["id_visita"]) if row["id_visita"] else None
+        paciente = self.paciente_repo.get_by_id(row["id_paciente"]) if row["id_paciente"] else None
 
         return Receta(
             id=row["id"],
             visita=visita,
             paciente=paciente,
-            descripcion=row.get("descripcion", ""),
-            fecha_emision=row.get("fecha_emision")
+            descripcion=row["descripcion"] if row["descripcion"] else "",
+            fecha_emision=row["fecha_emision"]
         )
 
     def get_all(self):
@@ -71,23 +70,23 @@ class RecetaRepository(Repository):
         recetas = []
         if rows:
             for row in rows:
-                visita = self.visita_repo.get_by_id(row["id_visita"]) if row.get("id_visita") else None
-                paciente = self.paciente_repo.get_by_id(row["id_paciente"]) if row.get("id_paciente") else None
+                visita = self.visita_repo.get_by_id(row["id_visita"]) if row["id_visita"] else None
+                paciente = self.paciente_repo.get_by_id(row["id_paciente"]) if row["id_paciente"] else None
 
                 recetas.append(Receta(
                     id=row["id"],
                     visita=visita,
                     paciente=paciente,
-                    descripcion=row.get("descripcion", ""),
-                    fecha_emision=row.get("fecha_emision")
+                    descripcion=row["descripcion"] if row["descripcion"] else "",
+                    fecha_emision=row["fecha_emision"]
                 ))
         return recetas
 
     def modify(self, receta: Receta):
         query = """
             UPDATE receta
-            SET id_visita=%s, id_paciente=%s, descripcion=%s, fecha_emision=%s
-            WHERE id=%s
+            SET id_visita = ?, id_paciente = ?, descripcion = ?, fecha_emision = ?
+            WHERE id = ?
         """
         params = (
             receta.visita.id if receta.visita else None,
@@ -101,23 +100,23 @@ class RecetaRepository(Repository):
         return self.get_by_id(receta.id) if success else None
 
     def delete(self, receta: Receta):
-        query = "DELETE FROM receta WHERE id = %s"
+        query = "DELETE FROM receta WHERE id = ?"
         success = self.db.execute_query(query, (receta.id,))
         return success
 
     def get_by_paciente(self, id_paciente: int):
-        query = "SELECT * FROM receta WHERE id_paciente = %s ORDER BY fecha_emision DESC"
+        query = "SELECT * FROM receta WHERE id_paciente = ? ORDER BY fecha_emision DESC"
         rows = self.db.execute_query(query, (id_paciente,), fetch=True)
         recetas = []
         if rows:
             for row in rows:
-                paciente = self.paciente_repo.get_by_id(row["id_paciente"]) if row.get("id_paciente") else None
-                visita = Visita(id=row["id_visita"]) if row.get("id_visita") else None
+                paciente = self.paciente_repo.get_by_id(row["id_paciente"]) if row["id_paciente"] else None
+                visita = Visita(id=row["id_visita"]) if row["id_visita"] else None
                 recetas.append(Receta(
                     id=row["id"],
                     paciente=paciente,
                     visita=visita,
-                    descripcion=row.get("descripcion", ""),
-                    fecha_emision=row.get("fecha_emision")
+                    descripcion=row["descripcion"] if row["descripcion"] else "",
+                    fecha_emision=row["fecha_emision"]
                 ))
         return recetas

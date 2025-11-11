@@ -53,7 +53,7 @@ class UsuarioService:
             # Tipo usuario
             tipo_usuario = None
             if "rol" in data and data["rol"]:
-                tipo_usuario = TipoUsuario(id=data["rol"])
+                tipo_usuario = TipoUsuario(id=data["rol"]["id"])
 
             # Crear objeto
             usuario = Usuario(

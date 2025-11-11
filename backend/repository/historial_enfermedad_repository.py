@@ -11,7 +11,7 @@ class HistorialEnfermedadRepository:
     def save(self, historial_enfermedad: HistorialEnfermedad):
         query = """
             INSERT INTO historial_enfermedad (id_historial_clinico, id_enfermedad, fecha_diagnostico, observaciones)
-            VALUES (%s, %s, %s, %s)
+            VALUES (?, ?, ?, ?)
         """
         params = (
             historial_enfermedad.historial_clinico.id if historial_enfermedad.historial_clinico else None,
@@ -20,29 +20,32 @@ class HistorialEnfermedadRepository:
             historial_enfermedad.observaciones,
         )
 
-        conn = self.db.connect()
-        if not conn:
-            print("❌ Error al conectar con la base de datos.")
-            return None
-
+        conn = None
+        cursor = None
         try:
+            conn = self.db.connect()
+            if not conn:
+                print("❌ Error al conectar con la base de datos.")
+                return None
+
             cursor = conn.cursor()
             cursor.execute(query, params)
             conn.commit()
             historial_enfermedad.id = cursor.lastrowid
-            cursor.close()
-            conn.close()
             return historial_enfermedad
+
         except Exception as e:
             print(f"❌ Error al guardar historial_enfermedad: {e}")
-            try:
-                conn.close()
-            except:
-                pass
             return None
 
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
     def get_by_id(self, id_historial_enfermedad: int):
-        query = "SELECT * FROM historial_enfermedad WHERE id = %s"
+        query = "SELECT * FROM historial_enfermedad WHERE id = ?"
         data = self.db.execute_query(query, (id_historial_enfermedad,), fetch=True)
         if not data:
             return None
@@ -84,13 +87,13 @@ class HistorialEnfermedadRepository:
                 SELECT he.id AS id,
                        he.fecha_diagnostico,
                        he.observaciones,
-                       he.historial_clinico_id,
-                       he.enfermedad_id,
+                       he.id_historial_clinico,
+                       he.id_enfermedad,
                        e.nombre AS enfermedad_nombre
                 FROM historial_enfermedad he
-                JOIN historial_clinico hc ON he.historial_clinico_id = hc.id
-                JOIN enfermedad e ON he.enfermedad_id = e.id
-                WHERE hc.paciente_id = ?
+                JOIN historial_clinico hc ON he.id_historial_clinico = hc.id
+                JOIN enfermedad e ON he.id_enfermedad = e.id
+                WHERE hc.id_paciente = ?
             """
 
             rows = self.db.execute_query(query, (id_paciente,), fetch=True)
@@ -102,9 +105,9 @@ class HistorialEnfermedadRepository:
             for r in rows:
                 historial = HistorialEnfermedad(
                     id=r["id"],
-                    historial_clinico=HistorialClinico(id=r["historial_clinico_id"]),
+                    historial_clinico=HistorialClinico(id=r["id_historial_clinico"]),
                     enfermedad=Enfermedad(
-                        id=r["enfermedad_id"],
+                        id=r["id_enfermedad"],
                         nombre=r["enfermedad_nombre"]
                     ),
                     fecha_diagnostico=r["fecha_diagnostico"],
@@ -121,8 +124,8 @@ class HistorialEnfermedadRepository:
     def modify(self, historial_enfermedad: HistorialEnfermedad):
         query = """
             UPDATE historial_enfermedad
-            SET id_historial_clinico=%s, id_enfermedad=%s, fecha_diagnostico=%s, observaciones=%s
-            WHERE id=%s
+            SET id_historial_clinico=?, id_enfermedad=?, fecha_diagnostico=?, observaciones=?
+            WHERE id=?
         """
         params = (
             historial_enfermedad.historial_clinico.id if historial_enfermedad.historial_clinico else None,
@@ -135,6 +138,6 @@ class HistorialEnfermedadRepository:
         return self.get_by_id(historial_enfermedad.id) if success else None
 
     def delete(self, historial_enfermedad: HistorialEnfermedad):
-        query = "DELETE FROM historial_enfermedad WHERE id=%s"
+        query = "DELETE FROM historial_enfermedad WHERE id=?"
         success = self.db.execute_query(query, (historial_enfermedad.id,))
         return success

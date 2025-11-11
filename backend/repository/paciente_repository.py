@@ -10,12 +10,9 @@ class PacienteRepository(Repository):
     def save(self, paciente: Paciente):
         query = """
             INSERT INTO paciente (nombre, apellido, dni, edad, fecha_nacimiento, mail, telefono, direccion, id_usuario)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
-        if paciente.usuario == None:
-            user = None
-        else:
-            user = paciente.usuario
+        user_id = paciente.usuario.id if paciente.usuario else None
 
         params = (
             paciente.nombre,
@@ -26,10 +23,14 @@ class PacienteRepository(Repository):
             paciente.mail,
             paciente.telefono,
             paciente.direccion,
-            user,
+            user_id,
         )
 
         conn = self.db.connect()
+        if not conn:
+            print("❌ Error al conectar con la base de datos.")
+            return None
+
         try:
             cursor = conn.cursor()
             cursor.execute(query, params)
@@ -40,22 +41,26 @@ class PacienteRepository(Repository):
             return paciente
         except Exception as e:
             print(f"❌ Error al guardar paciente: {e}")
+            try:
+                conn.close()
+            except:
+                pass
             return None
 
     def get_by_id(self, paciente_id: int):
-        query = "SELECT * FROM paciente WHERE id = %s"
+        query = "SELECT * FROM paciente WHERE id = ?"
         data = self.db.execute_query(query, (paciente_id,), fetch=True)
         if not data:
             return None
         row = data[0]
 
-        # Si el paciente tiene usuario asociado, lo cargamos
+        # Cargar usuario si existe
         usuario = None
-        if row["id_usuario"]:
-            usuario_data = self.db.execute_query("SELECT * FROM usuario WHERE id = %s", (row["id_usuario"],), fetch=True)
+        if row.get("id_usuario"):
+            usuario_data = self.db.execute_query("SELECT * FROM usuario WHERE id = ?", (row["id_usuario"],), fetch=True)
             if usuario_data:
                 u = usuario_data[0]
-                usuario = Usuario(u["id"], u["nombre_usuario"], u["contrasena"], u["rol"])
+                usuario = Usuario(id=u["id"], nombre_usuario=u["nombre_usuario"], contrasena=u["contrasena"], tipo_usuario=None)
 
         return Paciente(
             id=row["id"],
@@ -78,13 +83,13 @@ class PacienteRepository(Repository):
         if pacientes_data:
             for row in pacientes_data:
                 usuario = None
-                if row["id_usuario"]:
-                    usuario_data = self.db.execute_query("SELECT * FROM usuario WHERE id = %s", (row["id_usuario"],), fetch=True)
+                if row.get("id_usuario"):
+                    usuario_data = self.db.execute_query("SELECT * FROM usuario WHERE id = ?", (row["id_usuario"],), fetch=True)
                     if usuario_data:
                         u = usuario_data[0]
-                        usuario = Usuario(u["id"], u["nombre_usuario"], u["contrasena"], u["rol"])
+                        usuario = Usuario(id=u["id"], nombre_usuario=u["nombre_usuario"], contrasena=u["contrasena"], tipo_usuario=None)
 
-                paciente = Paciente(
+                pacientes.append(Paciente(
                     id=row["id"],
                     nombre=row["nombre"],
                     apellido=row["apellido"],
@@ -95,16 +100,16 @@ class PacienteRepository(Repository):
                     telefono=row["telefono"],
                     direccion=row["direccion"],
                     usuario=usuario
-                )
-                pacientes.append(paciente)
+                ))
         return pacientes
 
     def modify(self, paciente: Paciente):
         query = """
-            UPDATE paciente SET nombre=%s, apellido=%s, dni=%s, edad=%s, fecha_nacimiento=%s,
-                                mail=%s, telefono=%s, direccion=%s, id_usuario=%s
-            WHERE id=%s
+            UPDATE paciente
+            SET nombre=?, apellido=?, dni=?, edad=?, fecha_nacimiento=?, mail=?, telefono=?, direccion=?, id_usuario=?
+            WHERE id=?
         """
+        user_id = paciente.usuario.id if paciente.usuario else None
         params = (
             paciente.nombre,
             paciente.apellido,
@@ -114,6 +119,7 @@ class PacienteRepository(Repository):
             paciente.mail,
             paciente.telefono,
             paciente.direccion,
+            user_id,
             paciente.id
         )
 
@@ -121,26 +127,24 @@ class PacienteRepository(Repository):
         return paciente if success else None
 
     def delete(self, paciente: Paciente):
-        query = "DELETE FROM paciente WHERE id = %s"
-        success = self.db.execute_query(query, (paciente.id,))
-        return success
+        query = "DELETE FROM paciente WHERE id = ?"
+        return self.db.execute_query(query, (paciente.id,))
 
-    # """Buscar pacientes por coincidencia parcial de DNI"""
     def search_by_dni(self, dni_parcial: str):
-        query = "SELECT * FROM paciente WHERE CAST(dni AS CHAR) LIKE %s"
+        query = "SELECT * FROM paciente WHERE dni LIKE ?"
         pacientes_data = self.db.execute_query(query, (f'%{dni_parcial}%',), fetch=True)
         pacientes = []
 
         if pacientes_data:
             for row in pacientes_data:
                 usuario = None
-                if row["id_usuario"]:
-                    usuario_data = self.db.execute_query("SELECT * FROM usuario WHERE id = %s", (row["id_usuario"],), fetch=True)
+                if row.get("id_usuario"):
+                    usuario_data = self.db.execute_query("SELECT * FROM usuario WHERE id = ?", (row["id_usuario"],), fetch=True)
                     if usuario_data:
                         u = usuario_data[0]
-                        usuario = Usuario(u["id"], u["nombre_usuario"], u["contrasena"], u["rol"])
+                        usuario = Usuario(id=u["id"], nombre_usuario=u["nombre_usuario"], contrasena=u["contrasena"], tipo_usuario=None)
 
-                paciente = Paciente(
+                pacientes.append(Paciente(
                     id=row["id"],
                     nombre=row["nombre"],
                     apellido=row["apellido"],
@@ -151,16 +155,13 @@ class PacienteRepository(Repository):
                     telefono=row["telefono"],
                     direccion=row["direccion"],
                     usuario=usuario
-                )
-                pacientes.append(paciente)
+                ))
 
         return pacientes
 
-
     def get_by_dni(self, dni: str):
-        query = "SELECT * FROM paciente WHERE dni = %s"
+        query = "SELECT * FROM paciente WHERE dni = ?"
         data = self.db.execute_query(query, (dni,), fetch=True)
-
         if not data:
             return None
 

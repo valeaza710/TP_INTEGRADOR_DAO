@@ -4,6 +4,9 @@ from backend.services.enfermedad_service import EnfermedadService
 enfermedades_bp = Blueprint('enfermedades', __name__, url_prefix='/api/enfermedades')
 enfermedad_service = EnfermedadService()
 
+# -----------------------------------
+# GET /api/enfermedades
+# -----------------------------------
 @enfermedades_bp.route('/', methods=['GET'])
 def listar_enfermedades():
     """GET /api/enfermedades - Listar todas las enfermedades"""
@@ -13,6 +16,9 @@ def listar_enfermedades():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
+# -----------------------------------
+# GET /api/enfermedades/<id>
+# -----------------------------------
 @enfermedades_bp.route('/<int:id>', methods=['GET'])
 def obtener_enfermedad(id):
     """GET /api/enfermedades/:id - Obtener una enfermedad por ID"""
@@ -24,6 +30,9 @@ def obtener_enfermedad(id):
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
+# -----------------------------------
+# POST /api/enfermedades
+# -----------------------------------
 @enfermedades_bp.route('/', methods=['POST'])
 def crear_enfermedad():
     """POST /api/enfermedades - Crear nueva enfermedad"""
@@ -39,6 +48,9 @@ def crear_enfermedad():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
+# -----------------------------------
+# PUT /api/enfermedades/<id>
+# -----------------------------------
 @enfermedades_bp.route('/<int:id>', methods=['PUT'])
 def actualizar_enfermedad(id):
     """PUT /api/enfermedades/:id - Actualizar enfermedad"""
@@ -55,6 +67,9 @@ def actualizar_enfermedad(id):
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
+# -----------------------------------
+# DELETE /api/enfermedades/<id>
+# -----------------------------------
 @enfermedades_bp.route('/<int:id>', methods=['DELETE'])
 def eliminar_enfermedad(id):
     """DELETE /api/enfermedades/:id - Eliminar enfermedad"""
@@ -68,6 +83,10 @@ def eliminar_enfermedad(id):
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
+
+# -----------------------------------
+# GET /api/enfermedades/<nombre>
+# -----------------------------------
 @enfermedades_bp.route('/buscar', methods=['GET'])
 def buscar_enfermedades_por_nombre():
     """GET /api/enfermedades/buscar?nombre=asma"""

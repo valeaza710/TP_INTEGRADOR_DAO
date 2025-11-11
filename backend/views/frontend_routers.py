@@ -4,6 +4,10 @@ frontend_bp = Blueprint('frontend', __name__)
 
 # Página principal
 @frontend_bp.route('/')
+def index():
+    return redirect(url_for('frontend.ingreso'))
+
+@frontend_bp.route('/ingreso')
 def ingreso():
     return render_template('ingreso.html')
 

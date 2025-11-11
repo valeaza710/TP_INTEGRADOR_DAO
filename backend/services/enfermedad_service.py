@@ -1,12 +1,15 @@
 from backend.repository.enfermedades_repository import EnfermedadRepository
 from backend.clases.enfermedad import Enfermedad
 
+
 class EnfermedadService:
     def __init__(self):
         self.repository = EnfermedadRepository()
 
+    # ------------------------------------
+    # GET ALL
+    # ------------------------------------
     def get_all(self):
-        """Obtener todas las enfermedades"""
         try:
             enfermedades = self.repository.get_all()
             return [self._to_dict(e) for e in enfermedades]
@@ -14,72 +17,93 @@ class EnfermedadService:
             print(f"Error en get_all: {e}")
             raise Exception("Error al obtener enfermedades")
 
-    def get_by_id(self, enfermedad_id):
-        """Obtener enfermedad por ID"""
+    # ------------------------------------
+    # GET BY ID
+    # ------------------------------------
+    def get_by_id(self, enfermedad_id: int):
         try:
             enfermedad = self.repository.get_by_id(enfermedad_id)
             return self._to_dict(enfermedad) if enfermedad else None
         except Exception as e:
             print(f"Error en get_by_id: {e}")
-            raise Exception("Error al obtener la enfermedad")
+            raise Exception("Error al obtener enfermedad")
 
-    def create(self, data):
-        """Crear nueva enfermedad"""
+    # ------------------------------------
+    # CREATE
+    # ------------------------------------
+    def create(self, data: dict):
         try:
-            if not data.get('nombre') or str(data['nombre']).strip() == '':
+            # Validar campo obligatorio
+            if not data.get("nombre") or str(data["nombre"]).strip() == "":
                 raise ValueError("El campo 'nombre' es obligatorio")
 
+            # Crear objeto Enfermedad
             nueva_enfermedad = Enfermedad(
-                nombre=data['nombre'],
-                descripcion=data.get('descripcion')
+                nombre=data["nombre"],
+                descripcion=data.get("descripcion")
             )
 
-            enfermedad_guardada = self.repository.save(nueva_enfermedad)
-            if not enfermedad_guardada:
+            # Guardar en BD
+            guardada = self.repository.save(nueva_enfermedad)
+            if not guardada:
                 raise Exception("No se pudo guardar la enfermedad")
 
-            return self._to_dict(enfermedad_guardada)
+            # Retornar enfermedad guardada
+            completa = self.repository.get_by_id(guardada.id)
+            return self._to_dict(completa)
+
         except ValueError as e:
             raise e
         except Exception as e:
             print(f"Error en create: {e}")
-            raise Exception("Error al crear la enfermedad")
+            raise Exception("Error al crear enfermedad")
 
-    def update(self, enfermedad_id, data):
-        """Actualizar una enfermedad"""
+    # ------------------------------------
+    # UPDATE
+    # ------------------------------------
+    def update(self, enfermedad_id: int, data: dict):
         try:
             enfermedad = self.repository.get_by_id(enfermedad_id)
             if not enfermedad:
                 return None
 
-            if 'nombre' in data and data['nombre'] is not None:
-                enfermedad.nombre = data['nombre']
-            if 'descripcion' in data:
-                enfermedad.descripcion = data['descripcion']
+            # Actualizar campos enviados
+            if "nombre" in data and data["nombre"] is not None:
+                enfermedad.nombre = data["nombre"]
+            if "descripcion" in data:
+                enfermedad.descripcion = data["descripcion"]
 
             actualizada = self.repository.modify(enfermedad)
             if not actualizada:
                 raise Exception("No se pudo actualizar la enfermedad")
 
-            return self._to_dict(actualizada)
+            completa = self.repository.get_by_id(enfermedad_id)
+            return self._to_dict(completa)
+
         except Exception as e:
             print(f"Error en update: {e}")
-            raise Exception("Error al actualizar la enfermedad")
+            raise Exception("Error al actualizar enfermedad")
 
-    def delete(self, enfermedad_id):
-        """Eliminar enfermedad"""
+    # ------------------------------------
+    # DELETE
+    # ------------------------------------
+    def delete(self, enfermedad_id: int):
         try:
             enfermedad = self.repository.get_by_id(enfermedad_id)
             if not enfermedad:
                 return None
+
             eliminado = self.repository.delete(enfermedad)
             return eliminado
+
         except Exception as e:
             print(f"Error en delete: {e}")
-            raise Exception("Error al eliminar la enfermedad")
+            raise Exception("Error al eliminar enfermedad")
 
+    # ------------------------------------
+    # SEARCH BY NOMBRE
+    # ------------------------------------
     def search_by_nombre(self, nombre_parcial: str):
-        """Buscar enfermedades por coincidencia parcial de nombre"""
         try:
             enfermedades = self.repository.search_by_nombre(nombre_parcial)
             return [self._to_dict(e) for e in enfermedades]
@@ -87,11 +111,15 @@ class EnfermedadService:
             print(f"Error en search_by_nombre: {e}")
             raise Exception("Error al buscar enfermedades por nombre")
 
-    def _to_dict(self, enfermedad: Enfermedad):
-        if not enfermedad:
+    # ------------------------------------
+    # SERIALIZADOR
+    # ------------------------------------
+    def _to_dict(self, e: Enfermedad):
+        if not e:
             return None
+
         return {
-            'id': enfermedad.id,
-            'nombre': enfermedad.nombre,
-            'descripcion': enfermedad.descripcion
+            "id": e.id,
+            "nombre": e.nombre,
+            "descripcion": e.descripcion
         }

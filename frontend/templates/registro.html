@@ -156,71 +156,13 @@
         © 2025 MediCare. GRUPO 54.
     </footer>
 
+    <script src="{{ url_for('static', filename='js/registro.js') }}"></script>
+
     <script>
-        // Manejador del formulario
-        function handleRegisterSubmit(e) {
-            e.preventDefault();
-            const form = e.target;
-            
-            const formData = {
-                username: form.username.value,
-                password: form.password.value,
-                name: form.name.value,
-                lastname: form.lastname.value,
-                dni: form.dni.value,
-                age: form.age.value,
-                dob: form.dob.value,
-                email: form.email.value,
-            };
-
-            console.log('Datos de Registro:', formData);
-            alertMessage('¡Registro exitoso! Datos enviados a la consola.', 'success');
-        }
-
-        // Alertas
-        function alertMessage(message, type = 'info') {
-            const containerId = 'custom-alert-container';
-            let container = document.getElementById(containerId);
-            
-            if (!container) {
-                container = document.createElement('div');
-                container.id = containerId;
-                container.className = 'fixed top-4 right-4 z-50 space-y-2 pointer-events-none';
-                document.body.appendChild(container);
-            }
-
-            let bgColor = 'bg-blue-500';
-            let icon = 'ℹ️';
-            if (type === 'success') { bgColor = 'bg-green-500'; icon = '✅'; } 
-            else if (type === 'error') { bgColor = 'bg-red-500'; icon = '❌'; } 
-            else if (type === 'warning') { bgColor = 'bg-yellow-500'; icon = '⚠️'; }
-
-            const alertElement = document.createElement('div');
-            alertElement.className = `${bgColor} text-white px-4 py-3 rounded-xl shadow-lg flex items-center transform transition-all duration-300 ease-out translate-x-full opacity-0`;
-            alertElement.innerHTML = `<span class="mr-2">${icon}</span><span>${message}</span>`;
-            
-            container.appendChild(alertElement);
-
-            setTimeout(() => {
-                alertElement.classList.remove('translate-x-full', 'opacity-0');
-                alertElement.classList.add('translate-x-0', 'opacity-100');
-            }, 10);
-
-            setTimeout(() => {
-                alertElement.classList.remove('translate-x-0', 'opacity-100');
-                alertElement.classList.add('translate-x-full', 'opacity-0');
-                alertElement.addEventListener('transitionend', () => alertElement.remove());
-            }, 3000);
-        }
-
-        // Inicialización
         window.onload = function() {
-            if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
-            document.getElementById('register-form')?.addEventListener('submit', handleRegisterSubmit);
-            document.getElementById('btn-go-to-welcome')?.addEventListener('click', (e) => {
-                e.preventDefault();
-                alertMessage('Simulación: Volviendo a la pantalla de Bienvenida...', 'info');
-            });
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
         };
     </script>
 

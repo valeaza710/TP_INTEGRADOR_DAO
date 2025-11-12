@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-    
     const container = document.getElementById("appointments-container");
 
     // ✅ 1. Cargar citas desde el backend
@@ -78,3 +77,4 @@ document.addEventListener("DOMContentLoaded", () => {
     // ✅ Cargar citas al entrar
     cargarCitas();
 });
+

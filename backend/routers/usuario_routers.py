@@ -2,137 +2,165 @@ from flask import Blueprint, request, jsonify
 from backend.services.usuario_service import UsuarioService
 
 usuarios_bp = Blueprint('usuarios', __name__, url_prefix='/api/usuarios')
-
 usuario_service = UsuarioService()
 
-# -----------------------------------
-# GET /api/usuarios
-# -----------------------------------
+@usuarios_bp.route('/login', methods=['POST'])
+def login():
+    """
+    Endpoint de login
+    POST /api/usuarios/login
+    Body: { "username": "...", "password": "..." }
+    """
+    try:
+        data = request.get_json()
+        
+        if not data or not data.get('username') or not data.get('password'):
+            return jsonify({
+                "success": False,
+                "message": "Faltan credenciales"
+            }), 400
+        
+        # Llamar al servicio para autenticar
+        usuario = usuario_service.login(data['username'], data['password'])
+        
+        if not usuario:
+            return jsonify({
+                "success": False,
+                "message": "Credenciales incorrectas"
+            }), 401
+        
+        # Obtener datos completos (usuario + paciente si existe)
+        usuario_completo = usuario_service.get_usuario_completo(usuario.id)
+        
+        if usuario_completo and usuario_completo.get('paciente'):
+            # Si tiene datos de paciente, retornarlos
+            paciente = usuario_completo['paciente']
+            return jsonify({
+                "success": True,
+                "user": {
+                    "id": usuario.id,
+                    "username": usuario.nombre_usuario,
+                    "rol": usuario.tipo_usuario.tipo if usuario.tipo_usuario else "PACIENTE",
+                    "nombre": paciente['nombre'],
+                    "apellido": paciente['apellido'],
+                    "email": paciente['email'],
+                    "dni": paciente['dni']
+                }
+            }), 200
+        else:
+            # Si NO tiene paciente (ej: es admin o médico)
+            return jsonify({
+                "success": True,
+                "user": {
+                    "id": usuario.id,
+                    "username": usuario.nombre_usuario,
+                    "rol": usuario.tipo_usuario.tipo if usuario.tipo_usuario else "USUARIO"
+                }
+            }), 200
+        
+    except Exception as e:
+        print(f"❌ Error en login: {e}")
+        return jsonify({
+            "success": False,
+            "message": "Error interno del servidor"
+        }), 500
+
+
+@usuarios_bp.route('/registro', methods=['POST'])
+def registro():
+    """
+    Endpoint de registro
+    POST /api/usuarios/registro
+    Body: {
+        "username": "...",
+        "password": "...",
+        "email": "...",
+        "nombre": "...",
+        "apellido": "...",
+        "dni": "...",
+        "edad": int (opcional),
+        "fecha_nacimiento": "YYYY-MM-DD" (opcional)
+    }
+    """
+    try:
+        data = request.get_json()
+        
+        # Validar campos requeridos
+        required_fields = ['username', 'password', 'email', 'nombre', 'apellido', 'dni']
+        for field in required_fields:
+            if not data.get(field):
+                return jsonify({
+                    "success": False,
+                    "message": f"Falta el campo: {field}"
+                }), 400
+        
+        # Crear usuario (el servicio crea tanto Usuario como Paciente)
+        nuevo_usuario = usuario_service.crear_usuario(data)
+        
+        if not nuevo_usuario:
+            return jsonify({
+                "success": False,
+                "message": "No se pudo crear el usuario. Verifique que el username, email o DNI no estén en uso."
+            }), 400
+        
+        return jsonify({
+            "success": True,
+            "message": "Usuario registrado exitosamente",
+            "user": {
+                "id": nuevo_usuario.id,
+                "username": nuevo_usuario.nombre_usuario
+            }
+        }), 201
+        
+    except Exception as e:
+        print(f"❌ Error en registro: {e}")
+        return jsonify({
+            "success": False,
+            "message": "Error al registrar usuario"
+        }), 500
+
+
 @usuarios_bp.route('/', methods=['GET'])
-def listar_usuarios():
+def get_all_usuarios():
+    """
+    Obtener todos los usuarios
+    GET /api/usuarios/
+    """
     try:
         usuarios = usuario_service.get_all()
         return jsonify({
             "success": True,
-            "data": usuarios,
-            "count": len(usuarios)
+            "data": usuarios
         }), 200
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+        print(f"❌ Error al obtener usuarios: {e}")
+        return jsonify({
+            "success": False,
+            "message": "Error al obtener usuarios"
+        }), 500
 
 
-# -----------------------------------
-# GET /api/usuarios/<id>
-# -----------------------------------
-@usuarios_bp.route('/<int:id>', methods=['GET'])
-def obtener_usuario(id):
+@usuarios_bp.route('/<int:usuario_id>', methods=['GET'])
+def get_usuario(usuario_id):
+    """
+    Obtener un usuario por ID
+    GET /api/usuarios/1
+    """
     try:
-        usuario = usuario_service.get_by_id(id)
+        usuario = usuario_service.get_by_id(usuario_id)
         if not usuario:
-            return jsonify({"success": False, "error": "Usuario no encontrado"}), 404
-
-        return jsonify({"success": True, "data": usuario}), 200
-
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
-
-
-# -----------------------------------
-# POST /api/usuarios
-# -----------------------------------
-@usuarios_bp.route('/', methods=['POST'])
-def crear_usuario():
-    try:
-        data = request.get_json()
-        if not data:
-            return jsonify({"success": False, "error": "No se enviaron datos"}), 400
-
-        nuevo = usuario_service.create(data)
-        return jsonify({
-            "success": True,
-            "data": nuevo,
-            "message": "Usuario creado exitosamente"
-        }), 201
-
-    except ValueError as e:
-        return jsonify({"success": False, "error": str(e)}), 400
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
-
-
-# -----------------------------------
-# PUT /api/usuarios/<id>
-# -----------------------------------
-@usuarios_bp.route('/<int:id>', methods=['PUT'])
-def actualizar_usuario(id):
-    try:
-        data = request.get_json()
-        if not data:
-            return jsonify({"success": False, "error": "No se enviaron datos"}), 400
-
-        actualizado = usuario_service.update(id, data)
-        if not actualizado:
-            return jsonify({"success": False, "error": "Usuario no encontrado"}), 404
-
-        return jsonify({
-            "success": True,
-            "data": actualizado,
-            "message": "Usuario actualizado exitosamente"
-        }), 200
-
-    except ValueError as e:
-        return jsonify({"success": False, "error": str(e)}), 400
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
-
-
-# -----------------------------------
-# DELETE /api/usuarios/<id>
-# -----------------------------------
-@usuarios_bp.route('/<int:id>', methods=['DELETE'])
-def eliminar_usuario(id):
-    try:
-        eliminado = usuario_service.delete(id)
-
-        if eliminado is None:
-            return jsonify({"success": False, "error": "Usuario no encontrado"}), 404
-
-        if not eliminado:
-            return jsonify({"success": False, "error": "No se pudo eliminar el usuario"}), 500
-
-        return jsonify({"success": True, "message": "Usuario eliminado exitosamente"}), 200
-
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+            return jsonify({
+                "success": False,
+                "message": "Usuario no encontrado"
+            }), 404
         
-# -----------------------------------
-# POST /api/usuarios/login
-# -----------------------------------
-@usuarios_bp.route('/login', methods=['POST'])
-def login_usuario():
-    try:
-        data = request.get_json()
-
-        username = data.get("username")
-        password = data.get("password")
-
-        if not username or not password:
-            return jsonify({"success": False, "error": "Faltan credenciales"}), 400
-
-        usuario = usuario_service.login(username, password)
-
-        if not usuario:
-            return jsonify({"success": False, "error": "Credenciales inválidas"}), 401
-
-        # Armamos respuesta con datos del usuario
         return jsonify({
             "success": True,
-            "user": {
-                "id": usuario.id,
-                "username": usuario.nombre_usuario,
-                "rol": usuario.tipo_usuario.tipo if usuario.tipo_usuario else None
-            }
+            "data": usuario
         }), 200
-
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+        print(f"❌ Error al obtener usuario: {e}")
+        return jsonify({
+            "success": False,
+            "message": "Error al obtener usuario"
+        }), 500

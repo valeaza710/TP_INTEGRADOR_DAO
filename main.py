@@ -1,7 +1,12 @@
 # backend/app.py
 from flask import Flask
 from flask_cors import CORS
-
+from backend.services.notificacion_service import NotificacionService
+from dotenv import load_dotenv
+load_dotenv()
+import schedule
+import time
+import threading
 # Importar blueprints del backend (API)
 from backend.routers.especialidad_routes import especialidades_bp
 from backend.routers.paciente_routers import pacientes_bp
@@ -48,8 +53,21 @@ def create_app():
 
     return app
 
+def tarea_programada():
+    print("⏰ Ejecutando tarea automática de recordatorios")
+    service = NotificacionService()
+    service.enviar_recordatorios_turnos()
+
+# 🔹 2. Configurá el scheduler para ejecutar esa función todos los días a las 8:00
+def iniciar_scheduler():
+    schedule.every().day.at("08:00").do(tarea_programada)
+    while True:
+        schedule.run_pending()
+        time.sleep(60)
 
 if __name__ == '__main__':
     app = create_app()
+    hilo_scheduler = threading.Thread(target=iniciar_scheduler, daemon=True)
+    hilo_scheduler.start()
     print("🚀 Servidor iniciado en http://localhost:5000")
     app.run(debug=True, port=5000, host='0.0.0.0')

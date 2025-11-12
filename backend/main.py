@@ -47,6 +47,11 @@ def login():
     # Asume que 'login.html' está en la carpeta 'templates'
     return render_template('login.html')
 
+@app.route('/reportes', methods=['GET'])
+def reportes():
+    # Asume que 'login.html' está en la carpeta 'templates'
+    return render_template('reportes.html')
+
 # Ruta POST para manejar el envío del formulario
 @app.route('/', methods=['POST'])
 def login_post():

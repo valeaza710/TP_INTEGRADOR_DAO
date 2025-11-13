@@ -197,7 +197,7 @@ class PacienteRepository(Repository):
             WHERE dni LIKE ?
         """
         param = (f"%{dni_parcial}%",)
-        resultados = self.db.execute_query(query, param)  # Supongo que devuelve lista de tuplas o diccionarios
+        resultados = self.db.execute_query(query, param, fetch=True)  # Supongo que devuelve lista de tuplas o diccionarios
         pacientes = []
         for r in resultados:
             pacientes.append(Paciente(

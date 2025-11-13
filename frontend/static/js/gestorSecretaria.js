@@ -337,7 +337,15 @@ function renderMedicos(medicos) {
             <td class="px-4 py-3">${m.nombre}</td>
             <td class="px-4 py-3">${m.apellido}</td>
             <td class="px-4 py-3">${espStr || "-"}</td>
+            <td class="px-4 py-3 text-right flex justify-end gap-2">
+                <button class="px-4 py-1 bg-blue-500 text-white rounded">Generar horario</button>
+            </td>
         `;
+
+        // Conectar botón al modal
+        const btn = row.querySelector("button");
+        btn.addEventListener("click", () => openScheduleModal(m.id, `${m.nombre} ${m.apellido}`));
+
         tbody.appendChild(row);
     });
 }
@@ -347,44 +355,28 @@ function renderMedicos(medicos) {
 // BÚSQUEDA DE PACIENTE POR DNI
 // ============================
 async function buscarPaciente() {
-    const dni = document.getElementById("pacienteDniSearch").value.trim();
-    const resultDiv = document.getElementById("patient-result");
-    const confirmBtn = document.getElementById("confirm-patient-btn");
-
-    resultDiv.classList.add("hidden");
-    confirmBtn.disabled = true;
-
-    if (!dni) {
-        resultDiv.innerHTML = `<p class="text-red-500">Ingrese un DNI válido.</p>`;
-        resultDiv.classList.remove("hidden");
-        return;
-    }
+    const dni = document.getElementById("pacienteDniSearch").value;
+    if (!dni) return;
 
     try {
-        // Llamada al backend para buscar paciente por DNI
-        const res = await fetch(`/api/pacientes/buscar?dni=${encodeURIComponent(dni)}`);
-
-        if (!res.ok) {
-            throw new Error("Paciente no encontrado");
-        }
+        const res = await fetch(`/api/pacientes/buscar?dni=${dni}`);
         const data = await res.json();
 
-        // Mostramos la info del paciente
-        resultDiv.innerHTML = `
-            <p><strong>Paciente encontrado:</strong> ${data.nombre} ${data.apellido || ""}</p>
-        `;
-        resultDiv.classList.remove("hidden");
-
-        // Guardamos el ID del paciente en el input oculto
-        document.getElementById("pacienteId").value = data.id;
-
-        // Habilitamos botón de confirmación
-        confirmBtn.disabled = false;
-
+        if (res.ok && data.success && data.count > 0) {
+            const paciente = data.data[0]; // tomamos el primer resultado
+            console.log("Paciente encontrado:", paciente);
+            document.getElementById("pacienteId").value = paciente.id; // guardamos el ID
+            // mostrar info en el modal
+            const resultDiv = document.getElementById("patient-result");
+            resultDiv.classList.remove("hidden");
+            resultDiv.innerHTML = `<p>Paciente: ${paciente.nombre} ${paciente.apellido} - DNI: ${paciente.dni}</p>`;
+            document.getElementById("confirm-patient-btn").disabled = false;
+        } else {
+            alert("No se encontró el paciente.");
+        }
     } catch (err) {
-        console.error(err);
-        resultDiv.innerHTML = `<p class="text-red-500">Paciente no encontrado</p>`;
-        resultDiv.classList.remove("hidden");
+        console.error("Error buscando paciente:", err);
+        alert("Error al buscar paciente.");
     }
 }
 
@@ -400,7 +392,7 @@ function goToStep2() {
     }
 
     // Redirigimos a agendarCita.html con el id del paciente en query string
-    window.location.href = `/agendarCita.html?pacienteId=${pacienteId}`;
+    window.location.href = `/agendar?pacienteId=${pacienteId}`;
 }
 
 // ============================
@@ -526,3 +518,63 @@ function filterMedicos() {
     );
     renderMedicos(filtered);
 }
+
+
+
+
+// Abrir modal y rellenar datos
+function openScheduleModal(medicoId, medicoNombre) {
+    document.getElementById("scheduleModal").classList.remove("hidden");
+    document.getElementById("id_medico").value = medicoId;
+    document.getElementById("modalDoctorName").textContent = medicoNombre;
+    document.getElementById("doctorIDDisplay").textContent = `ID Médico: ${medicoId}`;
+
+    // Opciones de mes y año
+    const mesSelect = document.getElementById("mes");
+    const anioSelect = document.getElementById("anio");
+    mesSelect.innerHTML = "";
+    anioSelect.innerHTML = "";
+    const meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+    meses.forEach((m, i) => mesSelect.innerHTML += `<option value="${i+1}">${m}</option>`);
+    const currentYear = new Date().getFullYear();
+    for (let y = currentYear; y <= currentYear + 2; y++) anioSelect.innerHTML += `<option value="${y}">${y}</option>`;
+}
+
+// Cerrar modal
+function closeScheduleModal() {
+    document.getElementById("scheduleModal").classList.add("hidden");
+    document.getElementById("confirmationMessage").classList.add("hidden");
+}
+
+
+// Enviar formulario
+document.getElementById("scheduleForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const data = {
+        id_medico: document.getElementById("id_medico").value,
+        mes: document.getElementById("mes").value,
+        anio: document.getElementById("anio").value,
+        dia_semana: document.getElementById("dia_semana").value,
+        hora_inicio: document.getElementById("hora_inicio").value,
+        duracion_turno: document.getElementById("duracion_turno").value
+    };
+
+    try {
+        const res = await fetch("/api/horario_medico", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+        if (res.ok) {
+            document.getElementById("confirmationMessage").classList.remove("hidden");
+            console.log("Horario generado:", result);
+        } else {
+            alert(result.error || "Error generando horario");
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Error generando horario");
+    }
+});

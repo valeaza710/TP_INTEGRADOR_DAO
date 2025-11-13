@@ -118,22 +118,19 @@ def eliminar_paciente(id):
 @pacientes_bp.route('/buscar', methods=['GET'])
 def buscar_pacientes_por_dni():
     try:
-        dni = request.args.get('dni', None)
-        print(f"DEBUG: DNI recibido -> '{dni}'")  # ver en consola
+        dni = request.args.get('dni')
         if not dni:
             return jsonify({'success': False, 'error': 'Debe especificar un valor de búsqueda (dni)'}), 400
 
         resultados = paciente_service.search_by_dni(dni)
-        print(f"DEBUG: Resultados -> {resultados}")  # ver qué devuelve
         return jsonify({
             'success': True,
             'data': resultados,
             'count': len(resultados)
         }), 200
-    except Exception as e:
-        print(f"ERROR EN BUSCAR PACIENTES: {e}")  # imprime la traza real
-        return jsonify({'success': False, 'error': str(e)}), 500
 
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
     
 #-----------------------------------------
 #GET solo info basic

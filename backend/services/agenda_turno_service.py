@@ -237,3 +237,15 @@ class AgendaTurnoService:
             print(f"Error en obtener_todos_los_turnos: {e}")
             raise Exception("Error al obtener los turnos")
 
+    #Obtener Agenda_turnos POR ID DE PACIENTE
+    def get_by_paciente(self, paciente_id: int):
+        try:
+            # obtenemos todos los turnos
+            agendas = self.get_all()
+            # filtramos solo los que coinciden con el id_paciente
+            agendas_paciente = [a for a in agendas if a.get("id_paciente") == paciente_id]
+            return agendas_paciente
+        except Exception as e:
+            print(f"Error en get_by_paciente: {e}")
+            raise Exception("Error al obtener las agendas del paciente")
+

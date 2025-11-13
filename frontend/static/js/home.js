@@ -15,12 +15,18 @@ document.addEventListener("DOMContentLoaded", () => {
         globalLoader.classList.toggle("hidden", !show);
     }
 
-    // ✅ 1. Cargar citas desde el backend
-    async function cargarCitas() {
-        toggleLoader(true);
+    // Log visual para debugging
+    function log(msg, type = "info") {
+        console[type === "error" ? "error" : "log"](`📘 [MediCare]: ${msg}`);
+    }
 
+    // ----------------------------
+    // 1️⃣ Cargar citas de un paciente
+    // ----------------------------
+    async function cargarCitas(pacienteId) {
+        toggleLoader(true);
         try {
-            const res = await fetch("http://localhost:5000/api/turnos");
+            const res = await fetch(`http://localhost:5000/api/agenda/paciente/${pacienteId}`);
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
             const data = await res.json();
@@ -47,7 +53,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ✅ 2. Renderizar tarjetas
+    // ----------------------------
+    // 2️⃣ Renderizar tarjetas de citas
+    // ----------------------------
     function renderizarCitas(citas) {
         container.innerHTML = "";
 
@@ -58,21 +66,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
             card.innerHTML = `
                 <div class="card-header">
-                    <h3 class="doctor-name">${cita.doctor}</h3>
+                    <h3 class="doctor-name">${cita.medico}</h3>
                     <span class="status-tag">${cita.estado || "Próxima"}</span>
                 </div>
-                <p class="specialty">${cita.especialidad}</p>
-                
+                <p class="specialty">${cita.especialidad || "-"}</p>
                 <div class="details">
                     <p class="detail-item"><span class="icon">📅</span> ${cita.fecha}</p>
                     <p class="detail-item"><span class="icon">🕒</span> ${cita.hora}</p>
-                    <p class="detail-item"><span class="icon">📍</span> ${cita.lugar}</p>
+                    <p class="detail-item"><span class="icon">📍</span> ${cita.lugar || "-"}</p>
                 </div>
-
                 <button class="cancel-btn">Cancelar Cita</button>
             `;
 
-            // Animación de aparición
             card.style.opacity = "0";
             setTimeout(() => {
                 card.style.transition = "opacity 0.5s ease-in";
@@ -84,7 +89,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ✅ 3. Cancelar cita
+    // ----------------------------
+    // 3️⃣ Cancelar cita
+    // ----------------------------
     async function cancelarCita(id, cardElement) {
         const confirmar = confirm("¿Seguro que desea cancelar esta cita?");
         if (!confirmar) return;
@@ -101,13 +108,15 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 alert("⚠️ No se pudo cancelar la cita.");
             }
-
         } catch (error) {
             log("Error al cancelar cita: " + error.message, "error");
             alert("❌ Error al intentar cancelar la cita.");
         }
     }
 
-    // 🚀 Iniciar carga
-    cargarCitas();
+    // ----------------------------
+    // 🚀 Inicializar con un paciente de prueba
+    // ----------------------------
+    const pacienteIdPrueba = 7; // reemplazar con el ID real del paciente
+    cargarCitas(paciente_id);
 });

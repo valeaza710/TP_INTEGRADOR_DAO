@@ -70,7 +70,9 @@ async function loadAppointments() {
 // ====================
 function renderAppointments() {
     const searchTerm = document.getElementById("search-input").value.toLowerCase();
-    const filtered = appointments.filter(a =>
+    const filtered = appointments
+        .filter(a => a.paciente) // solo turnos con paciente
+        .filter(a =>
         a.dni_paciente.toLowerCase().includes(searchTerm) ||
         a.paciente.toLowerCase().includes(searchTerm)
     );
@@ -116,7 +118,7 @@ async function eliminarTurno(id) {
             method: "PUT", // usa PUT porque tu backend tiene update
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                id_estado_turno: 1,
+                id_estado_turno: 5,
                 id_paciente: null
             }),
         });

@@ -1,18 +1,31 @@
 document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("appointments-container");
+    const globalLoader = document.getElementById("global-loader");
 
-    // 🔹 Muestra un spinner inicial
-    container.innerHTML = `<div class="loader"></div>`;
+    // Función auxiliar de log visual
+    function log(msg, type = "info") {
+        console[type === "error" ? "error" : "log"](`📘 [MediCare]: ${msg}`);
+    }
+
+    // Mostrar u ocultar loader global
+    function toggleLoader(show) {
+        if (!globalLoader) return;
+        globalLoader.classList.toggle("hidden", !show);
+    }
 
     // ✅ 1. Cargar citas desde el backend
     async function cargarCitas() {
+        toggleLoader(true);
+
         try {
             const res = await fetch("http://localhost:5000/api/turnos");
-            if (!res.ok) throw new Error("Error de red o servidor caído");
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
             const data = await res.json();
+            log("Datos recibidos del backend.");
 
             if (!data.success || !Array.isArray(data.data)) {
+                log("Respuesta inesperada del servidor.", "error");
                 container.innerHTML = `<p class="error-text">⚠️ Error al cargar las citas.</p>`;
                 return;
             }
@@ -25,12 +38,14 @@ document.addEventListener("DOMContentLoaded", () => {
             renderizarCitas(data.data);
 
         } catch (error) {
-            console.error("Error conectando al backend:", error);
+            log("Error conectando al backend: " + error.message, "error");
             container.innerHTML = `<p class="error-text">❌ No se pudieron cargar las citas. Intenta nuevamente más tarde.</p>`;
+        } finally {
+            toggleLoader(false);
         }
     }
 
-    // ✅ 2. Renderizar tarjetas de citas
+    // ✅ 2. Renderizar tarjetas
     function renderizarCitas(citas) {
         container.innerHTML = "";
 
@@ -42,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
             card.innerHTML = `
                 <div class="card-header">
                     <h3 class="doctor-name">${cita.doctor}</h3>
-                    <span class="status-tag">Próxima</span>
+                    <span class="status-tag">${cita.estado || "Próxima"}</span>
                 </div>
                 <p class="specialty">${cita.especialidad}</p>
                 
@@ -55,46 +70,42 @@ document.addEventListener("DOMContentLoaded", () => {
                 <button class="cancel-btn">Cancelar Cita</button>
             `;
 
-            // Agregar animación al renderizar
+            // Animación de aparición
             card.style.opacity = "0";
             setTimeout(() => {
                 card.style.transition = "opacity 0.5s ease-in";
                 card.style.opacity = "1";
             }, 50);
 
-            // Agregar evento al botón
             card.querySelector(".cancel-btn").addEventListener("click", () => cancelarCita(cita.id, card));
-
             container.appendChild(card);
         });
     }
 
-    // ✅ 3. Función para cancelar cita
+    // ✅ 3. Cancelar cita
     async function cancelarCita(id, cardElement) {
         const confirmar = confirm("¿Seguro que desea cancelar esta cita?");
         if (!confirmar) return;
 
         try {
-            const res = await fetch(`http://localhost:5000/api/turnos/${id}`, {
-                method: "DELETE"
-            });
+            const res = await fetch(`http://localhost:5000/api/turnos/${id}`, { method: "DELETE" });
             const data = await res.json();
 
             if (data.success) {
-                // Transición suave al eliminar
+                log(`Cita ${id} cancelada correctamente.`);
                 cardElement.style.transition = "opacity 0.4s ease-out";
                 cardElement.style.opacity = "0";
                 setTimeout(() => cardElement.remove(), 400);
             } else {
-                alert("⚠️ No se pudo cancelar la cita");
+                alert("⚠️ No se pudo cancelar la cita.");
             }
 
         } catch (error) {
-            console.error("Error al cancelar cita:", error);
-            alert("❌ Error al intentar cancelar la cita");
+            log("Error al cancelar cita: " + error.message, "error");
+            alert("❌ Error al intentar cancelar la cita.");
         }
     }
 
-    // ✅ Cargar citas al entrar
+    // 🚀 Iniciar carga
     cargarCitas();
 });

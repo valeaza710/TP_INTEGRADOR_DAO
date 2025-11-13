@@ -143,13 +143,7 @@ function loadSlots() {
     const date = dateInput.value;
     if (!date) return;
 
-    // Formatear la fecha para la visualización del título
-    const dateParts = date.split('-');
-    const formattedDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
-    slotsDateDisplay.textContent = formattedDate;
-
-    // Llamada a la API de turnos (POST)
-    fetch("/api/turnos", { 
+    fetch("/api/turnos/slots", { 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ specialty: selectedSpecialty, doctor: selectedDoctor, date: date })
@@ -159,66 +153,22 @@ function loadSlots() {
         slotsContainer.innerHTML = "";
         
         if (slots.length === 0) {
-            slotsContainer.innerHTML = '<div id="no-slots-message" class="info-message text-center py-8">No hay turnos disponibles para esta fecha.</div>';
+            slotsContainer.innerHTML = '<div class="info-message text-center py-8">No hay turnos disponibles para esta fecha.</div>';
             return;
         }
 
         slots.forEach(s => {
             const slotCard = document.createElement("button");
-            slotCard.className = "slot-card w-full p-3 border border-border rounded-lg text-left group";
-            slotCard.innerHTML = `
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="icon-placeholder w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                            <i class="fas fa-user h-5 w-5 text-primary"></i>
-                        </div>
-                        <div class="slot-details">
-                            <strong>${s.time}</strong>
-                            <p class="doctor-name">${s.doctor}</p>
-                            <span class="location hidden">${s.location}</span>
-                        </div>
-                    </div>
-                </div>
-            `;
+            slotCard.className = "slot-card";
+            slotCard.innerHTML = `<strong>${s.time}</strong> - ${s.doctor}`;
             slotCard.onclick = () => confirmAppointment(s);
             slotsContainer.appendChild(slotCard);
         });
-    })
-    .catch(error => {
-        console.error("Error al cargar turnos:", error);
-        slotsContainer.innerHTML = '<div class="error-message">Error al cargar turnos. Intente de nuevo.</div>';
     });
 }
 
-function confirmAppointment(slot) {
-    // 1. Limpiar selecciones anteriores y marcar la actual
-    document.querySelectorAll(".slot-card").forEach(card => card.classList.remove("selected"));
-    event.currentTarget.classList.add("selected");
 
-    const date = dateInput.value;
-    
-    // 2. Aquí iría la llamada final para AGENDAR
-    fetch("/api/agendar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-            specialty: selectedSpecialty, 
-            doctor: slot.doctor, 
-            date: date, 
-            time: slot.time,
-            location: slot.location 
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert(`Cita agendada exitosamente: ${data.message}`);
-        // Opcional: Cerrar la modal o redirigir
-    })
-    .catch(error => {
-        console.error("Error al confirmar cita:", error);
-        alert("Error al confirmar la cita. Intente de nuevo.");
-    });
-}
+
 
 function generateCalendarUI(date) {
     const monthLabel = document.getElementById("month-label");
@@ -330,3 +280,29 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inicializa el calendario al cargar
     generateCalendarUI(currentCalendarDate); 
 });
+
+function confirmAppointment(slot) {
+    const date = dateInput.value;
+    const currentUserId = 1; // <- reemplazar con tu lógica de usuario actual
+
+    fetch("/api/turnos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            fecha: date,
+            hora: slot.time,
+            id_paciente: currentUserId,
+            id_estado_turno: 1, // Pendiente
+            id_horario_medico: slot.id_horario_medico
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert("Cita agendada exitosamente");
+        // Opcional: redirigir o cerrar modal
+    })
+    .catch(err => {
+        console.error("Error al agendar:", err);
+        alert("No se pudo agendar la cita");
+    });
+}

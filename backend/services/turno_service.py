@@ -1,35 +1,62 @@
 # backend/services/turno_service.py
-from backend.repository.agenda_turno_repository import AgendaTurnoRepository
+from backend.services.agenda_turno_service import AgendaTurnoService
 
 class TurnoService:
     def __init__(self):
-        self.repo = AgendaTurnoRepository()
+        self.agenda_service = AgendaTurnoService()
 
+    # -----------------------------
+    # Obtener todos los turnos
+    # -----------------------------
     def get_all(self):
-        return self.repo.get_all()
+        turnos = self.agenda_service.get_all()
+        lista = []
 
-    def get_by_id(self, id):
-        return self.repo.get_by_id(id)
+        for t in turnos:
+            # Convertimos la estructura simple que necesita el frontend
+            lista.append({
+                "id": t["id"],
+                "doctor": f"Dr. {t.get('doctor', 'Sin asignar')}",
+                "especialidad": t.get("especialidad", "General"),
+                "fecha": t["fecha"],
+                "hora": t["hora"],
+                "lugar": t.get("lugar", "Sin especificar"),
+                "estado": "Pendiente",  # o mapeá según estado_turno si querés
+                "paciente": t.get("paciente", "Sin paciente")
+            })
 
+        return lista
+
+    # -----------------------------
+    # Crear un turno
+    # -----------------------------
     def create(self, data):
-        # Crear objeto AgendaTurno
-        from backend.clases.agenda_turno import AgendaTurno
-        from backend.clases.paciente import Paciente
-        from backend.clases.estado_turno import EstadoTurno
-        from backend.clases.horario_medico import HorarioMedico
+        # Reutilizamos la lógica de AgendaTurnoService
+        return self.agenda_service.create(data)
 
-        agenda = AgendaTurno(
-            fecha=data["fecha"],
-            hora=data["hora"],
-            paciente=Paciente(id=data["id_paciente"]),
-            estado_turno=EstadoTurno(id=data["id_estado_turno"]),
-            horario_medico=HorarioMedico(id=data["id_horario_medico"])
-        )
-
-        return self.repo.save(agenda)
-
+    # -----------------------------
+    # Eliminar turno
+    # -----------------------------
     def delete(self, id):
-        turno = self.repo.get_by_id(id)
-        if not turno:
-            return None
-        return self.repo.delete(turno)
+        return self.agenda_service.delete(id)
+
+def get_available_slots(self, specialty=None, doctor_name=None, date=None):
+    turnos = self.repo.get_all()  # Trae todos los turnos
+    available = []
+
+    for t in turnos:
+        if t.fecha == date:
+            continue  # Ya ocupado
+        if doctor_name and t.horario_medico.medico.nombre + " " + t.horario_medico.medico.apellido != doctor_name:
+            continue
+        if specialty and t.horario_medico.medico.especialidad.nombre != specialty:
+            continue
+        
+        available.append({
+            "id_horario_medico": t.horario_medico.id,
+            "doctor": f"Dr. {t.horario_medico.medico.nombre} {t.horario_medico.medico.apellido}",
+            "time": t.hora,
+            "location": f"Consultorio {t.horario_medico.id}"
+        })
+
+    return available

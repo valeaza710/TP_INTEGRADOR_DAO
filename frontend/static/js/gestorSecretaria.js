@@ -337,7 +337,15 @@ function renderMedicos(medicos) {
             <td class="px-4 py-3">${m.nombre}</td>
             <td class="px-4 py-3">${m.apellido}</td>
             <td class="px-4 py-3">${espStr || "-"}</td>
+            <td class="px-4 py-3 text-right flex justify-end gap-2">
+                <button class="px-4 py-1 bg-blue-500 text-white rounded">Generar horario</button>
+            </td>
         `;
+
+        // Conectar botón al modal
+        const btn = row.querySelector("button");
+        btn.addEventListener("click", () => openScheduleModal(m.id, `${m.nombre} ${m.apellido}`));
+
         tbody.appendChild(row);
     });
 }
@@ -510,3 +518,79 @@ function filterMedicos() {
     );
     renderMedicos(filtered);
 }
+
+
+
+
+// Abrir modal y rellenar datos
+function openScheduleModal(medicoId, medicoNombre) {
+    document.getElementById("scheduleModal").classList.remove("hidden");
+    document.getElementById("id_medico").value = medicoId;
+    document.getElementById("modalDoctorName").textContent = medicoNombre;
+    document.getElementById("doctorIDDisplay").textContent = `ID Médico: ${medicoId}`;
+
+    // Opciones de mes y año
+    const mesSelect = document.getElementById("mes");
+    const anioSelect = document.getElementById("anio");
+    mesSelect.innerHTML = "";
+    anioSelect.innerHTML = "";
+    const meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+    meses.forEach((m, i) => mesSelect.innerHTML += `<option value="${i+1}">${m}</option>`);
+    const currentYear = new Date().getFullYear();
+    for (let y = currentYear; y <= currentYear + 2; y++) anioSelect.innerHTML += `<option value="${y}">${y}</option>`;
+}
+
+// Cerrar modal
+function closeScheduleModal() {
+    document.getElementById("scheduleModal").classList.add("hidden");
+    document.getElementById("confirmationMessage").classList.add("hidden");
+}
+
+// Calcular hora fin automáticamente
+document.getElementById("hora_inicio").addEventListener("input", calcularHoraFin);
+document.getElementById("duracion_turno").addEventListener("input", calcularHoraFin);
+
+function calcularHoraFin() {
+    const inicio = document.getElementById("hora_inicio").value;
+    const duracion = parseInt(document.getElementById("duracion_turno").value, 10);
+    if (!inicio || !duracion) return;
+
+    const [h, m] = inicio.split(":").map(Number);
+    const fecha = new Date();
+    fecha.setHours(h, m + duracion);
+    const hh = String(fecha.getHours()).padStart(2, "0");
+    const mm = String(fecha.getMinutes()).padStart(2, "0");
+    document.getElementById("hora_fin").value = `${hh}:${mm}`;
+}
+
+// Enviar formulario
+document.getElementById("scheduleForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const data = {
+        id_medico: document.getElementById("id_medico").value,
+        mes: document.getElementById("mes").value,
+        anio: document.getElementById("anio").value,
+        dia_semana: document.getElementById("dia_semana").value,
+        hora_inicio: document.getElementById("hora_inicio").value,
+        duracion_turno: document.getElementById("duracion_turno").value
+    };
+
+    try {
+        const res = await fetch("/api/horario_medico", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+        if (res.ok) {
+            document.getElementById("confirmationMessage").classList.remove("hidden");
+            console.log("Horario generado:", result);
+        } else {
+            alert(result.error || "Error generando horario");
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Error generando horario");
+    }
+});

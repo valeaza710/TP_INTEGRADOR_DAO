@@ -64,3 +64,20 @@ def obtener_turnos_detalles():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# -----------------------------------
+# GET /api/agenda/paciente/<int:id_paciente>
+# -----------------------------------
+@agenda_turno_bp.route("/paciente/<int:id_paciente>", methods=["GET"])
+def obtener_por_paciente(id_paciente):
+    try:
+        turnos = service.get_by_paciente(id_paciente)
+        return jsonify({
+            "success": True,
+            "count": len(turnos),
+            "data": turnos
+        }), 200
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500

@@ -260,6 +260,36 @@ async function registerTurno() {
     }
 }
 
+// --- 🔹 REDIRECCIÓN AL CERRAR MODAL ---
+
+function setupCloseButton() {
+    // 1. Obtener el botón de cerrar (la cruz 'x')
+    const closeButton = document.querySelector('.close-btn');
+
+    if (closeButton) {
+        // 2. Agregar el listener para redirigir
+        closeButton.addEventListener('click', function(event) {
+            event.preventDefault(); 
+            
+            // 3. Redirigir a la URL de home
+            window.location.href = '/home'; 
+            
+            // Alternativa: Si solo quieres cerrar el modal sin recargar
+            // Nota: En este contexto, volver a /home es lo que pediste.
+        });
+    }
+}
+
+// 4. Llamar a la nueva función en el DOMContentLoaded
+
+document.addEventListener('DOMContentLoaded', () => {
+    showStep("step1");
+    loadSpecialties(); 
+    generateCalendarUI(currentCalendarDate);
+    
+    // 🚨 Nueva inicialización
+    setupCloseButton(); 
+
 // --- 🔹 Inicialización ---
 document.addEventListener('DOMContentLoaded', () => {
     showStep("step1");
@@ -281,4 +311,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById("specialty-list").scrollIntoView({ behavior: "smooth" });
         });
     }
+
 });
+

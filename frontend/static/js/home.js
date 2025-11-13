@@ -1,14 +1,24 @@
 document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("appointments-container");
 
+    // 🔹 Muestra un spinner inicial
+    container.innerHTML = `<div class="loader"></div>`;
+
     // ✅ 1. Cargar citas desde el backend
     async function cargarCitas() {
         try {
             const res = await fetch("http://localhost:5000/api/turnos");
+            if (!res.ok) throw new Error("Error de red o servidor caído");
+
             const data = await res.json();
 
-            if (!data.success) {
-                container.innerHTML = "<p>Error al cargar citas</p>";
+            if (!data.success || !Array.isArray(data.data)) {
+                container.innerHTML = `<p class="error-text">⚠️ Error al cargar las citas.</p>`;
+                return;
+            }
+
+            if (data.data.length === 0) {
+                container.innerHTML = `<p class="no-citas">No tienes citas programadas 🩵</p>`;
                 return;
             }
 
@@ -16,10 +26,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         } catch (error) {
             console.error("Error conectando al backend:", error);
+            container.innerHTML = `<p class="error-text">❌ No se pudieron cargar las citas. Intenta nuevamente más tarde.</p>`;
         }
     }
 
-    // ✅ 2. Renderizar tarjetas
+    // ✅ 2. Renderizar tarjetas de citas
     function renderizarCitas(citas) {
         container.innerHTML = "";
 
@@ -44,7 +55,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 <button class="cancel-btn">Cancelar Cita</button>
             `;
 
-            // ✅ Agregar evento al botón
+            // Agregar animación al renderizar
+            card.style.opacity = "0";
+            setTimeout(() => {
+                card.style.transition = "opacity 0.5s ease-in";
+                card.style.opacity = "1";
+            }, 50);
+
+            // Agregar evento al botón
             card.querySelector(".cancel-btn").addEventListener("click", () => cancelarCita(cita.id, card));
 
             container.appendChild(card);
@@ -60,21 +78,23 @@ document.addEventListener("DOMContentLoaded", () => {
             const res = await fetch(`http://localhost:5000/api/turnos/${id}`, {
                 method: "DELETE"
             });
-
             const data = await res.json();
 
             if (data.success) {
-                cardElement.remove();
+                // Transición suave al eliminar
+                cardElement.style.transition = "opacity 0.4s ease-out";
+                cardElement.style.opacity = "0";
+                setTimeout(() => cardElement.remove(), 400);
             } else {
-                alert("No se pudo cancelar la cita");
+                alert("⚠️ No se pudo cancelar la cita");
             }
 
         } catch (error) {
             console.error("Error al cancelar cita:", error);
+            alert("❌ Error al intentar cancelar la cita");
         }
     }
 
     // ✅ Cargar citas al entrar
     cargarCitas();
 });
-

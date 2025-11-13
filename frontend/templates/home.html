@@ -9,14 +9,13 @@
 </head>
 <body>
 
-    <header class="header">
+<header class="header">
     <div class="logo-section"> 
         <div class="logo-icon-box"> 
             <span class="material-icons">favorite_border</span> 
         </div>
         <div class="logo-text-group"> 
             <h1 class="logo-title">MediCare</h1>
-            <h1 class="logo-title"></h1>
             <p class="logo-subtitle">Gestor de Citas</p>
         </div>
     </div>
@@ -25,51 +24,39 @@
         <a href="/historial" class="new-appointment-btn historial-btn">Ver Historial Clínico</a>
         <a href="/agendar" class="new-appointment-btn nueva-cita-btn">+ Nueva Cita</a>
     </div>
-    </header>
+</header>
 
-    <main class="container">
-        <div class="subtitle-tag">📅 Salud Simplificada</div>
-        
-        <h1 class="main-title">Gestiona tus Citas Médicas</h1>
-        <p class="main-description">Mantén el control de todas tus citas médicas en un lugar seguro. Agenda, visualiza y gestiona tus visitas de salud con facilidad.</p>
+<main class="container">
+    <div class="subtitle-tag">📅 Salud Simplificada</div>
+    
+    <h1 class="main-title">Gestiona tus Citas Médicas</h1>
+    <p class="main-description">Mantén el control de todas tus citas médicas en un lugar seguro. Agenda, visualiza y gestiona tus visitas de salud con facilidad.</p>
 
-        <section class="features-grid">
-            <div class="feature-card">
-                <span class="icon">📅</span>
-                <h3>Agendamiento Fácil</h3>
-                <p>Programa citas en segundos con nuestro formulario simple</p>
-            </div>
-            <div class="feature-card">
-                <span class="icon">💙</span>
-                <h3>Todo en un Solo Lugar</h3>
-                <p>Visualiza todas tus citas médicas de un vistazo</p>
-            </div>
-            <div class="feature-card">
-                <span class="icon">✅</span>
-                <h3>Nunca Pierdas una Visita</h3>
-                <p>Mantente al día con tu agenda de salud</p>
-            </div>
-        </section>
+    <section class="features-grid">
+        <div class="feature-card">
+            <span class="icon">📅</span>
+            <h3>Agendamiento Fácil</h3>
+            <p>Programa citas en segundos con nuestro formulario simple</p>
+        </div>
+        <div class="feature-card">
+            <span class="icon">💙</span>
+            <h3>Todo en un Solo Lugar</h3>
+            <p>Visualiza todas tus citas médicas de un vistazo</p>
+        </div>
+        <div class="feature-card">
+            <span class="icon">✅</span>
+            <h3>Nunca Pierdas una Visita</h3>
+            <p>Mantente al día con tu agenda de salud</p>
+        </div>
+    </section>
 
-        <h2 class="section-title">Próximas Citas</h2>
-        
-        <section class="appointments-grid">
-            <section id="appointments-container" class="appointments-grid"></section>
-                <div class="card-header">
-                    <h3 class="doctor-name">{{ cita.doctor }}</h3>
-                    <span class="status-tag">Próxima</span>
-                </div>
-                <p class="specialty">{{ cita.especialidad }}</p>
-                <div class="details">
-                    <p class="detail-item"><span class="icon">📅</span> {{ cita.fecha }}</p>
-                    <p class="detail-item"><span class="icon">🕒</span> {{ cita.hora }}</p>
-                    <p class="detail-item"><span class="icon">📍</span> {{ cita.lugar }}</p>
-                </div>
-                <button class="cancel-btn">Cancelar Cita</button>
-            </section>
-            </section>
-    </main>
+    <h2 class="section-title">Próximas Citas</h2>
 
-    <script src="{{ url_for('static', filename='js/home.js') }}"></script>
+    <section id="appointments-container" class="appointments-grid">
+        <!-- Aquí se insertan las citas dinámicamente -->
+    </section>
+</main>
+
+<script src="{{ url_for('static', filename='js/home.js') }}"></script>
 </body>
 </html>

@@ -30,7 +30,8 @@ def login_post():
 
 @frontend_bp.route('/home')
 def home():
-    return render_template('home.html')
+    cita = {"doctor": "Dr. López", "paciente": "Juan Pérez", "fecha": "2025-11-11"}
+    return render_template('home.html', cita=cita)
 
 @frontend_bp.route('/agendar')
 def agendar_cita():

@@ -13,7 +13,7 @@ def login():
     """
     try:
         data = request.get_json()
-        
+
         if not data or not data.get('username') or not data.get('password'):
             return jsonify({
                 "success": False,
@@ -43,7 +43,7 @@ def login():
                     "rol": usuario.tipo_usuario.tipo if usuario.tipo_usuario else "PACIENTE",
                     "nombre": paciente['nombre'],
                     "apellido": paciente['apellido'],
-                    "email": paciente['email'],
+                    "mail": paciente['mail'],
                     "dni": paciente['dni']
                 }
             }), 200
@@ -68,13 +68,14 @@ def login():
 
 @usuarios_bp.route('/registro', methods=['POST'])
 def registro():
+    
     """
     Endpoint de registro
     POST /api/usuarios/registro
     Body: {
         "username": "...",
         "password": "...",
-        "email": "...",
+        "mail": "...",
         "nombre": "...",
         "apellido": "...",
         "dni": "...",
@@ -84,8 +85,10 @@ def registro():
     """
     try:
         data = request.get_json()
+        print("📥 Datos recibidos en /api/usuarios/registro:", data)
         
         # Validar campos requeridos
+     
         required_fields = ['username', 'password', 'email', 'nombre', 'apellido', 'dni']
         for field in required_fields:
             if not data.get(field):
@@ -100,7 +103,7 @@ def registro():
         if not nuevo_usuario:
             return jsonify({
                 "success": False,
-                "message": "No se pudo crear el usuario. Verifique que el username, email o DNI no estén en uso."
+                "message": "No se pudo crear el usuario. Verifique que el username, mail o DNI no estén en uso."
             }), 400
         
         return jsonify({

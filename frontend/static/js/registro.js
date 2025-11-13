@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
             edad: parseInt(document.getElementById("age").value),
             fecha_nacimiento: document.getElementById("dob").value,
             email: document.getElementById("email").value.trim()
+
         };
 
         // Validaciones básicas

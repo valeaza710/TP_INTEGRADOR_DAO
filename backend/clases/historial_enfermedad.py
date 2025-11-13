@@ -6,7 +6,6 @@ from backend.clases.enfermedad import Enfermedad
 class HistorialEnfermedad:
     def __init__(
         self,
-        id: int = None,
         historial_clinico: HistorialClinico = None,
         enfermedad: Enfermedad = None,
         fecha_diagnostico: date = None,

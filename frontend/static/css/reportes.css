@@ -1,0 +1,283 @@
+/* ===================================== */
+/* 1. VARIABLES Y COLORES PRINCIPALES (MEDI-CARE - HSL Turquesa) */
+/* ===================================== */
+
+:root {
+    /* Color Primario: Azul turquesa claro/cian */
+    --primary-hue: 180; /* Tono cian */
+    --primary-saturation: 80%;
+    --primary-lightness: 50%;
+    
+    --primary: var(--primary-hue) var(--primary-saturation) var(--primary-lightness); /* Color de botones, líneas activas */
+    --primary-foreground: 0 0% 100%; /* Blanco */
+    --primary-hover: var(--primary-hue) var(--primary-saturation) calc(var(--primary-lightness) - 5%); /* Hover */
+
+    /* Fondo de la interfaz */
+    --background: 210 40% 98%; /* Blanco muy ligero, casi blanco */
+    
+    /* Colores Neutros */
+    --muted: 210 40% 96.1%;          /* Fondo gris claro (bg-muted) */
+    --muted-foreground: 215.4 16.3% 46.9%; /* Texto gris */
+    --border: 214.3 31.8% 91.4%;    /* Borde gris muy claro */
+    --card: 0 0% 100%;               /* Fondo blanco de tarjetas */
+    --foreground-dark: 222.2 47.4% 11.2%; /* Texto oscuro principal */
+    
+    /* Colores de Estado */
+    --destructive: 0 84.2% 60.2%;   /* Rojo */
+    --success: 142 76% 36%;         /* Verde para Asistencias */
+    
+    /* Colores de Estado - Éxito (Verde para Asistencias) */
+    --success-light: 142 76% 95%; /* Fondo muy claro (ej: green-100) */
+    --success-border: 142 76% 80%; /* Borde claro */
+
+    /* Colores de Estado - Destructivo (Rojo para Inasistencias) */
+    --destructive-light: 0 84.2% 95%; /* Fondo muy claro (ej: red-100) */
+    --destructive-border: 0 84.2% 80%; /* Borde claro */
+
+    --card-radius: 0.75rem; /* rounded-xl */
+    --input-radius: 0.5rem; /* rounded-lg */
+}
+
+/* Aplicación de colores base */
+body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground-dark)); 
+    font-family: Arial, sans-serif;
+}
+
+/* ===================================== */
+/* 2. CLASES UTILITARIAS Y FLEXBOX */
+/* ===================================== */
+
+/* Contenedores y Tarjetas */
+.card, .form-card {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--card-radius); 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Colores de Fondo */
+.bg-muted\/50 { background-color: hsla(var(--muted), 0.5); }
+.bg-gray-50 { background-color: hsla(var(--muted), 0.8); } 
+
+/* Colores de Texto */
+.text-primary { color: hsl(var(--primary)); }
+.text-muted-foreground { color: hsl(var(--muted-foreground)); }
+.text-destructive { color: hsl(var(--destructive)); }
+.text-success { color: hsl(var(--success)); }
+
+/* Tipografía */
+.text-3xl { font-size: 1.8rem; line-height: 2.2rem; }
+.text-xl { font-size: 1.4rem; line-height: 2rem; } 
+.text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+.font-bold { font-weight: 700; }
+.font-semibold { font-weight: 600; }
+
+/* Espaciado y Grid */
+.p-6 { padding: 1.5rem; }
+.p-4 { padding: 1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.space-y-6 > * + * { margin-top: 1.5rem !important; }
+.space-y-2 > * + * { margin-top: 0.5rem !important; }
+
+/* Flexbox (Añadidas para el botón superior) */
+.flex { display: flex; }
+.justify-between { justify-content: space-between; }
+.items-center { align-items: center; }
+
+/* Grid responsive */
+.grid { display: grid; }
+.gap-4 { grid-gap: 1rem; gap: 1rem; }
+.gap-6 { grid-gap: 1.5rem; gap: 1.5rem; }
+
+@media (min-width: 768px) {
+    .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+
+/* ===================================== */
+/* 3. NAVEGACIÓN DE PESTAÑAS (TABS) */
+/* ===================================== */
+
+.tabs-list {
+    display: flex;
+    border-bottom: 1px solid hsl(var(--border));
+    padding-bottom: 0;
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+}
+
+.tab-trigger {
+    background: none;
+    border: none;
+    padding: 15px 20px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    color: hsl(var(--muted-foreground));
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+
+.tab-trigger:hover {
+    color: hsl(var(--primary));
+}
+
+.tab-trigger.active {
+    color: hsl(var(--primary));
+    border-bottom-color: hsl(var(--primary));
+    font-weight: 600;
+}
+
+.report-content {
+  max-width: 800px;  /* Tamaño aproximado A4 /
+  margin: 0 auto;    / Centra el contenido */
+  overflow-x: visible !important;
+  height: auto !important;   
+}
+.report-content.hidden {
+    display: none;
+}
+
+
+/* ===================================== */
+/* 4. FORMULARIOS Y BOTONES */
+/* ===================================== */
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--input-radius); 
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    padding: 0.6rem 1.25rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: hsl(var(--primary-hover));
+}
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--input-radius); 
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    padding: 0.6rem 1.25rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: hsl(var(--primary-hover));
+}
+
+/* 🚨 NUEVA CLASE PARA LOS BOTONES PDF 🚨 */
+/* Usa las mismas propiedades visuales que btn-primary */
+.btn-primary-pdf {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--input-radius); 
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    padding: 0.6rem 1.25rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-primary-pdf:hover {
+    background-color: hsl(var(--primary-hover));
+}
+
+
+label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: hsl(var(--foreground-dark)); 
+    display: block; 
+}
+
+/* Estilo de Inputs/Select */
+input[type="date"], input[type="text"], select {
+    border: 1px solid hsl(var(--border));
+    padding: 0.6rem 0.75rem; 
+    border-radius: var(--input-radius);
+    background-color: hsl(var(--card));
+    font-size: 1rem;
+    width: 100%;
+    box-sizing: border-box; 
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input[type="date"]:focus, input[type="text"]:focus, select:focus {
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 0 2px hsla(var(--primary) / 0.2);
+    outline: none;
+}
+
+
+/* ===================================== */
+/* 5. TABLAS Y REPORTES DE CIFRAS */
+/* ===================================== */
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table thead {
+    background-color: hsl(var(--muted)); 
+}
+
+table th, table td {
+    padding: 1rem;
+    border-bottom: 1px solid hsl(var(--border));
+    text-align: left;
+    font-size: 0.95rem;
+}
+
+table th {
+    font-weight: 600;
+    color: hsl(var(--muted-foreground));
+    text-transform: uppercase;
+    font-size: 0.8rem;
+}
+
+table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* Indicadores de Gráfico (Asistencia/Inasistencia) */
+
+.card-indicator {
+    padding: 1rem;
+    border-radius: var(--input-radius);
+}
+
+/* Colores para Asistencias (Verde) */
+.bg-success-light { background-color: hsl(var(--success-light)); }
+.border-success-border { border-color: hsl(var(--success-border)); }
+
+/* Colores para Inasistencias (Rojo) */
+.bg-destructive-light { background-color: hsl(var(--destructive-light)); }
+.border-destructive-border { border-color: hsl(var(--destructive-border)); }

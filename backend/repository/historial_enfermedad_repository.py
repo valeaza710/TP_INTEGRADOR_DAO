@@ -10,7 +10,7 @@ class HistorialEnfermedadRepository:
 
     def save(self, historial_enfermedad: HistorialEnfermedad):
         query = """
-            INSERT INTO historial_enfermedad (id_historial_clinico, id_enfermedad, fecha_diagnostico, observaciones)
+            INSERT INTO historial_enfermedad (id_historial, id_enfermedad, fecha_diagnostico, observaciones)
             VALUES (?, ?, ?, ?)
         """
         params = (
@@ -45,22 +45,7 @@ class HistorialEnfermedadRepository:
                 conn.close()
 
     def get_by_id(self, id_historial_enfermedad: int):
-        query = "SELECT * FROM historial_enfermedad WHERE id = ?"
-        data = self.db.execute_query(query, (id_historial_enfermedad,), fetch=True)
-        if not data:
-            return None
-        row = data[0]
-
-        historial = HistorialClinico(id=row["id_historial_clinico"])
-        enfermedad = Enfermedad(id=row["id_enfermedad"])
-
-        return HistorialEnfermedad(
-            id=row["id"],
-            historial_clinico=historial,
-            enfermedad=enfermedad,
-            fecha_diagnostico=row["fecha_diagnostico"],
-            observaciones=row["observaciones"],
-        )
+        pass
 
     def get_all(self):
         query = "SELECT * FROM historial_enfermedad"
@@ -68,11 +53,10 @@ class HistorialEnfermedadRepository:
         historial_enfermedades = []
         if rows:
             for row in rows:
-                historial = HistorialClinico(id=row["id_historial_clinico"])
+                historial = HistorialClinico(id=row["id_historial"])
                 enfermedad = Enfermedad(id=row["id_enfermedad"])
                 historial_enfermedades.append(
                     HistorialEnfermedad(
-                        id=row["id"],
                         historial_clinico=historial,
                         enfermedad=enfermedad,
                         fecha_diagnostico=row["fecha_diagnostico"],
@@ -87,7 +71,7 @@ class HistorialEnfermedadRepository:
                 SELECT he.id AS id,
                        he.fecha_diagnostico,
                        he.observaciones,
-                       he.id_historial_clinico,
+                       he.id_historial,
                        he.id_enfermedad,
                        e.nombre AS enfermedad_nombre
                 FROM historial_enfermedad he
@@ -104,8 +88,7 @@ class HistorialEnfermedadRepository:
             historiales = []
             for r in rows:
                 historial = HistorialEnfermedad(
-                    id=r["id"],
-                    historial_clinico=HistorialClinico(id=r["id_historial_clinico"]),
+                    historial_clinico=HistorialClinico(id=r["id_historial"]),
                     enfermedad=Enfermedad(
                         id=r["id_enfermedad"],
                         nombre=r["enfermedad_nombre"]
@@ -124,7 +107,7 @@ class HistorialEnfermedadRepository:
     def modify(self, historial_enfermedad: HistorialEnfermedad):
         query = """
             UPDATE historial_enfermedad
-            SET id_historial_clinico=?, id_enfermedad=?, fecha_diagnostico=?, observaciones=?
+            SET id_historial=?, id_enfermedad=?, fecha_diagnostico=?, observaciones=?
             WHERE id=?
         """
         params = (
@@ -135,7 +118,7 @@ class HistorialEnfermedadRepository:
             historial_enfermedad.id,
         )
         success = self.db.execute_query(query, params)
-        return self.get_by_id(historial_enfermedad.id) if success else None
+        return self.get_by_id(historial_enfermedad) if success else None
 
     def delete(self, historial_enfermedad: HistorialEnfermedad):
         query = "DELETE FROM historial_enfermedad WHERE id=?"

@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from backend.services.horario_medico_service import HorarioMedicoService
 
-horario_medico_bp = Blueprint("horario_medico_bp", __name__)
+horario_medico_bp = Blueprint("horario_medico_bp", __name__, url_prefix='/api/horarios_medico')
 service = HorarioMedicoService()
 
 # -----------------------------------

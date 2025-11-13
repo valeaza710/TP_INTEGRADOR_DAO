@@ -128,8 +128,6 @@ class HistorialEnfermedadService:
     def _to_dict(self, h: HistorialEnfermedad):
 
         return {
-            "id": h.id,
-
             # Datos del historial clínico y del paciente asociado
             "historial_clinico": {
                 "id": h.historial_clinico.id if h.historial_clinico else None,

@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from backend.services.historial_enfermedad_service import HistorialEnfermedadService
 
 # Blueprint
-historial_enfermedad_bp = Blueprint('historial_enfermedad', __name__, url_prefix='/api/historiales_enfermedad')
+historial_enfermedad_bp = Blueprint('historial_enfermedad_bp', __name__, url_prefix='/api/historiales_enfermedad')
 
 # Instancia del service
 historial_service = HistorialEnfermedadService()

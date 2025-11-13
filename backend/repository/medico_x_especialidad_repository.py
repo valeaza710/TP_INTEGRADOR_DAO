@@ -16,3 +16,17 @@ class MedicoXEspecialidadRepository:
         query = "SELECT id_especialidad FROM medico_x_especialidad WHERE id_medico = ?"
         rows = self.db.execute_query(query, (id_medico,), fetch=True)
         return [r["id_especialidad"] for r in rows] if rows else []
+
+    # ✅ NUEVO: buscar médicos por nombre de especialidad
+    def list_medicos_by_especialidad_nombre(self, nombre_especialidad: str):
+        query = """
+            SELECT m.id, m.nombre, m.apellido, m.matricula
+            FROM medico m
+            JOIN medico_x_especialidad me ON m.id = me.id_medico
+            JOIN especialidad e ON e.id = me.id_especialidad
+            WHERE LOWER(e.nombre) = LOWER(?)
+        """
+        rows = self.db.execute_query(query, (nombre_especialidad,), fetch=True)
+        return rows or []
+
+

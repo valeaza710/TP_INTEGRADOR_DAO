@@ -55,6 +55,66 @@ def eliminar(agenda_id):
         return jsonify({"mensaje": "Turno eliminado correctamente"}), 200
     return jsonify({"error": "No se pudo eliminar el turno"}), 400
 
+
+# -----------------------------------
+# GET /api/agenda/medico/<id_medico>
+# -----------------------------------
+@agenda_turno_bp.route("/medico/<int:id_medico>", methods=["GET"])
+def obtener_turnos_por_medico(id_medico):
+    """
+    Devuelve los turnos de un médico, excluyendo estados 1, 4 y 5.
+    """
+    try:
+        turnos = service.get_by_medico(id_medico)
+        return jsonify({
+            "success": True,
+            "data": turnos,
+            "count": len(turnos)
+        }), 200
+
+    except Exception as e:
+        print(f"❌ Error en obtener_turnos_por_medico: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# -----------------------------------
+# GET /api/agenda/medico/<id_medico>/historial
+# -----------------------------------
+@agenda_turno_bp.route("/medico/<int:id_medico>/historial", methods=["GET"])
+def obtener_historial_medico(id_medico):
+    """
+    Devuelve los turnos atendidos (estado = 3) de un médico.
+    """
+    try:
+        turnos = service.get_historial_by_medico(id_medico)
+        return jsonify({
+            "success": True,
+            "data": turnos,
+            "count": len(turnos)
+        }), 200
+    except Exception as e:
+        print(f"❌ Error en obtener_historial_medico: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+# -----------------------------------
+# GET /api/agenda/medico/<id_medico>/hoy
+# -----------------------------------
+@agenda_turno_bp.route("/medico/<int:id_medico>/hoy", methods=["GET"])
+def obtener_turnos_hoy_medico(id_medico):
+    """
+    Devuelve los turnos del día actual de un médico.
+    """
+    try:
+        turnos = service.get_turnos_hoy_by_medico(id_medico)
+        return jsonify({
+            "success": True,
+            "data": turnos,
+            "count": len(turnos)
+        }), 200
+    except Exception as e:
+        print(f"❌ Error en obtener_turnos_hoy_medico: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
 # GET /api/agenda/detalles
 @agenda_turno_bp.route("/detalles", methods=["GET"])
 def obtener_turnos_detalles():

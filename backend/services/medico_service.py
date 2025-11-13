@@ -144,6 +144,24 @@ class MedicoService:
             } if m.usuario else None
         }
 
+    # ------------------------------------
+    # GET BY ESPECIALIDAD
+    # ------------------------------------
+    def get_by_especialidad(self, nombre_especialidad: str):
+        try:
+            medicos = self.repository.get_by_especialidad(nombre_especialidad)
+            return [
+                {
+                    "id": m["id"],
+                    "nombre": m["nombre"],
+                    "apellido": m["apellido"],
+                    "matricula": m["matricula"]
+                }
+                for m in medicos
+            ]
+        except Exception as e:
+            print(f"Error en get_by_especialidad: {e}")
+            raise Exception("Error al obtener médicos por especialidad")
 
     def get_all_basic(self):
     #Devuelve una lista simple de médicos con sus datos principales
@@ -166,3 +184,4 @@ class MedicoService:
         except Exception as e:
             print(f"Error en get_all_basic: {e}")
             raise Exception("Error al obtener médicos básicos")
+

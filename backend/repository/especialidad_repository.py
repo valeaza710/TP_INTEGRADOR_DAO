@@ -105,3 +105,5 @@ class EspecialidadRepository(Repository):
                 especialidad = Especialidad(id=row["id"], nombre=row["nombre"])
                 especialidades.append(especialidad)
         return especialidades
+    
+    

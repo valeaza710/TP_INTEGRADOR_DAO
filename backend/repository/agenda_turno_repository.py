@@ -4,6 +4,7 @@ from backend.repository.paciente_repository import PacienteRepository
 from backend.repository.estado_turno_repository import EstadoTurnoRepository
 from backend.repository.horario_medico_repository import HorarioMedicoRepository
 from backend.repository.repository import Repository
+from datetime import date
 
 
 class AgendaTurnoRepository(Repository):
@@ -182,6 +183,58 @@ class AgendaTurnoRepository(Repository):
             } if a.horario_medico else None
         }
 
+    # -------------------------------------------------------------------------
+    # Ver turnos ya atendidos por médico (historial)
+    # -------------------------------------------------------------------------
+    def get_atendidos_by_medico(self, id_medico: int):
+        """
+        Devuelve todos los turnos de un médico que ya fueron atendidos.
+        Se asume que el estado 3 = 'Ya atendido' o como sea que se llame.
+        """
+        query = """
+            SELECT a.*
+            FROM agenda_turno a
+            JOIN horario_medico h ON a.id_horario_medico = h.id
+            WHERE h.id_medico = ?
+              AND a.id_estado_turno = 3
+            ORDER BY a.fecha DESC, a.hora DESC
+        """
+        rows = self.db.execute_query(query, (id_medico,), fetch=True)
+        if not rows:
+            return []
+
+        turnos = []
+        for r in rows:
+            turnos.append(self._map_row_to_agenda_turno(r))
+        return turnos
+
+    # -------------------------------------------------------------------------
+    # Ver turnos del día actual por médico
+    # -------------------------------------------------------------------------
+    def get_turnos_hoy_by_medico(self, id_medico: int):
+        """
+        Devuelve los turnos del día actual de un médico.
+        Excluye los estados cancelado (4) y ausente (5).
+        """
+        hoy = date.today().isoformat()
+        query = """
+            SELECT a.*
+            FROM agenda_turno a
+            JOIN horario_medico h ON a.id_horario_medico = h.id
+            WHERE h.id_medico = ?
+              AND a.fecha = ?
+              AND a.id_estado_turno NOT IN (4, 5)
+            ORDER BY a.hora ASC
+        """
+        rows = self.db.execute_query(query, (id_medico, hoy), fetch=True)
+        if not rows:
+            return []
+
+        turnos = []
+        for r in rows:
+            turnos.append(self._map_row_to_agenda_turno(r))
+        return turnos
+
 #PARA PANEL SECRETARIA
     def get_todos_los_turnos(self):
         query = """
@@ -219,3 +272,32 @@ class AgendaTurnoRepository(Repository):
             }
             for row in rows
         ]
+    
+    def get_slots_by_filters(self, id_especialidad, id_medico, fecha):
+            """
+            Obtiene slots (disponibles y ocupados) filtrados por especialidad, 
+            médico (opcional) y fecha.
+            """
+            # ⚠️ IMPORTANTE: Esta consulta une 4 tablas para asegurar que el slot
+            # esté relacionado con la ESPECIALIDAD Y el MEDICO seleccionados.
+            query = """
+                SELECT 
+                    at.id, at.fecha, at.hora, at.id_paciente, at.id_estado_turno, 
+                    at.id_horario_medico,
+                    m.nombre as medico_nombre, m.apellido as medico_apellido, m.id as medico_id
+                FROM agenda_turno at
+                JOIN horario_medico hm ON at.id_horario_medico = hm.id
+                JOIN medico m ON hm.id_medico = m.id
+                JOIN medico_x_especialidad mxe ON m.id = mxe.id_medico
+                WHERE mxe.id_especialidad = ?
+                AND at.fecha = ?
+            """
+            params = [id_especialidad, fecha]
+            
+            if id_medico is not None:
+                query += " AND m.id = ?"
+                params.append(id_medico)
+
+            rows = self.db.execute_query(query, params, fetch=True)
+            return rows
+

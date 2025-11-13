@@ -232,11 +232,8 @@ label {
     font-size: 24px;
     color: var(--text-secondary);
     cursor: pointer;
-    position: absolute;
-    top: 15px;
-    left: 20px;
-    padding: 0;
-    line-height: 1;
+
+    margin-right: 5px; 
 }
 .back-arrow:hover {
     color: var(--primary-color);
@@ -645,7 +642,7 @@ label {
     justify-content: space-between;
     align-items: flex-start; /* Para alinear el botón de cerrar en la esquina */
     margin-bottom: 20px;
-    position: relative;
+
 }
 .dialog-header .flex { /* Ajuste para el contenido del título */
     display: flex;

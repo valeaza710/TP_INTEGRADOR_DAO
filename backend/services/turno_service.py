@@ -1,9 +1,17 @@
+from  backend.repository.agenda_turno_repository import AgendaTurnoRepository
+from backend.repository.especialidad_repository import EspecialidadRepository
+
+
 # backend/services/turno_service.py
 from backend.services.agenda_turno_service import AgendaTurnoService
+
 
 class TurnoService:
     def __init__(self):
         self.agenda_service = AgendaTurnoService()
+        self.agenda_repo = AgendaTurnoRepository() 
+        self.especialidad_repo = EspecialidadRepository()
+        
 
     # -----------------------------
     # Obtener todos los turnos
@@ -13,7 +21,6 @@ class TurnoService:
         lista = []
 
         for t in turnos:
-            # Convertimos la estructura simple que necesita el frontend
             lista.append({
                 "id": t["id"],
                 "doctor": f"Dr. {t.get('doctor', 'Sin asignar')}",
@@ -21,7 +28,7 @@ class TurnoService:
                 "fecha": t["fecha"],
                 "hora": t["hora"],
                 "lugar": t.get("lugar", "Sin especificar"),
-                "estado": "Pendiente",  # o mapeá según estado_turno si querés
+                "estado": "Pendiente",
                 "paciente": t.get("paciente", "Sin paciente")
             })
 
@@ -31,32 +38,61 @@ class TurnoService:
     # Crear un turno
     # -----------------------------
     def create(self, data):
-        # Reutilizamos la lógica de AgendaTurnoService
-        return self.agenda_service.create(data)
+    # La AgendaTurnoService.create puede devolver una tupla (response, status) si falla O el objeto completo si es exitoso.
+        resultado = self.agenda_service.create(data)
+        
+        # Si el resultado es una tupla, probablemente es un error
+        if isinstance(resultado, tuple):
+            # Esto pasa cuando AgendaTurnoService.create devuelve jsonify({"error": ...}), 404
+            # Devolvemos la tupla para que el router la maneje
+            return resultado
+            
+        return resultado # Retorna el objeto de turno guardado si es exitoso
+        # -----------------------------
 
-    # -----------------------------
+
     # Eliminar turno
     # -----------------------------
     def delete(self, id):
         return self.agenda_service.delete(id)
 
-def get_available_slots(self, specialty=None, doctor_name=None, date=None):
-    turnos = self.repo.get_all()  # Trae todos los turnos
-    available = []
+    # -----------------------------
+    # Obtener horarios disponibles
+    # -----------------------------
+    def get_available_slots(self, specialty_name=None, doctor_id_str=None, date_str=None):
+            
+            # 1. Obtener ID de Especialidad usando tu repositorio
+            especialidad = self.especialidad_repo.get_by_nombre(specialty_name)
+            if not especialidad:
+                return []
+            id_especialidad = especialidad.id 
 
-    for t in turnos:
-        if t.fecha == date:
-            continue  # Ya ocupado
-        if doctor_name and t.horario_medico.medico.nombre + " " + t.horario_medico.medico.apellido != doctor_name:
-            continue
-        if specialty and t.horario_medico.medico.especialidad.nombre != specialty:
-            continue
-        
-        available.append({
-            "id_horario_medico": t.horario_medico.id,
-            "doctor": f"Dr. {t.horario_medico.medico.nombre} {t.horario_medico.medico.apellido}",
-            "time": t.hora,
-            "location": f"Consultorio {t.horario_medico.id}"
-        })
+            # 2. Preparar ID de Médico
+            doctor_id = None
+            if doctor_id_str and doctor_id_str != 'all' and doctor_id_str != 'null':
+                try:
+                    doctor_id = int(doctor_id_str)
+                except ValueError:
+                    pass 
 
-    return available
+            # 3. Consultar Slots (usa la nueva función del repositorio)
+            turnos_encontrados = self.agenda_repo.get_slots_by_filters(
+                id_especialidad, doctor_id, date_str
+            )
+
+            available_slots = []
+            
+            # 4. Filtrar por Estado (id_estado_turno = 1) y Formatear
+            for t in turnos_encontrados:
+                # Aquí está el filtro clave: SOLO el estado 1 (Disponible)
+                if t["id_estado_turno"] == 1: 
+                    available_slots.append({
+                        "doctor_id": t['medico_id'],
+                        "doctor": f"{t['medico_nombre']} {t['medico_apellido']}",
+                        "time": t['hora'],
+                        "date": t['fecha'],
+                        "id_turno": t['id'], 
+                        "id_horario_medico": t.get("id_horario_medico")
+                    })
+                    
+            return available_slots

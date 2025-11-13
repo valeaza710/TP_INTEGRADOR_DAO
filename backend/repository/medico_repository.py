@@ -182,3 +182,12 @@ class MedicoRepository(Repository):
         except Exception as e:
             print(f"❌ Error al borrar asociaciones de medico {medico.id}: {e}")
         return self.db.execute_query("DELETE FROM medico WHERE id = ?", (medico.id,))
+    
+    # ✅ NUEVO MÉTODO
+    def get_by_especialidad(self, nombre_especialidad: str):
+        try:
+            medicos_data = self.mxesp_repo.list_medicos_by_especialidad_nombre(nombre_especialidad)
+            return medicos_data
+        except Exception as e:
+            print(f"❌ Error en get_by_especialidad: {e}")
+            return []

@@ -46,11 +46,9 @@ def login():
 @frontend_bp.route('/home')
 def home():
     # Aseguramos que solo los logueados puedan acceder a home
-    if 'paciente_id' not in session:
+    if 'paciente_id' not in session: # Aquí es donde se cae
         return redirect(url_for('frontend.login'))
-
-    cita = {"doctor": "Dr. López", "paciente": "Juan Pérez", "fecha": "2025-11-11"}
-    return render_template('home.html', cita=cita)
+    # ...
 
 @frontend_bp.route('/agendar')
 def agendar_cita():

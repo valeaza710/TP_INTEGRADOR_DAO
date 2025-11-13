@@ -16,7 +16,7 @@ def listar_estados():
         estados = estado_turno_service.get_all()
         return jsonify({
             "success": True,
-            "data": [e.__dict__ for e in estados],
+            "data": estados,
             "count": len(estados)
         }), 200
     except Exception as e:
@@ -32,7 +32,7 @@ def obtener_estado(id):
         estado = estado_turno_service.get_by_id(id)
         if not estado:
             return jsonify({"success": False, "error": "Estado no encontrado"}), 404
-        return jsonify({"success": True, "data": estado.__dict__}), 200
+        return jsonify({"success": True, "data": estado}), 200
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
@@ -50,7 +50,7 @@ def crear_estado():
         nuevo = estado_turno_service.create(data)
         return jsonify({
             "success": True,
-            "data": nuevo.__dict__,
+            "data": nuevo,
             "message": "Estado de turno creado exitosamente"
         }), 201
     except ValueError as e:
@@ -72,7 +72,7 @@ def actualizar_estado(id):
 
         return jsonify({
             "success": True,
-            "data": actualizado.__dict__,
+            "data": actualizado,
             "message": "Estado actualizado exitosamente"
         }), 200
     except Exception as e:

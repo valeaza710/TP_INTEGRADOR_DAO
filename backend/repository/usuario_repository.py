@@ -12,11 +12,12 @@ class UsuarioRepository(Repository):
     def save(self, usuario: Usuario):
         """Guardar nuevo usuario (SOLO credenciales)"""
         query = """
-            INSERT INTO usuario (nombre_usuario, contrasena, rol)
+            INSERT INTO usuario (nombre_usuario, contrasena, tipo_usuario)
             VALUES (?, ?, ?)
         """
-        rol_id = usuario.tipo_usuario.id if usuario.tipo_usuario else None
-        params = (usuario.nombre_usuario, usuario.contrasena, rol_id)
+
+        tipo_id = usuario.tipo_usuario.id if usuario.tipo_usuario else None
+        params = (usuario.nombre_usuario, usuario.contrasena, tipo_id)
 
         conn = self.db.connect()
         if not conn:
@@ -54,6 +55,7 @@ class UsuarioRepository(Repository):
         data = self.db.execute_query(query, (usuario_id,), fetch=True)
         if not data:
             return None
+
         return self._build_usuario(data[0])
 
     def get_all(self):
@@ -73,11 +75,11 @@ class UsuarioRepository(Repository):
         """Actualizar usuario"""
         query = """
             UPDATE usuario 
-            SET nombre_usuario = ?, contrasena = ?, rol = ?
+            SET nombre_usuario = ?, contrasena = ?, tipo_usuario = ?
             WHERE id = ?
         """
-        rol_id = usuario.tipo_usuario.id if usuario.tipo_usuario else None
-        params = (usuario.nombre_usuario, usuario.contrasena, rol_id, usuario.id)
+        tipo_id = usuario.tipo_usuario.id if usuario.tipo_usuario else None
+        params = (usuario.nombre_usuario, usuario.contrasena, tipo_id, usuario.id)
 
         success = self.db.execute_query(query, params)
         return usuario if success else None
@@ -91,10 +93,10 @@ class UsuarioRepository(Repository):
     def _build_usuario(self, row):
         """Construir objeto Usuario desde una fila de BD"""
         tipo_usuario = None
-        if row.get("rol"):
+        if row.get("tipo_usuario"):
             tipo_data = self.db.execute_query(
                 "SELECT * FROM tipo_usuario WHERE id = ?",
-                (row["rol"],),
+                (row["tipo_usuario"],),
                 fetch=True
             )
             if tipo_data:
@@ -107,3 +109,4 @@ class UsuarioRepository(Repository):
             contrasena=row["contrasena"],
             tipo_usuario=tipo_usuario
         )
+

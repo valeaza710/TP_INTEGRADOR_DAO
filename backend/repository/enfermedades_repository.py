@@ -49,7 +49,7 @@ class EnfermedadRepository(Repository):
         )
 
     def get_all(self):
-        query = "SELECT * FROM enfermedad"
+        query = "SELECT * FROM enfermedades"
         rows = self.db.execute_query(query, fetch=True)
         enfermedades = []
         if rows:
@@ -64,18 +64,18 @@ class EnfermedadRepository(Repository):
         return enfermedades
 
     def modify(self, enfermedad: Enfermedad):
-        query = "UPDATE enfermedad SET nombre = ?, descripcion = ? WHERE id = ?"
+        query = "UPDATE enfermedades SET nombre = ?, descripcion = ? WHERE id = ?"
         params = (enfermedad.nombre, enfermedad.descripcion, enfermedad.id)
         success = self.db.execute_query(query, params)
         return self.get_by_id(enfermedad.id) if success else None
 
     def delete(self, enfermedad: Enfermedad):
-        query = "DELETE FROM enfermedad WHERE id = ?"
+        query = "DELETE FROM enfermedades WHERE id = ?"
         success = self.db.execute_query(query, (enfermedad.id,))
         return success
 
     def search_by_nombre(self, nombre_parcial: str):
-        query = "SELECT * FROM enfermedad WHERE nombre LIKE ?"
+        query = "SELECT * FROM enfermedades WHERE nombre LIKE ?"
         rows = self.db.execute_query(query, (f'%{nombre_parcial}%',), fetch=True)
         enfermedades = []
         if rows:

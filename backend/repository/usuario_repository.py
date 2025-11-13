@@ -12,7 +12,7 @@ class UsuarioRepository(Repository):
     def save(self, usuario: Usuario):
         """Guardar nuevo usuario (SOLO credenciales)"""
         query = """
-            INSERT INTO usuario (nombre_usuario, contrasena, tipo_usuario)
+            INSERT INTO usuario (nombre_usuario, contrasena, id_tipo_usuario)
             VALUES (?, ?, ?)
         """
 
@@ -75,7 +75,7 @@ class UsuarioRepository(Repository):
         """Actualizar usuario"""
         query = """
             UPDATE usuario 
-            SET nombre_usuario = ?, contrasena = ?, tipo_usuario = ?
+            SET nombre_usuario = ?, contrasena = ?, id_tipo_usuario = ?
             WHERE id = ?
         """
         tipo_id = usuario.tipo_usuario.id if usuario.tipo_usuario else None
@@ -93,10 +93,10 @@ class UsuarioRepository(Repository):
     def _build_usuario(self, row):
         """Construir objeto Usuario desde una fila de BD"""
         tipo_usuario = None
-        if row.get("tipo_usuario"):
+        if row.get("id_tipo_usuario"):
             tipo_data = self.db.execute_query(
                 "SELECT * FROM tipo_usuario WHERE id = ?",
-                (row["tipo_usuario"],),
+                (row["id_tipo_usuario"],),
                 fetch=True
             )
             if tipo_data:

@@ -22,6 +22,8 @@ from backend.routers.enfermedad_routers import enfermedades_bp
 from backend.routers.horario_medico_routers import horario_medico_bp
 from backend.routers.agenda_turno_routers import agenda_turno_bp
 from backend.routers.reportes_routers import reportes_bp
+from backend.routers.turno_routers import turnos_bp
+
 
 
 # Importar rutas del frontend (HTML)
@@ -56,6 +58,8 @@ def create_app():
     app.register_blueprint(reportes_bp)
     app.register_blueprint(historial_bp)
     app.register_blueprint(historial_enfermedad_bp)
+    app.register_blueprint(turnos_bp)
+    
 
     return app
 

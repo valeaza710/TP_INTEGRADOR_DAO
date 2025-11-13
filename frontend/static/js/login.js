@@ -53,10 +53,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // ✅ Redirección según rol
             const rol = data.user.rol?.toUpperCase() || "PACIENTE";
-            if (rol === "ADMIN") {
+            if (rol === "ADMINISTRADOR") {
                 window.location.href = "/administrador";
             } else if (rol === "MEDICO") {
                 window.location.href = "/panel-medico";
+            } else if (rol === "SECRETARIA") {
+                window.location.href = "/secretaria";
             } else {
                 window.location.href = "/home";
             }

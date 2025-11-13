@@ -1,6 +1,7 @@
 from backend.repository.medico_repository import MedicoRepository
 from backend.clases.medico import Medico
 from backend.clases.usuario import Usuario
+from backend.clases.especialidad import Especialidad
 
 
 class MedicoService:
@@ -42,6 +43,15 @@ class MedicoService:
 
             usuario_obj = Usuario(id=data["id_usuario"]) if data.get("id_usuario") else None
 
+            # ✅ Especialidades (puede venir una lista de objetos o IDs)
+            especialidades = []
+            if data.get("especialidades"):
+                for e in data["especialidades"]:
+                    if isinstance(e, dict):
+                        especialidades.append(Especialidad(id=e.get("id"), nombre=e.get("nombre")))
+                    else:
+                        especialidades.append(Especialidad(id=e))
+
             nuevo_medico = Medico(
                 nombre=data["nombre"],
                 apellido=data["apellido"],
@@ -50,7 +60,8 @@ class MedicoService:
                 telefono=data.get("telefono"),
                 mail=data.get("mail"),
                 direccion=data.get("direccion"),
-                usuario=usuario_obj
+                usuario=usuario_obj,
+                especialidades=especialidades
             )
 
             guardado = self.repository.save(nuevo_medico)
@@ -125,9 +136,52 @@ class MedicoService:
             "telefono": m.telefono,
             "mail": m.mail,
             "direccion": m.direccion,
+            "especialidades": [e.nombre for e in m.especialidades] if m.especialidades else [],
             "usuario": {
                 "id": m.usuario.id,
                 "nombre_usuario": getattr(m.usuario, "nombre_usuario", None),
                 "rol": getattr(m.usuario, "rol", None)
             } if m.usuario else None
         }
+
+    # ------------------------------------
+    # GET BY ESPECIALIDAD
+    # ------------------------------------
+    def get_by_especialidad(self, nombre_especialidad: str):
+        try:
+            medicos = self.repository.get_by_especialidad(nombre_especialidad)
+            return [
+                {
+                    "id": m["id"],
+                    "nombre": m["nombre"],
+                    "apellido": m["apellido"],
+                    "matricula": m["matricula"]
+                }
+                for m in medicos
+            ]
+        except Exception as e:
+            print(f"Error en get_by_especialidad: {e}")
+            raise Exception("Error al obtener médicos por especialidad")
+
+    def get_all_basic(self):
+    #Devuelve una lista simple de médicos con sus datos principales
+        try:
+            medicos = self.repository.get_all()
+            for m in medicos:
+                print(f"{m.nombre} {m.apellido} -> {[e.nombre for e in m.especialidades]}")
+            return [
+                {
+                    'id': m.id,
+                    'nombre': m.nombre,
+                    'apellido': m.apellido,
+                    "especialidades": [{"id": e.id, "nombre": e.nombre} for e in getattr(m, "especialidades", [])]
+                    
+                }
+                
+                for m in medicos
+            ]
+            
+        except Exception as e:
+            print(f"Error en get_all_basic: {e}")
+            raise Exception("Error al obtener médicos básicos")
+

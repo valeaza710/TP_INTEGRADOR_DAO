@@ -229,3 +229,25 @@ class MedicoRepository(Repository):
         except Exception as e:
             print(f"❌ Error al borrar asociaciones de medico {medico.id}: {e}")
         return self.db.execute_query("DELETE FROM medico WHERE id = ?", (medico.id,))
+    
+    # ✅ NUEVO MÉTODO
+    def get_by_especialidad(self, nombre_especialidad: str):
+        try:
+            medicos_data = self.mxesp_repo.list_medicos_by_especialidad_nombre(nombre_especialidad)
+            return medicos_data
+        except Exception as e:
+            print(f"❌ Error en get_by_especialidad: {e}")
+            return []
+
+    def get_medico_id_by_user(self, user_id: int):
+        """
+        Retorna el ID del médico asociado a un usuario (user_id).
+        Devuelve None si no existe.
+        """
+        query = "SELECT id FROM medico WHERE id_usuario = ?"
+        result = self.db.execute_query(query, (user_id,), fetch=True)
+
+        if result and len(result) > 0:
+            # Suponiendo que execute_query retorna una lista de diccionarios
+            return result[0]["id"]
+        return None

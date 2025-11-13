@@ -117,12 +117,8 @@ def eliminar_paciente(id):
 # -----------------------------------
 @pacientes_bp.route('/buscar', methods=['GET'])
 def buscar_pacientes_por_dni():
-    """
-    GET /api/pacientes/buscar?dni=123
-    Buscar pacientes cuyo DNI contenga el texto indicado
-    """
     try:
-        dni = request.args.get('dni', None)
+        dni = request.args.get('dni')
         if not dni:
             return jsonify({'success': False, 'error': 'Debe especificar un valor de búsqueda (dni)'}), 400
 
@@ -131,6 +127,23 @@ def buscar_pacientes_por_dni():
             'success': True,
             'data': resultados,
             'count': len(resultados)
+        }), 200
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+    
+#-----------------------------------------
+#GET solo info basic
+# ----------------------------------------
+@pacientes_bp.route('/basico', methods=['GET'])
+def listar_pacientes_basico():
+    """GET /api/pacientes/basico - Listar pacientes con nombre, apellido y dni"""
+    try:
+        pacientes = paciente_service.get_basic_info()
+        return jsonify({
+            'success': True,
+            'data': pacientes,
+            'count': len(pacientes)
         }), 200
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500

@@ -112,18 +112,27 @@ class PacienteService:
     # ------------------------------------
     # SEARCH BY DNI
     # ------------------------------------
+    # Buscar por DNI parcial
     def search_by_dni(self, dni_parcial: str):
-        try:
-            pacientes = self.repository.search_by_dni(dni_parcial)
-            return [self._to_dict(p) for p in pacientes]
-        except Exception as e:
-            print(f"Error en search_by_dni: {e}")
-            raise Exception("Error al buscar pacientes por DNI")
+        pacientes = self.repository.get_by_dni(dni_parcial)
+        print(pacientes)
+        return [self._to_dict(p) for p in pacientes]
+
+    # Serializador simple que evita errores de atributos
+    def _to_dict(self, p: Paciente):
+        return {
+            'id': p.id,
+            'nombre': p.nombre,
+            'apellido': p.apellido,
+            'dni': p.dni
+            # omite campos complicados por ahora
+        }
+
 
     # ------------------------------------
     # SERIALIZADOR
     # ------------------------------------
-    def _to_dict(self, p: Paciente):
+    def _to_dict_viejo(self, p: Paciente):
         if not p:
             return None
 
@@ -143,3 +152,22 @@ class PacienteService:
                 'tipo_usuario': getattr(p.usuario.tipo_usuario, 'tipo_usuario', None)
             } if p.usuario else None
         }
+
+
+
+    def get_basic_info(self):
+    #Devuelve solo nombre, apellido y dni de todos los pacientes
+        try:
+            pacientes = self.repository.get_all()
+            return [
+                {
+                    'id': p.id,
+                    'nombre': p.nombre,
+                    'apellido': p.apellido,
+                    'dni': p.dni
+                }
+                for p in pacientes
+            ]
+        except Exception as e:
+            print(f"Error en get_basic_info_all: {e}")
+            raise Exception("Error al obtener pacientes básicos")

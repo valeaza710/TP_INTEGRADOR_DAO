@@ -226,7 +226,6 @@ class AgendaTurnoRepository(Repository):
         """
         try:
             hoy = date.today().strftime("%Y-%m-%d")
-
             query = """
                 SELECT a.*
                 FROM agenda_turno AS a

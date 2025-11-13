@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 3. Configurar la navegación de pestañas
     setupTabs();
+
+    setupCloseButtonRedirect();
 });
 
 
@@ -158,6 +160,21 @@ function setupTabs() {
     });
 }
 
+function setupCloseButtonRedirect() {
+    // 🚨 Debes usar el selector de la cruz de tu HTML de Historial Clínico.
+    // Usamos el selector de la imagen subida (image_a26c40.png) que suele ser:
+    const closeButton = document.querySelector('.close-dialog-button') || document.querySelector('.close-btn') || document.querySelector('.modal-close');
+
+    if (closeButton) {
+        closeButton.addEventListener('click', function(event) {
+            // Prevenir cualquier comportamiento de cierre de modal nativo
+            event.preventDefault(); 
+            
+            // Redirigir a la URL de home
+            window.location.href = '/home'; 
+        });
+    }
+}
 /**
  * Función para cerrar la modal (simulada).
  */

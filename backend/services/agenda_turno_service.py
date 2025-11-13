@@ -5,11 +5,18 @@ from backend.clases.agenda_turno import AgendaTurno
 from backend.clases.paciente import Paciente
 from backend.clases.estado_turno import EstadoTurno
 from backend.clases.horario_medico import HorarioMedico
+from backend.repository.paciente_repository import PacienteRepository
+from backend.repository.paciente_repository import PacienteRepository # Necesitas PacienteRepository
+# 🚨 IMPORTANTE: Necesitas un PacienteRepository para buscar por ID
+from backend.repository.paciente_repository import PacienteRepository 
+# 🚨 Asumiendo que PacienteRepository tiene get_by_id
 
 
 class AgendaTurnoService:
     def __init__(self):
         self.repository = AgendaTurnoRepository()
+        self.paciente_repo = PacienteRepository()
+        
 
     # ------------------------------------
     # GET ALL
@@ -33,49 +40,54 @@ class AgendaTurnoService:
             print(f"Error en get_by_id: {e}")
             raise Exception("Error al obtener la agenda")
 
-    # ------------------------------------
-    # CREATE
+
+    # CREATE (Ahora es RESERVA/UPDATE)
     # ------------------------------------
     def create(self, data: dict):
         try:
-            if not data.get("fecha") or not data.get("hora"):
-                raise ValueError("Los campos 'fecha' y 'hora' son obligatorios")
+            # 1. Obtener IDs clave del Frontend
+            id_agenda = data.get("id_turno") # 🚨 Clave que viene del Frontend
+            id_paciente = data.get("id_paciente") # 🚨 Clave que viene del Frontend
+            
+            if not id_agenda:
+                raise ValueError("El ID del turno/slot es obligatorio para reservar.")
+            if not id_paciente:
+                raise ValueError("El ID del paciente es obligatorio.")
 
-            # ================================
-            # ✅ Buscar paciente por DNI
-            # ================================
-            dni = data.get("dni_paciente")
-            if not dni:
-                raise ValueError("Debe ingresar el DNI del paciente")
-
-            paciente = self.repository.paciente_repo.get_by_dni(dni)
+            # 2. Buscar paciente por ID (usando el repo.get_by_id del paciente)
+            # 🚨 Necesitas PacienteRepository.get_by_id(id)
+            paciente = self.paciente_repo.get_by_id(id_paciente)
             if not paciente:
-                raise ValueError(f"No existe un paciente con DNI {dni}")
+                return jsonify({"error": f"No existe un paciente con ID {id_paciente}"}), 404
+            
+            # 3. Obtener el Slot (registro de AgendaTurno) existente
+            agenda = self.repository.get_by_id(id_agenda)
+            
+            if not agenda:
+                return jsonify({"error": f"El turno con ID {id_agenda} no fue encontrado."}), 404
 
-            # ================================
-            # ✅ Construir data real
-            # ================================
-            estado = EstadoTurno(id=data.get("id_estado_turno", 1))
-            horario = HorarioMedico(id=data.get("id_horario_medico"))
+            # 4. Verificar que esté Disponible (estado 1)
+            if getattr(agenda.estado_turno, "id", None) != 1:
+                return jsonify({"error": "El turno ya no está disponible."}), 400
 
-            nueva = AgendaTurno(
-                fecha=data["fecha"],
-                hora=data["hora"],
-                paciente=paciente,
-                estado_turno=estado,
-                horario_medico=horario
-            )
-
-            guardada = self.repository.save(nueva)
+            # 5. ACTUALIZAR el Slot
+            agenda.paciente = paciente 
+            agenda.estado_turno = EstadoTurno(id=2) # 🚨 CAMBIO DE ESTADO A 2 (Reservado)
+            
+            guardada = self.repository.modify(agenda) # Usamos modify, no save
+            
             if not guardada:
-                raise Exception("No se pudo guardar el turno")
+                raise Exception("No se pudo reservar/actualizar el turno")
 
+            # 6. Devolver el turno completo y actualizado
             completa = self.repository.get_by_id(guardada.id)
             return self._to_dict(completa)
 
         except ValueError as e:
-            return jsonify({"error": str(e)}), 404
-
+            return jsonify({"error": str(e)}), 400
+        except Exception as e:
+            print(f"Error al reservar turno: {e}")
+            return jsonify({"error": "Error interno al procesar la reserva."}), 500
 
     # ------------------------------------
     # UPDATE
@@ -90,10 +102,15 @@ class AgendaTurnoService:
                 agenda.fecha = data["fecha"]
             if "hora" in data and data["hora"] is not None:
                 agenda.hora = data["hora"]
-            if data.get("id_paciente"):
-                agenda.paciente = Paciente(id=data["id_paciente"])
-            if data.get("id_estado_turno"):
+            if "id_paciente" in data:
+                if data["id_paciente"] is None:
+                    agenda.paciente = None
+                else:
+                    agenda.paciente = Paciente(id=data["id_paciente"])
+
+            if "id_estado_turno" in data:
                 agenda.estado_turno = EstadoTurno(id=data["id_estado_turno"])
+
             if data.get("id_horario_medico"):
                 agenda.horario_medico = HorarioMedico(id=data["id_horario_medico"])
 
@@ -215,3 +232,24 @@ class AgendaTurnoService:
                 }
             } if a.horario_medico else None
         }
+
+    # dentro de AgendaTurnoService PARA PANEL DE SECRETARIA
+    def obtener_todos_los_turnos(self):
+        try:
+            return self.repository.get_todos_los_turnos()  # llama a la función correcta
+        except Exception as e:
+            print(f"Error en obtener_todos_los_turnos: {e}")
+            raise Exception("Error al obtener los turnos")
+
+    #Obtener Agenda_turnos POR ID DE PACIENTE
+    def get_by_paciente(self, paciente_id: int):
+        try:
+            # obtenemos todos los turnos
+            agendas = self.get_all()
+            # filtramos solo los que coinciden con el id_paciente
+            agendas_paciente = [a for a in agendas if a.get("id_paciente") == paciente_id]
+            return agendas_paciente
+        except Exception as e:
+            print(f"Error en get_by_paciente: {e}")
+            raise Exception("Error al obtener las agendas del paciente")
+

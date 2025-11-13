@@ -58,5 +58,15 @@
     <!-- Loader global -->
     <div id="global-loader" class="loader hidden"></div>
 
-    <!-- Contenedor dinámico -->
-    <section id="appointmen
+    <section id="appointments-container" class="appointments-grid">
+        <!-- Aquí se insertan las citas dinámicamente -->
+    </section>
+</main>
+<script>
+    const paciente_id = {{ paciente_id | tojson }};
+</script>
+
+<script src="{{ url_for('static', filename='js/home.js') }}"></script>
+</body>
+
+</html>

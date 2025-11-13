@@ -48,6 +48,9 @@ class UsuarioRepository(Repository):
         if not data:
             return None
         return self._build_usuario(data[0])
+    
+
+
 
     def get_by_id(self, usuario_id: int):
         """Buscar usuario por ID"""
@@ -109,4 +112,22 @@ class UsuarioRepository(Repository):
             contrasena=row["contrasena"],
             tipo_usuario=tipo_usuario
         )
+    
+    # ... (dentro de la clase UsuarioRepository)
+
+    def get_by_username_and_password(self, nombre_usuario: str, contrasena: str):
+        """
+        Busca un usuario por nombre de usuario y contraseña.
+        ⚠️ Se recomienda usar hashing (ej: bcrypt) para contraseñas en un entorno real.
+        """
+        query = "SELECT * FROM usuario WHERE nombre_usuario = ? AND contrasena = ?"
+        params = (nombre_usuario, contrasena)
+        
+        data = self.db.execute_query(query, params, fetch=True)
+        if not data:
+            return None
+            
+        return self._build_usuario(data[0])
+
+# ...
 

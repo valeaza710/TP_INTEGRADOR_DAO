@@ -1,7 +1,9 @@
 from backend.data_base.connection import DataBaseConnection
 from backend.clases.enfermedad import Enfermedad
+from backend.repository.repository import Repository
 
-class EnfermedadRepository:
+
+class EnfermedadRepository(Repository):
     def __init__(self):
         self.db = DataBaseConnection()
 
@@ -9,26 +11,30 @@ class EnfermedadRepository:
         query = "INSERT INTO enfermedad (nombre, descripcion) VALUES (?, ?)"
         params = (enfermedad.nombre, enfermedad.descripcion)
 
-        conn = self.db.connect()
-        if not conn:
-            print("❌ Error al conectar con la base de datos.")
-            return None
+        conn = None
+        cursor = None
 
         try:
+            conn = self.db.connect()
+            if not conn:
+                print("❌ Error al conectar con la base de datos.")
+                return None
+
             cursor = conn.cursor()
             cursor.execute(query, params)
             conn.commit()
             enfermedad.id = cursor.lastrowid
-            cursor.close()
-            conn.close()
             return enfermedad
+
         except Exception as e:
             print(f"❌ Error al guardar enfermedad: {e}")
-            try:
-                conn.close()
-            except:
-                pass
             return None
+
+        finally:
+            if cursor is not None:
+                cursor.close()
+            if conn is not None:
+                conn.close()
 
     def get_by_id(self, enfermedad_id: int):
         query = "SELECT * FROM enfermedad WHERE id = ?"

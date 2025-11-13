@@ -7,32 +7,38 @@ class EstadoTurnoRepository(Repository):
         self.db = DataBaseConnection()
 
     def save(self, estado: EstadoTurno):
-        query = "INSERT INTO estado_turno (nombre) VALUES (%s)"
+        query = "INSERT INTO estado_turno (nombre) VALUES (?)"
         params = (estado.nombre,)
 
-        conn = self.db.connect()
-        if not conn:
-            print("❌ Error al conectar con la base de datos.")
-            return None
+        conn = None
+        cursor = None
 
         try:
+            conn = self.db.connect()
+            if not conn:
+                print("❌ Error al conectar con la base de datos.")
+                return None
+
             cursor = conn.cursor()
             cursor.execute(query, params)
             conn.commit()
             estado.id = cursor.lastrowid
-            cursor.close()
-            conn.close()
             return estado
+
         except Exception as e:
             print(f"❌ Error al guardar estado_turno: {e}")
-            try:
-                conn.close()
-            except:
-                pass
+            if conn:
+                conn.rollback()
             return None
 
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
     def get_by_id(self, estado_id: int):
-        query = "SELECT * FROM estado_turno WHERE id = %s"
+        query = "SELECT * FROM estado_turno WHERE id = ?"
         rows = self.db.execute_query(query, (estado_id,), fetch=True)
         if not rows:
             return None
@@ -49,12 +55,12 @@ class EstadoTurnoRepository(Repository):
         return estados
 
     def modify(self, estado: EstadoTurno):
-        query = "UPDATE estado_turno SET nombre = %s WHERE id = %s"
+        query = "UPDATE estado_turno SET nombre = ? WHERE id = ?"
         params = (estado.nombre, estado.id)
         success = self.db.execute_query(query, params)
         return self.get_by_id(estado.id) if success else None
 
     def delete(self, estado: EstadoTurno):
-        query = "DELETE FROM estado_turno WHERE id = %s"
+        query = "DELETE FROM estado_turno WHERE id = ?"
         success = self.db.execute_query(query, (estado.id,))
         return success

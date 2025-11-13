@@ -1,16 +1,22 @@
 class Paciente:
-    def __init__(self, id=None, nombre=None, apellido=None, dni=None, edad=None,
-                 fecha_nacimiento=None, mail=None, telefono=None, direccion=None, usuario=None):
+    def __init__(self,
+                 id: int = None,
+                 nombre: str = None,
+                 apellido: str = None,
+                 dni: str = None,
+                 edad: int = None,
+                 fecha_nacimiento: str = None,
+                 mail: str = None,  # ← Cambiar de 'mail' a 'email'
+                 telefono: str = None,
+                 direccion: str = None,
+                 id_usuario: int = None):
         self.id = id
         self.nombre = nombre
         self.apellido = apellido
         self.dni = dni
         self.edad = edad
         self.fecha_nacimiento = fecha_nacimiento
-        self.mail = mail
+        self.mail = mail  # ← Cambiar aquí también
         self.telefono = telefono
         self.direccion = direccion
-        self.usuario = usuario
-
-    def __str__(self):
-        return f"{self.id} {self.nombre} {self.apellido} {self.dni}"
+        self.id_usuario = id_usuario

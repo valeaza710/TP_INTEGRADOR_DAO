@@ -1,9 +1,9 @@
-# backend/repository/visita_repository.py
 from backend.data_base.connection import DataBaseConnection
 from backend.clases.visita import Visita
 from backend.repository.historial_clinico_repository import HistorialClinicoRepository
 from backend.repository.agenda_turno_repository import AgendaTurnoRepository
 from backend.repository.repository import Repository
+
 
 class VisitaRepository(Repository):
     def __init__(self):
@@ -14,7 +14,7 @@ class VisitaRepository(Repository):
     def save(self, visita: Visita):
         query = """
             INSERT INTO visita (id_historial_clinico, id_turno, comentario)
-            VALUES (%s, %s, %s)
+            VALUES (?, ?, ?)
         """
         params = (
             visita.historial_clinico.id if visita.historial_clinico else None,
@@ -27,24 +27,24 @@ class VisitaRepository(Repository):
             print("❌ Error al conectar con la base de datos.")
             return None
 
+        cursor = None
         try:
             cursor = conn.cursor()
             cursor.execute(query, params)
             conn.commit()
             visita.id = cursor.lastrowid
-            cursor.close()
-            conn.close()
             return visita
         except Exception as e:
             print(f"❌ Error al guardar visita: {e}")
-            try:
-                conn.close()
-            except:
-                pass
+            conn.rollback()
             return None
+        finally:
+            if cursor:
+                cursor.close()
+            conn.close()
 
     def get_by_id(self, visita_id: int):
-        query = "SELECT * FROM visita WHERE id = %s"
+        query = "SELECT * FROM visita WHERE id = ?"
         rows = self.db.execute_query(query, (visita_id,), fetch=True)
         if not rows:
             return None
@@ -80,8 +80,8 @@ class VisitaRepository(Repository):
     def modify(self, visita: Visita):
         query = """
             UPDATE visita
-            SET id_historial_clinico=%s, id_turno=%s, comentario=%s
-            WHERE id=%s
+            SET id_historial_clinico = ?, id_turno = ?, comentario = ?
+            WHERE id = ?
         """
         params = (
             visita.historial_clinico.id if visita.historial_clinico else None,
@@ -94,6 +94,6 @@ class VisitaRepository(Repository):
         return self.get_by_id(visita.id) if success else None
 
     def delete(self, visita: Visita):
-        query = "DELETE FROM visita WHERE id = %s"
+        query = "DELETE FROM visita WHERE id = ?"
         success = self.db.execute_query(query, (visita.id,))
         return success

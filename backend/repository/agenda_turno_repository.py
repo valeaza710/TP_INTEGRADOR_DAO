@@ -5,6 +5,7 @@ from backend.repository.estado_turno_repository import EstadoTurnoRepository
 from backend.repository.horario_medico_repository import HorarioMedicoRepository
 from backend.repository.repository import Repository
 
+
 class AgendaTurnoRepository(Repository):
     def __init__(self):
         self.db = DataBaseConnection()
@@ -12,6 +13,9 @@ class AgendaTurnoRepository(Repository):
         self.estado_repo = EstadoTurnoRepository()
         self.horario_repo = HorarioMedicoRepository()
 
+    # -------------------------------------------------------------------------
+    # Crear un nuevo turno
+    # -------------------------------------------------------------------------
     def save(self, agenda: AgendaTurno):
         query = """
             INSERT INTO agenda_turno (fecha, hora, id_paciente, id_estado_turno, id_horario_medico)
@@ -30,22 +34,25 @@ class AgendaTurnoRepository(Repository):
             print("❌ Error al conectar con la base de datos.")
             return None
 
+        cursor = None
         try:
             cursor = conn.cursor()
             cursor.execute(query, params)
             conn.commit()
             agenda.id = cursor.lastrowid
-            cursor.close()
-            conn.close()
             return agenda
         except Exception as e:
             print(f"❌ Error al guardar agenda_turno: {e}")
-            try:
-                conn.close()
-            except:
-                pass
+            conn.rollback()
             return None
+        finally:
+            if cursor:
+                cursor.close()
+            conn.close()
 
+    # -------------------------------------------------------------------------
+    # Obtener un turno por ID
+    # -------------------------------------------------------------------------
     def get_by_id(self, agenda_id: int):
         query = "SELECT * FROM agenda_turno WHERE id = ?"
         data = self.db.execute_query(query, (agenda_id,), fetch=True)
@@ -66,6 +73,9 @@ class AgendaTurnoRepository(Repository):
             horario_medico=horario
         )
 
+    # -------------------------------------------------------------------------
+    # Obtener todos los turnos
+    # -------------------------------------------------------------------------
     def get_all(self):
         query = "SELECT * FROM agenda_turno"
         data = self.db.execute_query(query, fetch=True)
@@ -88,6 +98,9 @@ class AgendaTurnoRepository(Repository):
 
         return agendas
 
+    # -------------------------------------------------------------------------
+    # Modificar un turno
+    # -------------------------------------------------------------------------
     def modify(self, agenda: AgendaTurno):
         query = """
             UPDATE agenda_turno
@@ -106,19 +119,18 @@ class AgendaTurnoRepository(Repository):
         success = self.db.execute_query(query, params)
         return agenda if success else None
 
+    # -------------------------------------------------------------------------
+    # Eliminar un turno
+    # -------------------------------------------------------------------------
     def delete(self, agenda: AgendaTurno):
         query = "DELETE FROM agenda_turno WHERE id = ?"
         success = self.db.execute_query(query, (agenda.id,))
         return success
 
-# ------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Obtener todos los turnos de un médico (excepto estados 1, 4, 5)
-    # ------------------------------------------------------------
+    # -------------------------------------------------------------------------
     def get_by_medico(self, id_medico: int):
-        """
-        Devuelve todos los turnos asociados a un médico,
-        excluyendo los estados 1, 4 y 5.
-        """
         query = """
             SELECT a.*
             FROM agenda_turno a
@@ -138,7 +150,9 @@ class AgendaTurnoRepository(Repository):
             turnos.append(turno)
         return turnos
 
-    #PARA PODER MANEJAR LOS DATOS EN FORMATO JSON
+    # -------------------------------------------------------------------------
+    # Convertir objeto AgendaTurno a diccionario (para JSON)
+    # -------------------------------------------------------------------------
     def _to_dict(self, a: AgendaTurno):
         if not a:
             return None
@@ -147,21 +161,15 @@ class AgendaTurnoRepository(Repository):
             "id": a.id,
             "fecha": str(a.fecha),
             "hora": str(a.hora),
-
-            # Paciente completo
             "paciente": {
                 "id": a.paciente.id,
                 "nombre": a.paciente.nombre,
                 "dni": a.paciente.dni
             } if a.paciente else None,
-
-            # Estado turno
             "estado_turno": {
                 "id": a.estado_turno.id,
                 "estado": a.estado_turno.estado
             } if a.estado_turno else None,
-
-            # Horario + información del médico
             "horario_medico": {
                 "id": a.horario_medico.id,
                 "hora_inicio": str(a.horario_medico.hora_inicio),
@@ -172,4 +180,4 @@ class AgendaTurnoRepository(Repository):
                     "especialidad": a.horario_medico.medico.especialidad.nombre
                 }
             } if a.horario_medico else None
-    }
+        }

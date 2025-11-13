@@ -1,4 +1,5 @@
 from flask import jsonify
+from datetime import date
 from backend.repository.agenda_turno_repository import AgendaTurnoRepository
 from backend.clases.agenda_turno import AgendaTurno
 from backend.clases.paciente import Paciente
@@ -151,3 +152,62 @@ class AgendaTurnoService:
         except Exception as e:
             print(f"❌ Error en get_by_medico: {e}")
             raise Exception("Error al obtener turnos del médico")
+
+    # ------------------------------------------------------------
+    # Ver turnos ya atendidos por médico (historial)
+    # ------------------------------------------------------------
+    def get_historial_by_medico(self, id_medico: int):
+        """
+        Devuelve los turnos atendidos (estado = 3) del médico.
+        """
+        try:
+            turnos = self.repository.get_atendidos_by_medico(id_medico)
+            return [self._to_dict(t) for t in turnos]
+        except Exception as e:
+            print(f"❌ Error en get_historial_by_medico: {e}")
+            raise Exception("Error al obtener el historial del médico")
+
+    # ------------------------------------------------------------
+    # Ver turnos del día actual por médico
+    # ------------------------------------------------------------
+    def get_turnos_hoy_by_medico(self, id_medico: int):
+        """
+        Devuelve los turnos del día actual del médico.
+        """
+        try:
+            turnos = self.repository.get_turnos_hoy_by_medico(id_medico)
+            return [self._to_dict(t) for t in turnos]
+        except Exception as e:
+            print(f"❌ Error en get_turnos_hoy_by_medico: {e}")
+            raise Exception("Error al obtener los turnos de hoy del médico")
+
+    # ------------------------------------------------------------
+    # Convertir turno a diccionario
+    # ------------------------------------------------------------
+    def _to_dict(self, a):
+        if not a:
+            return None
+
+        return {
+            "id": a.id,
+            "fecha": str(a.fecha),
+            "hora": str(a.hora),
+            "paciente": {
+                "id": a.paciente.id,
+                "nombre": a.paciente.nombre,
+                "dni": a.paciente.dni
+            } if a.paciente else None,
+            "estado_turno": {
+                "id": a.estado_turno.id,
+                "estado": a.estado_turno.estado
+            } if a.estado_turno else None,
+            "horario_medico": {
+                "id": a.horario_medico.id,
+                "hora_inicio": str(a.horario_medico.hora_inicio),
+                "hora_fin": str(a.horario_medico.hora_fin),
+                "medico": {
+                    "id": a.horario_medico.medico.id,
+                    "nombre": a.horario_medico.medico.nombre
+                }
+            } if a.horario_medico else None
+        }

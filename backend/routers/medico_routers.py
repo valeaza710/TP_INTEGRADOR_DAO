@@ -129,4 +129,3 @@ def listar_por_especialidad(nombre):
         }), 200
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
-

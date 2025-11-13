@@ -234,3 +234,41 @@ class AgendaTurnoRepository(Repository):
         for r in rows:
             turnos.append(self._map_row_to_agenda_turno(r))
         return turnos
+
+#PARA PANEL SECRETARIA
+    def get_todos_los_turnos(self):
+        query = """
+            SELECT 
+                a.id,
+                a.fecha,
+                a.hora,
+                p.dni AS dni_paciente,
+                p.nombre AS nombre_paciente,
+                p.apellido AS apellido_paciente,
+                m.nombre AS nombre_medico,
+                m.apellido AS apellido_medico,
+                et.nombre AS estado
+            FROM agenda_turno a
+            LEFT JOIN paciente p ON a.id_paciente = p.id
+            LEFT JOIN horario_medico hm ON a.id_horario_medico = hm.id
+            LEFT JOIN medico m ON hm.id_medico = m.id
+            LEFT JOIN estado_turno et ON a.id_estado_turno = et.id
+            ORDER BY a.fecha, a.hora
+        """
+        rows = self.db.execute_query(query, fetch=True)
+
+        if not rows:
+            return []
+
+        return [
+            {
+                "id_turno": row["id"],
+                "fecha": row["fecha"],
+                "hora_turno": row["hora"],
+                "dni_paciente": row.get("dni_paciente") or "",
+                "paciente": f"{row.get('nombre_paciente') or ''} {row.get('apellido_paciente') or ''}".strip(),
+                "medico": f"{row.get('nombre_medico') or ''} {row.get('apellido_medico') or ''}".strip(),
+                "estado": row.get("estado") or ""
+            }
+            for row in rows
+        ]

@@ -29,3 +29,4 @@ class MedicoXEspecialidadRepository:
         rows = self.db.execute_query(query, (nombre_especialidad,), fetch=True)
         return rows or []
 
+

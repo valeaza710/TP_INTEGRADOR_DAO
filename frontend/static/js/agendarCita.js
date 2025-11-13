@@ -75,20 +75,27 @@ function selectSpecialty(specialty, element) {
     selectedSpecialtyName.textContent = specialty;
 
     // Cargar doctores de esa especialidad
-    fetch(`/api/doctores/${specialty}`)
+    fetch(`/api/medicos/por_especialidad/${specialty}`)
         .then(res => res.json())
-        .then(doctors => {
-            doctorSelect.innerHTML = `<option value="all">Todos los médicos de la especialidad</option>`;
-            doctors.forEach(d => {
-                doctorSelect.innerHTML += `<option value="${d}">${d}</option>`;
-            });
+        .then(response => {
+            const doctors = response.data; // ✅ array real
+            const doctorSelect = document.getElementById("doctor-select"); // ✅ corregido id
+
+            doctorSelect.innerHTML = '<option value="">Todos los médicos de la especialidad</option>';
+
+            if (Array.isArray(doctors)) {
+                doctors.forEach(d => {
+                    doctorSelect.innerHTML += `<option value="${d.id}">${d.nombre} ${d.apellido}</option>`;
+                });
+            } else {
+                console.error("❌ El backend no devolvió un array:", doctors);
+            }
+
             showStep("step2");
         })
-        .catch(error => {
-            console.error("Error al cargar doctores:", error);
-            showStep("step2");
-        });
+        .catch(error => console.error("Error al cargar doctores:", error));
 }
+
 
 // --- 🔹 PASO 2: DOCTOR ---
 function goToCalendar() {

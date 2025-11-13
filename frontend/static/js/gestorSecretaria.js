@@ -347,44 +347,28 @@ function renderMedicos(medicos) {
 // BÚSQUEDA DE PACIENTE POR DNI
 // ============================
 async function buscarPaciente() {
-    const dni = document.getElementById("pacienteDniSearch").value.trim();
-    const resultDiv = document.getElementById("patient-result");
-    const confirmBtn = document.getElementById("confirm-patient-btn");
-
-    resultDiv.classList.add("hidden");
-    confirmBtn.disabled = true;
-
-    if (!dni) {
-        resultDiv.innerHTML = `<p class="text-red-500">Ingrese un DNI válido.</p>`;
-        resultDiv.classList.remove("hidden");
-        return;
-    }
+    const dni = document.getElementById("pacienteDniSearch").value;
+    if (!dni) return;
 
     try {
-        // Llamada al backend para buscar paciente por DNI
-        const res = await fetch(`/api/pacientes/buscar?dni=${encodeURIComponent(dni)}`);
-
-        if (!res.ok) {
-            throw new Error("Paciente no encontrado");
-        }
+        const res = await fetch(`/api/pacientes/buscar?dni=${dni}`);
         const data = await res.json();
 
-        // Mostramos la info del paciente
-        resultDiv.innerHTML = `
-            <p><strong>Paciente encontrado:</strong> ${data.nombre} ${data.apellido || ""}</p>
-        `;
-        resultDiv.classList.remove("hidden");
-
-        // Guardamos el ID del paciente en el input oculto
-        document.getElementById("pacienteId").value = data.id;
-
-        // Habilitamos botón de confirmación
-        confirmBtn.disabled = false;
-
+        if (res.ok && data.success && data.count > 0) {
+            const paciente = data.data[0]; // tomamos el primer resultado
+            console.log("Paciente encontrado:", paciente);
+            document.getElementById("pacienteId").value = paciente.id; // guardamos el ID
+            // mostrar info en el modal
+            const resultDiv = document.getElementById("patient-result");
+            resultDiv.classList.remove("hidden");
+            resultDiv.innerHTML = `<p>Paciente: ${paciente.nombre} ${paciente.apellido} - DNI: ${paciente.dni}</p>`;
+            document.getElementById("confirm-patient-btn").disabled = false;
+        } else {
+            alert("No se encontró el paciente.");
+        }
     } catch (err) {
-        console.error(err);
-        resultDiv.innerHTML = `<p class="text-red-500">Paciente no encontrado</p>`;
-        resultDiv.classList.remove("hidden");
+        console.error("Error buscando paciente:", err);
+        alert("Error al buscar paciente.");
     }
 }
 
@@ -400,7 +384,7 @@ function goToStep2() {
     }
 
     // Redirigimos a agendarCita.html con el id del paciente en query string
-    window.location.href = `/agendarCita.html?pacienteId=${pacienteId}`;
+    window.location.href = `/agendar?pacienteId=${pacienteId}`;
 }
 
 // ============================

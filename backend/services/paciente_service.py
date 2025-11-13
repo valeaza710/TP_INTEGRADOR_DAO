@@ -112,24 +112,27 @@ class PacienteService:
     # ------------------------------------
     # SEARCH BY DNI
     # ------------------------------------
+    # Buscar por DNI parcial
     def search_by_dni(self, dni_parcial: str):
-        try:
-            paciente = self.repository.get_by_dni(dni_parcial)  # Puede devolver un único Paciente
-            if paciente is None:
-                return []  # No se encontró nadie
-            # Siempre devolvemos lista
-            if not isinstance(paciente, list):
-                paciente = [paciente]
-            return [self._to_dict(p) for p in paciente]
-        except Exception as e:
-            print(f"Error en search_by_dni: {e}")
-            raise Exception("Error al buscar pacientes por DNI")
+        pacientes = self.repository.get_by_dni(dni_parcial)
+        print(pacientes)
+        return [self._to_dict(p) for p in pacientes]
+
+    # Serializador simple que evita errores de atributos
+    def _to_dict(self, p: Paciente):
+        return {
+            'id': p.id,
+            'nombre': p.nombre,
+            'apellido': p.apellido,
+            'dni': p.dni
+            # omite campos complicados por ahora
+        }
 
 
     # ------------------------------------
     # SERIALIZADOR
     # ------------------------------------
-    def _to_dict(self, p: Paciente):
+    def _to_dict_viejo(self, p: Paciente):
         if not p:
             return None
 

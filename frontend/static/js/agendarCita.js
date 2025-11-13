@@ -210,7 +210,7 @@ function loadSlots() {
 // --- 🔹 CONFIRMAR TURNO ---
 function confirmAppointment(slot) {
     const date = dateInput.value;
-    const currentUserId = 1; // <- reemplazar con tu lógica real
+    //const currentUserId = 1; // <- reemplazar con tu lógica real
 
     fetch("/api/turnos", {
         method: "POST",
@@ -218,7 +218,7 @@ function confirmAppointment(slot) {
         body: JSON.stringify({
             fecha: date,
             hora: slot.time,
-            id_paciente: currentUserId,
+            id_paciente: pacienteId,
             id_estado_turno: 1,
             id_horario_medico: slot.id_horario_medico
         })
@@ -239,3 +239,21 @@ document.addEventListener('DOMContentLoaded', () => {
     loadSpecialties(); // 👈 acá cargamos las especialidades desde tu BD
     generateCalendarUI(currentCalendarDate);
 });
+
+
+// --- 🔹 PACIENTE SELECCIONADO DESDE SECRETARIA ---
+let pacienteId = null; // variable global para guardar el ID del paciente
+
+const urlParams = new URLSearchParams(window.location.search);
+const pacienteIdFromUrl = urlParams.get('pacienteId');
+
+if (pacienteIdFromUrl) {
+    pacienteId = pacienteIdFromUrl;
+    console.log("ID del paciente recibido:", pacienteId);
+
+    // Si tenés un input oculto en el formulario para usarlo al confirmar turno
+    const pacienteIdHiddenInput = document.getElementById('pacienteIdHidden');
+    if (pacienteIdHiddenInput) {
+        pacienteIdHiddenInput.value = pacienteId;
+    }
+}

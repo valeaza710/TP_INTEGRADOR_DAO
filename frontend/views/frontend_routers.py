@@ -52,3 +52,7 @@ def gestor_administrador():
 @frontend_bp.route("/panel-medico")
 def doctor_dashboard():
     return render_template("medicoDashboard.html")
+
+@frontend_bp.route("/reportes")
+def reportes():
+    return render_template("reportes.html")

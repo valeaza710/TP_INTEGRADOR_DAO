@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from backend.services.reportes_service import ReportesService
 
-reportes_bp = Blueprint("reportes_bp", __name__, url_prefix="/reportes")
+reportes_bp = Blueprint("reportes_bp", __name__, url_prefix="/api/reportes")
 service = ReportesService()
 
 
@@ -28,13 +28,7 @@ def turnos_por_medico():
 @reportes_bp.route("/turnos-especialidad", methods=["GET"])
 def turnos_por_especialidad():
     try:
-        fecha_inicio = request.args.get("fecha_inicio")
-        fecha_fin = request.args.get("fecha_fin")
-
-        if not fecha_inicio or not fecha_fin:
-            return jsonify({"error": "Debe indicar fecha_inicio y fecha_fin"}), 400
-
-        result = service.obtener_cantidad_turnos_por_especialidad(fecha_inicio, fecha_fin)
+        result = service.obtener_cantidad_turnos_por_especialidad()
         return jsonify(result), 200
 
     except Exception as e:
@@ -64,12 +58,6 @@ def pacientes_atendidos():
 @reportes_bp.route("/asistencia", methods=["GET"])
 def asistencia_vs_inasistencia():
     try:
-        fecha_inicio = request.args.get("fecha_inicio")
-        fecha_fin = request.args.get("fecha_fin")
-
-        if not fecha_inicio or not fecha_fin:
-            return jsonify({"error": "Debe indicar fecha_inicio y fecha_fin"}), 400
-
         result = service.obtener_asistencia_vs_inasistencia(fecha_inicio, fecha_fin)
         return jsonify(result), 200
 

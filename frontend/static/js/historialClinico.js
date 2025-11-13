@@ -14,21 +14,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 /**
- * Renderiza las tarjetas de Datos Personales (Peso, Altura, Grupo Sanguíneo).
+ 
  * @param {object} data - Datos del paciente.
  */
 function renderPatientData(data) {
-    const container = document.getElementById('patient-data-grid');
+    
+    const container = document.getElementById('tab-content-personal');
     if (!container) return;
-
-    // Estructura de los campos
+    
+    // 1. Campos de la cuadrícula (Peso, Altura, Grupo Sanguíneo)
     const fields = [
-        { label: "Peso", value: data.weight },
-        { label: "Altura", value: data.height },
-        { label: "Grupo Sanguíneo", value: data.bloodType },
+        { label: "Peso", value: data.weight || 'N/A' },
+        { label: "Altura", value: data.height || 'N/A' },
+        { label: "Grupo Sanguíneo", value: data.bloodType || 'N/A' },
     ];
 
-    container.innerHTML = fields.map(field => `
+    const gridHtml = fields.map(field => `
         <div class="card p-6 text-center">
             <div class="text-sm text-muted-foreground mb-2">${field.label}</div>
             <div class="text-3xl font-bold text-foreground">
@@ -36,6 +37,26 @@ function renderPatientData(data) {
             </div>
         </div>
     `).join('');
+
+    // 2. Nuevo Bloque para Enfermedades Crónicas
+    const chronicDiseasesHtml = `
+        <div class="mt-6">
+            <h4 class="font-semibold text-lg text-foreground mb-2">Enfermedades Crónicas</h4>
+            <div class="card p-4">
+                <p class="text-sm text-muted-foreground">
+                    ${data.chronicDiseases && data.chronicDiseases.length > 0 ? data.chronicDiseases : 'Ninguna registrada.'}
+                </p>
+            </div>
+        </div>
+    `;
+
+    // 3. Ensamblar y inyectar el HTML final, incluyendo el grid y el nuevo bloque
+    container.innerHTML = `
+        <div id="patient-data-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4"> 
+            ${gridHtml}
+        </div>
+        ${chronicDiseasesHtml}
+    `;
 }
 
 
@@ -93,7 +114,7 @@ function renderPrescriptions(prescriptions) {
         prescriptionCard.innerHTML = header + `<div class="space-y-3">${medicationsList}</div>`;
         listContainer.appendChild(prescriptionCard);
         
-        // No añadimos separador extra, el margin de la card ya funciona
+       
     });
 }
 
@@ -104,6 +125,16 @@ function renderPrescriptions(prescriptions) {
 function setupTabs() {
     const triggers = document.querySelectorAll('.tab-trigger');
     const contents = document.querySelectorAll('.tab-content');
+
+    const initialContent = document.getElementById('tab-content-personal');
+    if (initialContent) {
+        initialContent.classList.remove('hidden');
+    }
+    
+    const initialTrigger = document.querySelector('.tab-trigger[data-tab="personal"]');
+    if (initialTrigger) {
+        initialTrigger.classList.add('active');
+    }
 
     triggers.forEach(trigger => {
         trigger.addEventListener('click', () => {

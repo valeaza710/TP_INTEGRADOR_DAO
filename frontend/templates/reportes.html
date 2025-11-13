@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración - Reportes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/reportes.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+</head>
+<body>
+
+    <div class="page-container p-6">
+        <h1 class="text-3xl font-bold mb-6">📊 Reportes y Estadísticas</h1>
+
+        <a href="/administrador" class="btn-primary mb-6 inline-flex items-center">
+            <i class="fas fa-arrow-left icon mr-2"></i> Volver al Panel
+        </a>
+
+        <div id="reportes-tabs-list" class="tabs-list grid grid-cols-2 md:grid-cols-4 border-b pb-1 mb-6">
+            <button class="tab-trigger active" data-tab="turnos_medico">
+                <i class="fas fa-user-md icon"></i> Turnos por Médico
+            </button>
+            <button class="tab-trigger" data-tab="turnos_especialidad">
+                <i class="fas fa-chart-bar icon"></i> Turnos por Especialidad
+            </button>
+            <button class="tab-trigger" data-tab="pacientes_atendidos">
+                <i class="fas fa-users icon"></i> Pacientes Atendidos
+            </button>
+            <button class="tab-trigger" data-tab="asistencia_grafico">
+                <i class="fas fa-chart-pie icon"></i> Asistencia vs. Inasistencia
+            </button>
+        </div>
+
+        <div id="reportes-content-container" class="space-y-8">
+            
+            <div id="tab-content-turnos_medico" class="report-content active">
+                <div class="card p-6 space-y-6">
+                    <div class="grid md:grid-cols-3 gap-6"></div>
+                    <div class="flex justify-end">
+                        <button id="btn-pdf-turnos_medico" class="btn-primary-pdf">
+                           <i class="fas fa-file-pdf"></i> Generar PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="tab-content-turnos_especialidad" class="report-content hidden">
+                <div class="card p-6 space-y-6">
+                    <div class="grid md:grid-cols-3 gap-6"></div>
+                    <div class="flex justify-end">
+                        <button id="btn-pdf-turnos_especialidad" class="btn-primary-pdf">
+                           <i class="fas fa-file-pdf"></i> Generar PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="tab-content-pacientes_atendidos" class="report-content hidden">
+                <div class="card p-6 space-y-6">
+                    <div class="grid md:grid-cols-3 gap-6"></div>
+                    <div class="flex justify-end">
+                        <button id="btn-pdf-pacientes_atendidos" class="btn-primary-pdf">
+                           <i class="fas fa-file-pdf"></i> Generar PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-content-asistencia_grafico" class="report-content hidden">
+                <div class="card p-6 space-y-6">
+                    <div class="grid md:grid-cols-3 gap-6"></div>
+                    <div class="flex justify-end">
+                        <button id="btn-pdf-asistencia" class="btn-primary-pdf">
+                           <i class="fas fa-file-pdf"></i> Generar PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/reportes.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</body>
+</html>

@@ -1,8 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("loginForm");
+    const errorMessageDiv = document.getElementById("error-message"); // Referencia al nuevo div
 
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
+        hideError(); // Limpia cualquier error anterior
 
         const username = document.getElementById("username").value.trim();
         const password = document.getElementById("password").value.trim();

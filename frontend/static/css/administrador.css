@@ -23,3 +23,51 @@
             right: 1rem;
             z-index: 50;
         }
+
+/* ===================================== */
+/* REGLA DEL BOTÓN PRIMARIO (Turquesa/Teal) */
+/* ===================================== */
+
+/* Definimos el color del botón principal basado en las capturas (ej: #10b9a5) */
+.btn-primary-admin {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    
+    background-color: #10b9a5; /* Color del botón "Nuevo Paciente" o "Iniciar Sesión" */
+    color: white;
+    border: none;
+    border-radius: 0.5rem; 
+    
+    padding: 0.6rem 1.25rem; 
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    text-decoration: none; 
+    white-space: nowrap; 
+}
+
+.btn-primary-admin:hover {
+    background-color: #0d9488; /* Un teal un poco más oscuro */
+}
+
+/* --- Posicionamiento (Para asegurar que esté a la derecha) --- */
+
+/* Si el botón está en el mismo nivel que el logo o un título: */
+.header-actions {
+    display: flex;
+    justify-content: flex-end; /* Lo empuja a la derecha */
+    align-items: center;
+    width: 100%; /* Asegura que ocupe todo el ancho si es un contenedor de cabecera */
+}
+
+/* Si tu botón está en el mismo contenedor que el título, usa las utilidades Flexbox: */
+/* Asegúrate que el contenedor padre del botón y el título tenga estas clases: */
+/* Por ejemplo: <div class="flex justify-between items-center">Título y Botón</div> */
+
+.flex { display: flex; }
+.justify-between { justify-content: space-between; } 
+.justify-end { justify-content: flex-end; }
+.items-center { align-items: center; }

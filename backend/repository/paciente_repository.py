@@ -2,9 +2,12 @@ from backend.data_base.connection import DataBaseConnection
 from backend.clases.paciente import Paciente
 from backend.repository.repository import Repository
 from backend.clases.usuario import Usuario
+from backend.repository.usuario_repository import UsuarioRepository
+
 
 class PacienteRepository(Repository):
     def __init__(self):
+        self.usuario_repo = UsuarioRepository()
         self.db = DataBaseConnection()
 
     # ------------------------------
@@ -209,3 +212,15 @@ class PacienteRepository(Repository):
                 direccion=r.get('direccion')
             ))
         return pacientes
+
+    def get_paciente_id_by_user_id(self, usuario_id: int):
+        """
+        Devuelve el id del paciente asociado a un usuario específico.
+        """
+        query = "SELECT id FROM paciente WHERE id_usuario = ?"
+        result = self.db.execute_query(query, (usuario_id,), fetch=True)
+
+        if not result:
+            return None  # No existe paciente para ese usuario
+
+        return result[0]["id"]

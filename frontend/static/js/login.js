@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const response = await fetch("http://localhost:5000/api/usuarios/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ username, password }),
             });
 
             const data = await response.json();
@@ -56,11 +56,11 @@ document.addEventListener("DOMContentLoaded", () => {
             if (rol === "ADMINISTRADOR") {
                 window.location.href = "/administrador";
             } else if (rol === "MEDICO") {
-                window.location.href = "/panel-medico";
+                window.location.href = `/panel-medico/${data.user.id}`;
             } else if (rol === "SECRETARIA") {
                 window.location.href = "/secretaria";
             } else {
-                window.location.href = "/home";
+                window.location.href = `/home/${data.user.id}`;
             }
 
         } catch (error) {

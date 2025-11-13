@@ -1,10 +1,13 @@
 from flask import Blueprint, render_template, jsonify, request, redirect, url_for, session # 🚨 Importado 'session' correctamente de Flask
+
+from backend.repository.medico_repository import MedicoRepository
 from backend.repository.paciente_repository import PacienteRepository
 from backend.repository.especialidad_repository import EspecialidadRepository
 #El frontend_bp es el blueprint encargado de servir las vistas HTML (las páginas visuales del sitio).
 frontend_bp = Blueprint('frontend', __name__)
 paciente_repo = PacienteRepository()
 especialidad_repo = EspecialidadRepository()
+medico_repo = MedicoRepository()
 
 # Página principal
 @frontend_bp.route('/')
@@ -19,36 +22,17 @@ def ingreso():
 def registro():
     return render_template('registro.html')
 
-# 🚨 CORRECCIÓN CLAVE: Esta ruta maneja el formulario GET y el POST. 
-# Eliminamos la función duplicada y la lógica mock de "xiodied".
-@frontend_bp.route('/login', methods=['GET', 'POST']) 
+@frontend_bp.route('/login')
 def login():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        
-        # Usar la lógica de BD real
-        # Este método debe estar implementado en PacienteRepository (usando UsuarioRepository)
-        paciente_id = paciente_repo.get_paciente_id_by_credentials(username, password)
-        
-        if paciente_id is not None:
-            # Login exitoso
-            session['paciente_id'] = paciente_id # Guardamos el ID REAL del paciente
-            return redirect(url_for('frontend.home'))
-        else:
-            # Credenciales incorrectas o no es un paciente
-            session.pop('paciente_id', None)
-            return render_template('login.html', error="Credenciales incorrectas")
-    
-    # Si es GET, simplemente mostramos la página de login
-    return render_template('login.html')
+    return render_template('ingreso.html')
 
-@frontend_bp.route('/home')
-def home():
-    # Aseguramos que solo los logueados puedan acceder a home
-    if 'paciente_id' not in session: # Aquí es donde se cae
+@frontend_bp.route('/home/<int:user_id>')
+def home(user_id):
+    paciente_id = paciente_repo.get_paciente_id_by_user_id(user_id)
+    if paciente_id is not None:
+        return render_template('home.html', paciente_id=paciente_id)
+    else:
         return redirect(url_for('frontend.login'))
-    # ...
 
 @frontend_bp.route('/agendar')
 def agendar_cita():
@@ -56,16 +40,16 @@ def agendar_cita():
     if 'paciente_id' not in session:
         # Aquí puedes redirigir a login o mostrar un mensaje de error
         return redirect(url_for('frontend.login'))
-        
+
     paciente_id_logueado = session.get('paciente_id', 0)
-    
-    # Las especialidades se cargan de la BD. 
+
+    # Las especialidades se cargan de la BD.
     # ¡Asegúrate que get_all() devuelva objetos con .name y .doctors_count!
-    specialties = especialidad_repo.get_all() 
-    
+    specialties = especialidad_repo.get_all()
+
     # Para que funcione con el HTML, si el objeto de la BD solo tiene 'nombre', necesitamos adaptarlo:
     # specialties_for_template = [{'name': s.nombre, 'doctors_count': s.medicos_disponibles} for s in specialties]
-    
+
     return render_template(
         'agendarCita.html',
         id_paciente_logueado=paciente_id_logueado,
@@ -84,9 +68,13 @@ def gestor_secretaria():
 def gestor_administrador():
     return render_template('gestorAdministrador.html')
 
-@frontend_bp.route("/panel-medico")
-def doctor_dashboard():
-    return render_template("medicoDashboard.html")
+@frontend_bp.route("/panel-medico/<int:user_id>")
+def doctor_dashboard(user_id):
+    medico_id = medico_repo.get_medico_id_by_user(user_id)
+    if medico_id is not None:
+        return render_template("medicoDashboard.html", medico_id=medico_id)
+    else:
+        return redirect(url_for('frontend.ingreso'))
 
 @frontend_bp.route("/reportes")
 def reportes():

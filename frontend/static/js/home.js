@@ -2,6 +2,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("appointments-container");
     const globalLoader = document.getElementById("global-loader");
 
+    console.log("paciente_id:", paciente_id); // Verificar que paciente_id esté definido
+
     // Función auxiliar de log visual
     function log(msg, type = "info") {
         console[type === "error" ? "error" : "log"](`📘 [MediCare]: ${msg}`);

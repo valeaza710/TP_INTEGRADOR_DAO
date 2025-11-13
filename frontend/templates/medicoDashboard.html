@@ -447,12 +447,18 @@
                 </div>
             </div>
         </div>
-
+    
+    <script>
+        const medico_id = {{ medico_id | tojson }};
+    </script>
 
     <!-- Script JavaScript Integrado -->
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             // --- Declaración de Elementos de los Modales ---
+            
+            console.log("Medico ID:", medico_id);
+            
             // Modal de Cancelación
             const cancelDialog = document.getElementById("cancel-dialog");
             const closeCancelDialogBtn = document.getElementById("close-cancel-dialog");

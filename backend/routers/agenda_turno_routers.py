@@ -54,3 +54,13 @@ def eliminar(agenda_id):
     if success:
         return jsonify({"mensaje": "Turno eliminado correctamente"}), 200
     return jsonify({"error": "No se pudo eliminar el turno"}), 400
+
+# GET /api/agenda/detalles
+@agenda_turno_bp.route("/detalles", methods=["GET"])
+def obtener_turnos_detalles():
+    try:
+        turnos = service.obtener_todos_los_turnos()
+        return jsonify(turnos), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+

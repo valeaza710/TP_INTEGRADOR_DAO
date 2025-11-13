@@ -3,7 +3,8 @@
 // ====================
 let appointments = [];
 let newAppointmentData = {};
-
+let allPacientes = [];
+let allMedicos = [];
 // ====================
 //     UTILIDADES UI
 // ====================
@@ -43,16 +44,17 @@ const getStatusBadgeHtml = (id_estado) => {
 // ====================
 async function loadAppointments() {
     try {
-        const res = await fetch("/api/agenda/");
+        const res = await fetch("/api/agenda/detalles");
         const data = await res.json();
 
-        appointments = data.map((a) => ({
-            id: a.id,
+        appointments = data.map(a => ({
+            id_turno: a.id_turno,
+            dni_paciente: a.dni_paciente,
+            paciente: a.paciente,
+            medico: a.medico,
             fecha: a.fecha,
-            hora: a.hora,
-            pacienteId: a.id_paciente,
-            horarioId: a.id_horario_medico,
-            estadoId: a.id_estado_turno,
+            hora_turno: a.hora_turno,
+            estado: a.estado
         }));
 
         renderAppointments();
@@ -62,61 +64,74 @@ async function loadAppointments() {
     }
 }
 
+
 // ====================
 //   RENDER TURNOS
 // ====================
 function renderAppointments() {
-    const searchTerm = document
-        .getElementById("search-input")
-        .value.toLowerCase();
-
-    const filtered = appointments.filter((a) =>
-        (a.pacienteId + "").toLowerCase().includes(searchTerm)
+    const searchTerm = document.getElementById("search-input").value.toLowerCase();
+    const filtered = appointments.filter(a =>
+        a.dni_paciente.toLowerCase().includes(searchTerm) ||
+        a.paciente.toLowerCase().includes(searchTerm)
     );
 
     const tbody = document.getElementById("appointments-table-body");
     tbody.innerHTML = "";
 
     if (!filtered.length) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="7" class="text-center py-6 text-gray-400">No se encontraron turnos.</td>
-            </tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-gray-400">No se encontraron turnos.</td></tr>`;
         return;
     }
 
-    filtered.forEach((a) => {
+    filtered.forEach(a => {
         const row = document.createElement("tr");
         row.classList = "hover:bg-gray-50 transition";
         row.innerHTML = `
-            <td class="px-4 py-3">${a.pacienteId}</td>
-            <td class="px-4 py-3">${a.horarioId}</td>
-            <td class="px-4 py-3">${new Date(a.fecha).toLocaleDateString("es-ES")}</td>
-            <td class="px-4 py-3">${a.hora}</td>
-            <td class="px-4 py-3">${getStatusBadgeHtml(a.estadoId)}</td>
-            <td class="px-4 py-3 text-right">
-                <button onclick="handleCancelAppointment(${a.id})"
-                    class="text-red-600 border border-red-300 px-3 py-1 rounded-md text-xs hover:bg-red-50">
-                    Cancelar
-                </button>
-            </td>`;
+            <td class="px-4 py-3">${a.dni_paciente}</td>
+            <td class="px-4 py-3">${a.paciente}</td>
+            <td class="px-4 py-3">${a.medico}</td>
+            <td class="px-4 py-3">${a.fecha}</td>
+            <td class="px-4 py-3">${a.hora_turno}</td>
+            <td class="px-4 py-3">${a.estado}</td>
+            <td class="px-4 py-3 text-right flex justify-end gap-2">
+                <button onclick="eliminarTurno(${a.id_turno})" class="px-2 py-1 bg-red-500 text-white rounded">Cancelar</button>
+            </td>
+        `;
         tbody.appendChild(row);
     });
 }
 
+
 // ====================
 //   CANCELAR TURNO
 // ====================
-async function handleCancelAppointment(id) {
+// ====================
+//   CANCELAR TURNO (actualizado usando update)
+// ====================
+async function eliminarTurno(id) {
     if (!confirm(`¿Cancelar turno #${id}?`)) return;
 
-    const res = await fetch(`/api/agenda/${id}`, { method: "DELETE" });
+    try {
+        const res = await fetch(`/api/agenda/${id}`, {
+            method: "PUT", // usa PUT porque tu backend tiene update
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                id_estado_turno: 1,
+                id_paciente: null
+            }),
+        });
 
-    if (res.ok) {
-        showToast("Turno cancelado correctamente.", "success");
-        await loadAppointments();
-    } else {
-        showToast("Error al cancelar turno.", "error");
+        const data = await res.json();
+
+        if (res.ok) {
+            showToast("Turno cancelado correctamente.", "success");
+            loadAppointments();
+        } else {
+            showToast(data.error || "Error al cancelar turno.", "error");
+        }
+    } catch (err) {
+        console.error(err);
+        showToast("Error al cancelar turno", "error");
     }
 }
 
@@ -232,6 +247,7 @@ async function loadPacientes() {
         if (!data.success || !Array.isArray(data.data)) {
             throw new Error("Respuesta inválida del servidor.");
         }
+        allPacientes = data.data; 
 
         renderPacientes(data.data);
     } catch (error) {
@@ -285,6 +301,7 @@ async function loadMedicos() {
         if (!data.success || !Array.isArray(data.data)) {
             throw new Error("Respuesta inválida del servidor.");
         }
+        allMedicos = data.data; // <-- guardamos los médicos en la variable global
 
         renderMedicos(data.data);
     } catch (error) {
@@ -312,10 +329,12 @@ function renderMedicos(medicos) {
     medicos.forEach((m) => {
         const row = document.createElement("tr");
         row.classList = "hover:bg-gray-50 transition";
+        // Convertimos el array de especialidades en un string separado por comas
+        const espStr = (m.especialidades || []).map(e => e.nombre).join(", ");
         row.innerHTML = `
             <td class="px-4 py-3">${m.nombre}</td>
             <td class="px-4 py-3">${m.apellido}</td>
-            <td class="px-4 py-3">${m.especialidad || "-"}</td>
+            <td class="px-4 py-3">${espStr || "-"}</td>
         `;
         tbody.appendChild(row);
     });
@@ -349,6 +368,7 @@ tabPacientes.addEventListener("click", async () => {
     tabPacientes.classList.add("bg-gray-100", "text-primary", "shadow-inner");
 
     await loadPacientes();
+    
 });
 
 tabMedicos.addEventListener("click", async () => {
@@ -394,6 +414,30 @@ document.addEventListener("DOMContentLoaded", () => {
     document
         .getElementById("search-input")
         .addEventListener("input", renderAppointments);
+    document.getElementById("buscar-pacientes").addEventListener("input", filterPacientes);
+    document.getElementById("buscar-medicos").addEventListener("input", filterMedicos);
 
     loadAppointments();
 });
+
+
+// ----------------------------------------------
+//BARRA DE BUSQUEDA
+// ----------------------------------------------
+
+// Filtrar pacientes por DNI
+function filterPacientes() {
+    const searchTerm = document.getElementById("buscar-pacientes").value.toLowerCase();
+    const filtered = allPacientes.filter(p => (p.dni + "").toLowerCase().includes(searchTerm));
+    renderPacientes(filtered);
+}
+
+// Filtrar médicos por APELLIDO
+function filterMedicos() {
+    const searchTerm = document.getElementById("buscar-medicos").value.toLowerCase();
+    const filtered = allMedicos.filter(m =>
+        m.apellido.toLowerCase().includes(searchTerm)
+
+    );
+    renderMedicos(filtered);
+}

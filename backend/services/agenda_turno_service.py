@@ -89,10 +89,15 @@ class AgendaTurnoService:
                 agenda.fecha = data["fecha"]
             if "hora" in data and data["hora"] is not None:
                 agenda.hora = data["hora"]
-            if data.get("id_paciente"):
-                agenda.paciente = Paciente(id=data["id_paciente"])
-            if data.get("id_estado_turno"):
+            if "id_paciente" in data:
+                if data["id_paciente"] is None:
+                    agenda.paciente = None
+                else:
+                    agenda.paciente = Paciente(id=data["id_paciente"])
+
+            if "id_estado_turno" in data:
                 agenda.estado_turno = EstadoTurno(id=data["id_estado_turno"])
+
             if data.get("id_horario_medico"):
                 agenda.horario_medico = HorarioMedico(id=data["id_horario_medico"])
 
@@ -151,3 +156,12 @@ class AgendaTurnoService:
         except Exception as e:
             print(f"❌ Error en get_by_medico: {e}")
             raise Exception("Error al obtener turnos del médico")
+
+
+    # dentro de AgendaTurnoService PARA PANEL DE SECRETARIA
+    def obtener_todos_los_turnos(self):
+        try:
+            return self.repository.get_todos_los_turnos()  # llama a la función correcta
+        except Exception as e:
+            print(f"Error en obtener_todos_los_turnos: {e}")
+            raise Exception("Error al obtener los turnos")

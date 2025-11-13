@@ -235,12 +235,20 @@ async function registerTurno() {
         return;
     }
 
+    const pacienteId = GLOBAL_PACIENTE_ID;
+
+    if (pacienteId === 0) {
+        alert("Error: No se detecta un paciente logueado. Por favor, vuelva a iniciar sesión.");
+        return;
+    }
+
     try {
         const response = await fetch("/api/turnos/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                paciente_id: 1, // <- reemplazar con ID del usuario logueado
+                id_paciente: pacienteId, 
+                id_turno: selectedSlot.id_turno,
                 doctor_id: selectedSlot.doctor_id || 1,
                 fecha: selectedDate,
                 hora: selectedSlot.time

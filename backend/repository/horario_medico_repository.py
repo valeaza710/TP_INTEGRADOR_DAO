@@ -176,3 +176,45 @@ class HorarioMedicoRepository(Repository):
         query = "DELETE FROM horario_medico WHERE id = ?"
         success = self.db.execute_query(query, (horario.id,))
         return success
+    
+    def get_horarios_por_filtro(self, id_especialidad, id_medico, mes, anio, dia_semana):
+        """
+        Obtiene los horarios de trabajo de los médicos filtrados por especialidad, 
+        médico específico (opcional), mes, año y día de la semana.
+        """
+        # 1. Construir la consulta base
+        query = """
+            SELECT hm.id, hm.id_medico, hm.hora_inicio, hm.hora_fin, hm.duracion_turno_min, 
+                   m.nombre as medico_nombre, m.apellido as medico_apellido, e.nombre as especialidad_nombre
+            FROM horario_medico hm
+            JOIN medico m ON hm.id_medico = m.id
+            JOIN medico_x_especialidad mxe ON m.id = mxe.id_medico
+            JOIN especialidad e ON mxe.id_especialidad = e.id
+            WHERE e.id = ? 
+              AND hm.mes = ?
+              AND hm.anio = ?
+              AND hm.dia_semana = ?
+        """
+        params = [id_especialidad, mes, anio, dia_semana]
+        
+        # 2. Agregar filtro por médico si es necesario
+        if id_medico is not None:
+            query += " AND hm.id_medico = ?"
+            params.append(id_medico)
+
+        # 3. Ejecutar y devolver
+        rows = self.db.execute_query(query, params, fetch=True)
+        
+        # Debes devolver la información necesaria para generar los slots
+        results = []
+        if rows:
+            for r in rows:
+                results.append({
+                    "id": r["id"],
+                    "id_medico": r["id_medico"],
+                    "nombre_completo_medico": f"{r['medico_nombre']} {r['medico_apellido']}",
+                    "hora_inicio": r["hora_inicio"],
+                    "hora_fin": r["hora_fin"],
+                    "duracion_turno_min": r["duracion_turno_min"],
+                })
+        return results

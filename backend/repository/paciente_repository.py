@@ -1,6 +1,7 @@
 from backend.data_base.connection import DataBaseConnection
 from backend.clases.paciente import Paciente
 from backend.repository.repository import Repository
+from backend.clases.usuario import Usuario
 
 class PacienteRepository(Repository):
     def __init__(self):
@@ -149,3 +150,31 @@ class PacienteRepository(Repository):
             direccion=row.get("direccion"),
             id_usuario=row.get("id_usuario")
         )
+    
+    # ------------------------------
+    # LOGIN
+    # ------------------------------
+    def get_paciente_id_by_credentials(self, username: str, password: str):
+        """
+        Verifica credenciales del usuario y, si es un paciente, 
+        devuelve su ID de paciente.
+        """
+        # 1. Verificar credenciales del usuario
+        usuario = self.usuario_repo.get_by_username_and_password(username, password)
+        
+        if not usuario:
+            print(f"❌ Login fallido para usuario: {username}")
+            return None # Credenciales incorrectas
+
+        # 2. Si el usuario existe, obtener el paciente asociado
+        paciente = self.get_by_id_usuario(usuario.id)
+        
+        if not paciente:
+            print(f"⚠️ Usuario {username} (ID: {usuario.id}) no tiene registro de paciente asociado.")
+            # Esto puede pasar si el usuario es un médico, secretario o administrador.
+            return None 
+            
+        # 3. Devolver el ID REAL del paciente
+        print(f"✅ Login exitoso. Paciente ID: {paciente.id}")
+        return paciente.id
+

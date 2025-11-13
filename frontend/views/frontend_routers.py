@@ -24,7 +24,7 @@ def registro():
 
 @frontend_bp.route('/login')
 def login():
-    return render_template('ingreso.html')
+    return render_template('login.html')
 
 @frontend_bp.route('/home/<int:user_id>')
 def home(user_id):

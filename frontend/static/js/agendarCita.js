@@ -337,7 +337,8 @@ function confirmAppointment(slot) {
         .catch(err => {
             console.error("Error al agendar:", err);
             alert("❌ No se pudo agendar la cita");
-
+        });
+}
      
 // --- 🔹 REDIRECCIÓN AL CERRAR MODAL ---
 
@@ -368,7 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 🚨 Nueva inicialización
     setupCloseButton(); 
-
+});
 // --- 🔹 Inicialización ---
 document.addEventListener('DOMContentLoaded', () => {
     showStep("step1");

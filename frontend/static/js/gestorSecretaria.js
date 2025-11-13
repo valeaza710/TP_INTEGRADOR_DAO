@@ -546,22 +546,6 @@ function closeScheduleModal() {
     document.getElementById("confirmationMessage").classList.add("hidden");
 }
 
-// Calcular hora fin automáticamente
-document.getElementById("hora_inicio").addEventListener("input", calcularHoraFin);
-document.getElementById("duracion_turno").addEventListener("input", calcularHoraFin);
-
-function calcularHoraFin() {
-    const inicio = document.getElementById("hora_inicio").value;
-    const duracion = parseInt(document.getElementById("duracion_turno").value, 10);
-    if (!inicio || !duracion) return;
-
-    const [h, m] = inicio.split(":").map(Number);
-    const fecha = new Date();
-    fecha.setHours(h, m + duracion);
-    const hh = String(fecha.getHours()).padStart(2, "0");
-    const mm = String(fecha.getMinutes()).padStart(2, "0");
-    document.getElementById("hora_fin").value = `${hh}:${mm}`;
-}
 
 // Enviar formulario
 document.getElementById("scheduleForm").addEventListener("submit", async function(e) {

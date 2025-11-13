@@ -143,3 +143,20 @@ class PacienteService:
                 'tipo_usuario': getattr(p.usuario.tipo_usuario, 'tipo_usuario', None)
             } if p.usuario else None
         }
+
+    def get_basic_info(self):
+    #Devuelve solo nombre, apellido y dni de todos los pacientes
+        try:
+            pacientes = self.repository.get_all()
+            return [
+                {
+                    'id': p.id,
+                    'nombre': p.nombre,
+                    'apellido': p.apellido,
+                    'dni': p.dni
+                }
+                for p in pacientes
+            ]
+        except Exception as e:
+            print(f"Error en get_basic_info_all: {e}")
+            raise Exception("Error al obtener pacientes básicos")

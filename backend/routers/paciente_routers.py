@@ -134,3 +134,20 @@ def buscar_pacientes_por_dni():
         }), 200
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+    
+    
+#-----------------------------------------
+#GET solo info basic
+# ----------------------------------------
+@pacientes_bp.route('/basico', methods=['GET'])
+def listar_pacientes_basico():
+    """GET /api/pacientes/basico - Listar pacientes con nombre, apellido y dni"""
+    try:
+        pacientes = paciente_service.get_basic_info()
+        return jsonify({
+            'success': True,
+            'data': pacientes,
+            'count': len(pacientes)
+        }), 200
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500

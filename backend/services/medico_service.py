@@ -131,3 +131,24 @@ class MedicoService:
                 "rol": getattr(m.usuario, "rol", None)
             } if m.usuario else None
         }
+
+
+    def get_all_basic(self):
+    #Devuelve una lista simple de médicos con sus datos principales
+        try:
+            medicos = self.repository.get_all()
+            return [
+                {
+                    'id': m.id,
+                    'nombre': m.nombre,
+                    'apellido': m.apellido,
+                    'especialidad': [e.nombre for e in m.especialidades] if m.especialidades else []
+                    
+                }
+                
+                for m in medicos
+            ]
+            
+        except Exception as e:
+            print(f"Error en get_all_basic: {e}")
+            raise Exception("Error al obtener médicos básicos")

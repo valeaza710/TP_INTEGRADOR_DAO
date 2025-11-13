@@ -110,3 +110,19 @@ def eliminar_medico(id):
 
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
+#-----------------------------------------
+#GET solo info basic
+# ----------------------------------------
+@medicos_bp.route('/basico', methods=['GET'])
+def listar_medicos_basico():
+    """GET /api/medicos/basico - Listar médicos con información básica"""
+    try:
+        medicos = medico_service.get_all_basic()
+        return jsonify({
+            'success': True,
+            'data': medicos,
+            'count': len(medicos)
+        }), 200
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500

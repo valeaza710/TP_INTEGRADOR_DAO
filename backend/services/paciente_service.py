@@ -114,11 +114,17 @@ class PacienteService:
     # ------------------------------------
     def search_by_dni(self, dni_parcial: str):
         try:
-            pacientes = self.repository.search_by_dni(dni_parcial)
-            return [self._to_dict(p) for p in pacientes]
+            paciente = self.repository.get_by_dni(dni_parcial)  # Puede devolver un único Paciente
+            if paciente is None:
+                return []  # No se encontró nadie
+            # Siempre devolvemos lista
+            if not isinstance(paciente, list):
+                paciente = [paciente]
+            return [self._to_dict(p) for p in paciente]
         except Exception as e:
             print(f"Error en search_by_dni: {e}")
             raise Exception("Error al buscar pacientes por DNI")
+
 
     # ------------------------------------
     # SERIALIZADOR
@@ -143,6 +149,8 @@ class PacienteService:
                 'tipo_usuario': getattr(p.usuario.tipo_usuario, 'tipo_usuario', None)
             } if p.usuario else None
         }
+
+
 
     def get_basic_info(self):
     #Devuelve solo nombre, apellido y dni de todos los pacientes

@@ -343,6 +343,89 @@ function renderMedicos(medicos) {
 }
 
 
+// ============================
+// BÚSQUEDA DE PACIENTE POR DNI
+// ============================
+async function buscarPaciente() {
+    const dni = document.getElementById("pacienteDniSearch").value.trim();
+    const resultDiv = document.getElementById("patient-result");
+    const confirmBtn = document.getElementById("confirm-patient-btn");
+
+    resultDiv.classList.add("hidden");
+    confirmBtn.disabled = true;
+
+    if (!dni) {
+        resultDiv.innerHTML = `<p class="text-red-500">Ingrese un DNI válido.</p>`;
+        resultDiv.classList.remove("hidden");
+        return;
+    }
+
+    try {
+        // Llamada al backend para buscar paciente por DNI
+        const res = await fetch(`/api/pacientes/buscar?dni=${encodeURIComponent(dni)}`);
+
+        if (!res.ok) {
+            throw new Error("Paciente no encontrado");
+        }
+        const data = await res.json();
+
+        // Mostramos la info del paciente
+        resultDiv.innerHTML = `
+            <p><strong>Paciente encontrado:</strong> ${data.nombre} ${data.apellido || ""}</p>
+        `;
+        resultDiv.classList.remove("hidden");
+
+        // Guardamos el ID del paciente en el input oculto
+        document.getElementById("pacienteId").value = data.id;
+
+        // Habilitamos botón de confirmación
+        confirmBtn.disabled = false;
+
+    } catch (err) {
+        console.error(err);
+        resultDiv.innerHTML = `<p class="text-red-500">Paciente no encontrado</p>`;
+        resultDiv.classList.remove("hidden");
+    }
+}
+
+// ============================
+// CONFIRMAR PACIENTE Y REDIRECCIÓN
+// ============================
+function goToStep2() {
+    const pacienteId = document.getElementById("pacienteId").value;
+
+    if (!pacienteId) {
+        alert("Debe seleccionar un paciente antes de continuar.");
+        return;
+    }
+
+    // Redirigimos a agendarCita.html con el id del paciente en query string
+    window.location.href = `/agendarCita.html?pacienteId=${pacienteId}`;
+}
+
+// ============================
+// ABRIR Y CERRAR MODAL
+// ============================
+function openModal() {
+    document.getElementById("new-appointment-modal").classList.remove("hidden");
+    // Limpiar modal cada vez que se abre
+    document.getElementById("pacienteDniSearch").value = "";
+    document.getElementById("patient-result").classList.add("hidden");
+    document.getElementById("confirm-patient-btn").disabled = true;
+    document.getElementById("pacienteId").value = "";
+}
+
+function closeModal() {
+    document.getElementById("new-appointment-modal").classList.add("hidden");
+}
+
+// ============================
+// EVENTO BOTÓN NUEVO TURNO
+// ============================
+document.getElementById("open-modal-btn").addEventListener("click", openModal);
+
+
+
 
 // ========================
 //   CAMBIO DE SECCIONES

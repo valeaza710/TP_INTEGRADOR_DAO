@@ -64,26 +64,50 @@ class HorarioMedicoRepository(Repository):
                 conn.close()
 
     def get_by_id(self, horario_id: int):
+        print(f"🔹 horario_repo.get_by_id - horario_id={horario_id}")
         query = "SELECT * FROM horario_medico WHERE id = ?"
-        rows = self.db.execute_query(query, (horario_id,), fetch=True)
+        
+        try:
+            rows = self.db.execute_query(query, (horario_id,), fetch=True)
+            print(f"   🔹 Filas obtenidas: {len(rows)}")
+        except Exception as e:
+            print(f"   ❌ Error ejecutando query: {e}")
+            raise
+
         if not rows:
+            print("   ℹ️ No se encontró el horario")
             return None
+
         row = rows[0]
+        print(f"   🔹 Procesando row: {row}")
 
         medico = None
         if row.get("id_medico"):
-            medico = self.med_repo.get_by_id(row["id_medico"])
+            try:
+                print(f"      🔹 Obteniendo médico ID={row['id_medico']}")
+                medico = self.med_repo.get_by_id(row["id_medico"])
+                print(f"      ✅ Médico obtenido: {medico}")
+            except Exception as e:
+                print(f"      ❌ Error obteniendo médico: {e}")
+                raise
 
-        return HorarioMedico(
-            id=row["id"],
-            medico=medico,
-            mes=row.get("mes"),
-            anio=row.get("anio"),
-            dia_semana=row.get("dia_semana"),
-            hora_inicio=row.get("hora_inicio"),
-            hora_fin=row.get("hora_fin"),
-            duracion_turno_min=row.get("duracion_turno_min")
-        )
+        try:
+            horario = HorarioMedico(
+                id=row["id"],
+                medico=medico,
+                mes=row.get("mes"),
+                anio=row.get("anio"),
+                dia_semana=row.get("dia_semana"),
+                hora_inicio=row.get("hora_inicio"),
+                hora_fin=row.get("hora_fin"),
+                duracion_turno_min=row.get("duracion_turno_min")
+            )
+            print(f"   ✅ Horario mapeado: {horario}")
+            return horario
+        except Exception as e:
+            print(f"   ❌ Error construyendo HorarioMedico: {e}")
+            raise
+
 
     def get_by_medico(self, medico: Medico):
         """

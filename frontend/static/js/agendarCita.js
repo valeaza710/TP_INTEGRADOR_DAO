@@ -1,9 +1,10 @@
-let selectedSpecialty = "";
-let selectedDoctor = "";
 let currentCalendarDate = new Date();
 let selectedDate = null;
+let selectedSlot = null;
+let selectedSpecialty = null;
+let selectedDoctor = null;
 
-// Referencias a elementos UI clave
+// --- 🔹 Referencias a elementos UI ---
 const step1 = document.getElementById("step1");
 const step2 = document.getElementById("step2");
 const step3 = document.getElementById("step3");
@@ -21,12 +22,9 @@ const descriptions = {
     "step3": "Selecciona fecha y turno disponible"
 };
 
-/**
- * Muestra el paso deseado y actualiza la UI.
- */
+// --- 🔹 Mostrar paso ---
 function showStep(stepId) {
     [step1, step2, step3].forEach(step => step?.classList.add("hidden"));
-
     const targetStep = document.getElementById(stepId);
     if (targetStep) targetStep.classList.remove("hidden");
 
@@ -41,7 +39,7 @@ function showStep(stepId) {
     }
 }
 
-// --- 🔹 PASO 1: CARGAR Y SELECCIONAR ESPECIALIDAD ---
+// --- 🔹 PASO 1: Cargar Especialidades ---
 async function loadSpecialties() {
     const specialtiesContainer = document.getElementById("specialty-list");
     specialtiesContainer.innerHTML = "<p>Cargando especialidades...</p>";
@@ -49,7 +47,6 @@ async function loadSpecialties() {
     try {
         const res = await fetch("/api/especialidades/");
         const data = await res.json();
-
         if (!data.success) throw new Error(data.error || "Error al obtener especialidades");
 
         specialtiesContainer.innerHTML = "";
@@ -61,50 +58,44 @@ async function loadSpecialties() {
             card.onclick = () => selectSpecialty(especialidad.nombre, card);
             specialtiesContainer.appendChild(card);
         });
-
     } catch (err) {
         console.error("❌ Error cargando especialidades:", err);
         specialtiesContainer.innerHTML = "<p class='text-red-500'>Error al cargar especialidades.</p>";
     }
 }
 
+// --- 🔹 PASO 1: Seleccionar especialidad ---
 function selectSpecialty(specialty, element) {
     selectedSpecialty = specialty;
     document.querySelectorAll(".specialty-card").forEach(card => card.classList.remove("selected"));
     element.classList.add("selected");
     selectedSpecialtyName.textContent = specialty;
 
-    // Cargar doctores de esa especialidad
+    // Cargar doctores
     fetch(`/api/medicos/por_especialidad/${specialty}`)
         .then(res => res.json())
         .then(response => {
-            const doctors = response.data; // ✅ array real
-            const doctorSelect = document.getElementById("doctor-select"); // ✅ corregido id
+            const doctors = response.data || [];
+            const doctorSelect = document.getElementById("doctor-select");
+            doctorSelect.innerHTML = '<option value="all">Todos los médicos de la especialidad</option>';
 
-            doctorSelect.innerHTML = '<option value="">Todos los médicos de la especialidad</option>';
-
-            if (Array.isArray(doctors)) {
-                doctors.forEach(d => {
-                    doctorSelect.innerHTML += `<option value="${d.id}">${d.nombre} ${d.apellido}</option>`;
-                });
-            } else {
-                console.error("❌ El backend no devolvió un array:", doctors);
-            }
+            doctors.forEach(d => {
+                doctorSelect.innerHTML += `<option value="${d.id}">${d.nombre} ${d.apellido}</option>`;
+            });
 
             showStep("step2");
         })
         .catch(error => console.error("Error al cargar doctores:", error));
 }
 
-
-// --- 🔹 PASO 2: DOCTOR ---
+// --- 🔹 PASO 2: Ir al calendario ---
 function goToCalendar() {
     selectedDoctor = doctorSelect.value;
     showStep("step3");
     generateCalendarUI(new Date());
 }
 
-// --- 🔹 VOLVER ATRÁS ---
+// --- 🔹 Volver atrás ---
 function goBack(targetStepNumber) {
     showStep(`step${targetStepNumber}`);
     if (targetStepNumber === 1) {
@@ -117,7 +108,7 @@ function goBack(targetStepNumber) {
     }
 }
 
-// --- 🔹 CALENDARIO ---
+// --- 🔹 Generar calendario ---
 function generateCalendarUI(date) {
     const monthLabel = document.getElementById("month-label");
     const datesGrid = document.getElementById("calendar-dates-grid");
@@ -126,13 +117,11 @@ function generateCalendarUI(date) {
     const year = date.getFullYear();
     const month = date.getMonth();
     const locale = 'es-ES';
-
     monthLabel.textContent = date.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
 
     const firstDayOfMonth = new Date(year, month, 1);
     let startingDayOfWeek = firstDayOfMonth.getDay();
     startingDayOfWeek = (startingDayOfWeek === 0) ? 6 : startingDayOfWeek - 1;
-
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
     for (let i = 0; i < startingDayOfWeek; i++) {
@@ -148,7 +137,6 @@ function generateCalendarUI(date) {
         const div = document.createElement("div");
         const dayDate = new Date(year, month, day);
         const dayDateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-
         div.textContent = day;
         div.className = "date-item";
         div.setAttribute('data-date', dayDateString);
@@ -186,63 +174,96 @@ function nextMonth() {
     generateCalendarUI(currentCalendarDate);
 }
 
-// --- 🔹 TURNOS DISPONIBLES ---
-function loadSlots() {
-    const date = dateInput.value;
-    if (!date) return;
+// --- 🔹 Consultar turnos disponibles (slots) ---
+async function loadSlots() {
+    if (!selectedDate || !selectedSpecialty) return;
 
-    fetch("/api/turnos/slots", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ specialty: selectedSpecialty, doctor: selectedDoctor, date })
-    })
-        .then(res => res.json())
-        .then(slots => {
-            slotsContainer.innerHTML = "";
-            if (slots.length === 0) {
-                slotsContainer.innerHTML = '<div class="info-message text-center py-8">No hay turnos disponibles para esta fecha.</div>';
-                return;
-            }
-
-            slots.forEach(s => {
-                const slotCard = document.createElement("button");
-                slotCard.className = "slot-card";
-                slotCard.innerHTML = `<strong>${s.time}</strong> - ${s.doctor}`;
-                slotCard.onclick = () => confirmAppointment(s);
-                slotsContainer.appendChild(slotCard);
-            });
+    try {
+        const response = await fetch("/api/turnos/slots", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                specialty: selectedSpecialty,
+                doctor: selectedDoctor === "all" ? null : selectedDoctor,
+                date: selectedDate
+            })
         });
+
+        if (!response.ok) throw new Error("Error al consultar turnos disponibles");
+
+        const slots = await response.json();
+        const slotsContainer = document.getElementById("slots");
+        slotsContainer.innerHTML = "";
+
+        if (!slots || slots.length === 0) {
+            slotsContainer.innerHTML = `<p class="text-sm text-muted-foreground">No hay turnos disponibles para esta fecha.</p>`;
+            return;
+        }
+
+        slots.forEach(slot => {
+            const btn = document.createElement("button");
+            btn.className = "slot-btn";
+            btn.textContent = `${slot.time} - ${slot.doctor}`;
+            btn.onclick = () => selectSlot(slot, btn);
+            slotsContainer.appendChild(btn);
+        });
+    } catch (error) {
+        console.error("Error al cargar turnos:", error);
+    }
 }
 
-// --- 🔹 CONFIRMAR TURNO ---
-function confirmAppointment(slot) {
-    const date = dateInput.value;
-    const currentUserId = 1; // <- reemplazar con tu lógica real
+// --- 🔹 Seleccionar slot ---
+function selectSlot(slot, button) {
+    selectedSlot = slot;
+    document.querySelectorAll(".slot-btn").forEach(btn => btn.classList.remove("active"));
+    button.classList.add("active");
 
-    fetch("/api/turnos", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            fecha: date,
-            hora: slot.time,
-            id_paciente: currentUserId,
-            id_estado_turno: 1,
-            id_horario_medico: slot.id_horario_medico
-        })
-    })
-        .then(res => res.json())
-        .then(data => {
-            alert("✅ Cita agendada exitosamente");
-        })
-        .catch(err => {
-            console.error("Error al agendar:", err);
-            alert("❌ No se pudo agendar la cita");
-        });
+    if (!document.getElementById("confirm-btn")) {
+        const confirmBtn = document.createElement("button");
+        confirmBtn.id = "confirm-btn";
+        confirmBtn.textContent = "Confirmar Turno";
+        confirmBtn.className = "btn-primary w-full mt-4";
+        confirmBtn.onclick = registerTurno;
+        document.getElementById("slots-container").appendChild(confirmBtn);
+    }
 }
 
-// --- 🔹 INICIALIZACIÓN ---
+// --- 🔹 Registrar turno real ---
+async function registerTurno() {
+    if (!selectedSlot || !selectedDate) {
+        alert("Por favor selecciona un horario.");
+        return;
+    }
+
+    try {
+        const response = await fetch("/api/turnos/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                paciente_id: 1, // <- reemplazar con ID del usuario logueado
+                doctor_id: selectedSlot.doctor_id || 1,
+                fecha: selectedDate,
+                hora: selectedSlot.time
+            })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            alert("✅ Turno registrado correctamente");
+            goBack(1);
+        } else {
+            alert("❌ Error al registrar el turno: " + (data.error || "Desconocido"));
+        }
+    } catch (error) {
+        console.error("Error al registrar turno:", error);
+        alert("Error al registrar turno.");
+    }
+}
+
+// --- 🔹 Inicialización ---
 document.addEventListener('DOMContentLoaded', () => {
     showStep("step1");
-    loadSpecialties(); // 👈 acá cargamos las especialidades desde tu BD
+    loadSpecialties();
     generateCalendarUI(currentCalendarDate);
 });
+

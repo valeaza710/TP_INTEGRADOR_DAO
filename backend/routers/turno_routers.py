@@ -68,25 +68,18 @@ def eliminar_turno(id):
             "error": str(e)
         }), 500
 
-@turnos_bp.route('/slots', methods=['POST'])
+@turnos_bp.route('/slots', methods=['GET', 'POST'])
 def get_slots():
-    """
-    Espera JSON con:
-    {
-        "specialty": "Cardiología",
-        "doctor": "Dr. Juan Pérez",
-        "date": "2025-11-12"
-    }
-    Devuelve lista de horarios disponibles con id_horario_medico
-    """
+    if request.method == 'GET':
+        return jsonify({"message": "Usa POST para filtrar por especialidad y fecha"}), 200
+
     data = request.get_json()
     specialty = data.get("specialty")
     doctor_name = data.get("doctor")
     date = data.get("date")
 
-    # Usamos repo para filtrar horarios libres
     turnos_service = TurnoService()
     slots = turnos_service.get_available_slots(specialty, doctor_name, date)
 
-    # slots = [{ "id_horario_medico": 2, "doctor": "Dr. Juan Pérez", "time": "15:00", "location": "Consultorio 3" }, ...]
     return jsonify(slots), 200
+

@@ -1,6 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("loginForm");
-    const errorMessageDiv = document.getElementById("error-message"); // Referencia al nuevo div
+    const errorMessageDiv = document.getElementById("error-message"); // Referencia al div del error
+
+    // 🔹 Función para ocultar el mensaje de error (evita el ReferenceError)
+    function hideError() {
+        if (errorMessageDiv) {
+            errorMessageDiv.classList.add("hidden"); // si usás Tailwind
+            // o: errorMessageDiv.style.display = "none";
+        }
+    }
 
     if (!form) {
         console.error("No se encontró el formulario de login");
@@ -30,7 +38,13 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("Respuesta del backend:", data);
 
             if (!data.success) {
-                alert(data.message || "Credenciales incorrectas");
+                // Mostrar error en pantalla (opcional)
+                if (errorMessageDiv) {
+                    errorMessageDiv.textContent = data.message || "Credenciales incorrectas";
+                    errorMessageDiv.classList.remove("hidden");
+                } else {
+                    alert(data.message || "Credenciales incorrectas");
+                }
                 return;
             }
 
@@ -44,8 +58,9 @@ document.addEventListener("DOMContentLoaded", () => {
             } else if (rol === "MEDICO") {
                 window.location.href = "/panel-medico";
             } else {
-                window.location.href = "/home"; // ✅ Esta es la correcta
+                window.location.href = "/home";
             }
+
         } catch (error) {
             console.error("Error en login:", error);
             alert("No se pudo conectar con el servidor");

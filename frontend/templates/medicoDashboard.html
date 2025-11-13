@@ -196,25 +196,7 @@
                                     </button>
                                 </td>
                             </tr>
-                            
-                            <!-- Fila de Paciente 3 -->
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    28.765.432
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    Luisa Gómez
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    2025-09-21
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <button class="text-indigo-600 hover:text-indigo-900 font-semibold flex items-center">
-                                        <i class="ph ph-eye text-lg mr-1"></i>
-                                        Ver Perfil
-                                    </button>
-                                </td>
-                            </tr>
+
                         </tbody>
                     </table>
                 </div>
@@ -230,134 +212,15 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                Turnos de Hoy (3)
+                Turnos de Hoy (<span id="turnos-count">0</span>)
             </h3>
-            <p class="text-gray-500 mb-6 text-sm">Tienes 3 turnos programados para hoy</p>
+            <p class="text-gray-500 mb-6 text-sm">Tienes <span id="turnos-count-text">0</span> turnos programados para hoy</p>
 
-            <div class="space-y-6">
-                
-                <!-- Tarjeta de Turno 1 -->
-                <div class="card bg-white p-6 rounded-xl shadow-lg border border-gray-200 transition duration-300 hover:shadow-xl" data-id="turno-1234" data-patient-name="Juan Pérez" data-patient-dni="12345678">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                            <div>
-                                <h4 class="text-lg font-semibold text-gray-900">Juan Pérez</h4>
-                                <p class="text-sm text-gray-500">DNI: 12345678</p>
-                            </div>
-                        </div>
-                        <span class="text-lg font-bold text-gray-700">09:00</span>
-                    </div>
-
-                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-100 mb-4">
-                        <p class="text-sm font-medium text-gray-600">Motivo: Consulta general</p>
-                        <p class="text-xs text-gray-400 mt-1">2025-11-09</p>
-                    </div>
-
-                    <div class="flex space-x-3">
-                        <button data-appointment-id="appointment-2" class="btn-atendido bg-emerald-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-emerald-700 transition duration-150 flex items-center shadow-md">
-                                <i class="ph ph-check-circle-light text-xl mr-2"></i>
-                                Turno Atendido
-                            </button>
-                        <button class="btn-recipe btn-action bg-cyan-500 text-white hover:bg-cyan-600 flex-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            Generar Receta
-                        </button>
-                        <button class="btn-cancel btn-action bg-red-500 text-white hover:bg-red-600 flex-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            Cancelar Turno
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Tarjeta de Turno 2 -->
-                <div class="card bg-white p-6 rounded-xl shadow-lg border border-gray-200 transition duration-300 hover:shadow-xl" data-id="turno-1235" data-patient-name="María González" data-patient-dni="23456789">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                            <div>
-                                <h4 class="text-lg font-semibold text-gray-900">María González</h4>
-                                <p class="text-sm text-gray-500">DNI: 23456789</p>
-                            </div>
-                        </div>
-                        <span class="text-lg font-bold text-gray-700">10:30</span>
-                    </div>
-
-                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-100 mb-4">
-                        <p class="text-sm font-medium text-gray-600">Motivo: Control de presión arterial</p>
-                        <p class="text-xs text-gray-400 mt-1">2025-11-09</p>
-                    </div>
-
-                    <div class="flex space-x-3">
-                        <button data-appointment-id="appointment-2" class="btn-atendido bg-emerald-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-emerald-700 transition duration-150 flex items-center shadow-md">
-                                <i class="ph ph-check-circle-light text-xl mr-2"></i>
-                                Turno Atendido
-                            </button>
-                        <button class="btn-recipe btn-action bg-cyan-500 text-white hover:bg-cyan-600 flex-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            Generar Receta
-                        </button>
-                        <button class="btn-cancel btn-action bg-red-500 text-white hover:bg-red-600 flex-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            Cancelar Turno
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Tarjeta de Turno 3 -->
-                <div class="card bg-white p-6 rounded-xl shadow-lg border border-gray-200 transition duration-300 hover:shadow-xl" data-id="turno-1236" data-patient-name="Carlos Rodríguez" data-patient-dni="34567890">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                            <div>
-                                <h4 class="text-lg font-semibold text-gray-900">Carlos Rodríguez</h4>
-                                <p class="text-sm text-gray-500">DNI: 34567890</p>
-                            </div>
-                        </div>
-                        <span class="text-lg font-bold text-gray-700">11:45</span>
-                    </div>
-
-                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-100 mb-4">
-                        <p class="text-sm font-medium text-gray-600">Motivo: Vacunación</p>
-                        <p class="text-xs text-gray-400 mt-1">2025-11-09</p>
-                    </div>
-
-                    <div class="flex space-x-3">
-                        <button data-appointment-id="appointment-2" class="btn-atendido bg-emerald-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-emerald-700 transition duration-150 flex items-center shadow-md">
-                                <i class="ph ph-check-circle-light text-xl mr-2"></i>
-                                Turno Atendido
-                            </button>
-                        <button class="btn-recipe btn-action bg-cyan-500 text-white hover:bg-cyan-600 flex-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            Generar Receta
-                        </button>
-                        <button class="btn-cancel btn-action bg-red-500 text-white hover:bg-red-600 flex-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            Cancelar Turno
-                        </button>
-                    </div>
-                </div>
+            <div id="turnos-container" class="space-y-6">
 
             </div>
         </div>
+
 
         <!-- Contenido del Historial -->
         <div id="history" class="tab-content">

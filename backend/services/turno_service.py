@@ -13,7 +13,6 @@ class TurnoService:
         lista = []
 
         for t in turnos:
-            # Convertimos la estructura simple que necesita el frontend
             lista.append({
                 "id": t["id"],
                 "doctor": f"Dr. {t.get('doctor', 'Sin asignar')}",
@@ -21,7 +20,7 @@ class TurnoService:
                 "fecha": t["fecha"],
                 "hora": t["hora"],
                 "lugar": t.get("lugar", "Sin especificar"),
-                "estado": "Pendiente",  # o mapeá según estado_turno si querés
+                "estado": "Pendiente",
                 "paciente": t.get("paciente", "Sin paciente")
             })
 
@@ -31,7 +30,6 @@ class TurnoService:
     # Crear un turno
     # -----------------------------
     def create(self, data):
-        # Reutilizamos la lógica de AgendaTurnoService
         return self.agenda_service.create(data)
 
     # -----------------------------
@@ -40,23 +38,35 @@ class TurnoService:
     def delete(self, id):
         return self.agenda_service.delete(id)
 
-def get_available_slots(self, specialty=None, doctor_name=None, date=None):
-    turnos = self.repo.get_all()  # Trae todos los turnos
-    available = []
+    # -----------------------------
+    # Obtener horarios disponibles
+    # -----------------------------
+    def get_available_slots(self, specialty=None, doctor_name=None, date=None):
+        """
+        Retorna los horarios disponibles para la especialidad y fecha.
+        """
+        turnos = self.agenda_service.get_all()  # Todos los turnos actuales
+        available = []
 
-    for t in turnos:
-        if t.fecha == date:
-            continue  # Ya ocupado
-        if doctor_name and t.horario_medico.medico.nombre + " " + t.horario_medico.medico.apellido != doctor_name:
-            continue
-        if specialty and t.horario_medico.medico.especialidad.nombre != specialty:
-            continue
-        
-        available.append({
-            "id_horario_medico": t.horario_medico.id,
-            "doctor": f"Dr. {t.horario_medico.medico.nombre} {t.horario_medico.medico.apellido}",
-            "time": t.hora,
-            "location": f"Consultorio {t.horario_medico.id}"
-        })
+        for t in turnos:
+            # Si ya hay turno en esa fecha, lo salteamos
+            if t["fecha"] == date:
+                continue
 
-    return available
+            # Filtrar por médico si se eligió uno
+            full_doctor_name = f"{t.get('doctor', '').replace('Dr. ', '')}"
+            if doctor_name and full_doctor_name != doctor_name:
+                continue
+
+            # Filtrar por especialidad si aplica
+            if specialty and t.get("especialidad") != specialty:
+                continue
+
+            available.append({
+                "id_horario_medico": t.get("id_horario_medico", t["id"]),
+                "doctor": t.get("doctor", "Sin doctor"),
+                "time": t.get("hora", "00:00"),
+                "location": t.get("lugar", "Consultorio")
+            })
+
+        return available

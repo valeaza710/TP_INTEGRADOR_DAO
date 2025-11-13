@@ -8,7 +8,7 @@ let asistenciaChartInstance = null;
 // --- 1. FUNCIONES PARA CONSULTAR API ---
 
 async function fetchMedicos() {
-    const res = await fetch(`${API_BASE}/medico`);
+    const res = await fetch(`${API_BASE}/medicos`);
     if (!res.ok) throw new Error("Error al obtener médicos");
     return res.json();
 }
@@ -22,8 +22,8 @@ async function fetchTurnosPorMedico(idMedico, fechaInicio, fechaFin) {
 }
 
 // ✅ 2️⃣ Turnos por especialidad
-async function fetchTurnosPorEspecialidad(fechaInicio, fechaFin) {
-    const url = `${API_BASE}/reportes/turnos-especialidad?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
+async function fetchTurnosPorEspecialidad() {
+    const url = `${API_BASE}/reportes/turnos-especialidad`;
     const res = await fetch(url);
     if (!res.ok) throw new Error("Error al obtener turnos por especialidad");
     return res.json();
@@ -38,8 +38,8 @@ async function fetchPacientesAtendidos(fechaInicio, fechaFin) {
 }
 
 // ✅ 4️⃣ Asistencia vs inasistencia
-async function fetchAsistencia(fechaInicio, fechaFin) {
-    const url = `${API_BASE}/reportes/asistencia?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
+async function fetchAsistencia() {
+    const url = `${API_BASE}/reportes/asistencia`;
     const res = await fetch(url);
     if (!res.ok) throw new Error("Error al obtener datos de asistencia");
     return res.json();
@@ -57,37 +57,73 @@ async function handlePdfClick(event) {
     let nombreArchivo = "Reporte";
     let endpoint = "";
 
+    // 🧭 Variables que podrían usarse como query params
+    let params = new URLSearchParams();
+
     switch (idReporte) {
-        case "turnos_medico":
-            endpoint = `${API_BASE}/reportes/archivo-turnos_medico`;
+        case "turnos_medico": {
+            endpoint = `${API_BASE}/reportes/archivo/turnos_medico`;
             nombreArchivo = "Reporte_Turnos_por_Medico";
+
+            // 🔹 Obtener valores del formulario actual
+            const idMedico = document.getElementById("medico")?.value;
+            const fechaInicio = document.getElementById("fecha-inicio")?.value;
+            const fechaFin = document.getElementById("fecha-fin")?.value;
+
+            if (!idMedico || !fechaInicio || !fechaFin) {
+                return alert("Por favor, seleccioná un médico y un rango de fechas antes de generar el PDF.");
+            }
+
+            params.append("id_medico", idMedico);
+            params.append("fecha_inicio", fechaInicio);
+            params.append("fecha_fin", fechaFin);
             break;
+        }
+
         case "turnos_especialidad":
-            endpoint = `${API_BASE}/reportes/archivo-turnos_especialidad`;
+            endpoint = `${API_BASE}/reportes/archivo/turnos_especialidad`;
             nombreArchivo = "Reporte_Turnos_por_Especialidad";
             break;
-        case "pacientes_atendidos":
-            endpoint = `${API_BASE}/reportes/archivo-pacientes_atendidos`;
+
+        case "pacientes_atendidos": {
+            endpoint = `${API_BASE}/reportes/archivo/pacientes_atendidos`;
             nombreArchivo = "Reporte_Pacientes_Atendidos";
+
+            const fechaInicio = document.getElementById("fecha-inicio-pacientes")?.value;
+            const fechaFin = document.getElementById("fecha-fin-pacientes")?.value;
+
+            if (!fechaInicio || !fechaFin) {
+                return alert("Por favor, ingresá un rango de fechas antes de generar el PDF.");
+            }
+
+            params.append("fecha_inicio", fechaInicio);
+            params.append("fecha_fin", fechaFin);
             break;
+        }
+
         case "asistencia_grafico":
-            endpoint = `${API_BASE}/reportes/archivo-asistencia_grafico`;
+            endpoint = `${API_BASE}/reportes/archivo/asistencia_grafico`;
             nombreArchivo = "Reporte_Asistencia_Inasistencia";
             break;
+
         default:
             return alert("Tipo de reporte no reconocido");
     }
 
     try {
-        const response = await fetch(endpoint, { method: "GET", headers: { Accept: "application/pdf" } });
+        // 🧾 Enviar los parámetros si existen
+        const url = params.toString() ? `${endpoint}?${params.toString()}` : endpoint;
+        const response = await fetch(url, { method: "GET", headers: { Accept: "application/pdf" } });
+
         if (!response.ok) throw new Error("Error al obtener PDF");
+
         const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
+        const urlBlob = URL.createObjectURL(blob);
         const a = document.createElement("a");
-        a.href = url;
+        a.href = urlBlob;
         a.download = `${nombreArchivo}_${new Date().toLocaleDateString()}.pdf`;
         a.click();
-        URL.revokeObjectURL(url);
+        URL.revokeObjectURL(urlBlob);
     } catch (error) {
         console.error("❌ Error al descargar PDF:", error);
         alert("No se pudo descargar el PDF.");
@@ -109,7 +145,8 @@ async function renderTurnosPorMedico() {
     const container = document.getElementById("tab-content-turnos_medico");
 
     try {
-        const medicos = await fetchMedicos();
+        const res = await fetchMedicos();
+        const medicos = res.data || []; // ✅ extrae el array correcto
         const medicoOptions = medicos.map(m => `<option value="${m.id}">${m.nombre} ${m.apellido}</option>`).join("");
 
         container.innerHTML = `
@@ -249,7 +286,13 @@ async function renderPacientesAtendidos() {
 async function renderAsistenciaChart() {
     const container = document.getElementById("tab-content-asistencia_grafico");
     const data = await fetchAsistencia();
-    const asistencia = data.asistencia || [];
+    const stats = data.estadistica || {};
+
+    // Transformamos el formato del backend en el que espera Chart.js
+    const asistencia = [
+        { name: "Asistencias", value: stats.asistencias || 0, color: "#4CAF50" },
+        { name: "Inasistencias", value: stats.inasistencias || 0, color: "#F44336" }
+    ];
 
     const ctxId = "graficoAsistencia";
     container.innerHTML = `

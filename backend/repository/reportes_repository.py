@@ -87,16 +87,14 @@ class ReportesRepository:
                 p.apellido AS apellido_paciente,
                 p.dni,
                 a.fecha,
+                m.id AS id_medico,
                 m.nombre AS nombre_medico,
-                m.apellido AS apellido_medico,
-                e.nombre AS especialidad
+                m.apellido AS apellido_medico
             FROM agenda_turno a
             JOIN paciente p ON a.id_paciente = p.id
             JOIN estado_turno et ON a.id_estado_turno = et.id
             JOIN horario_medico hm ON a.id_horario_medico = hm.id
             JOIN medico m ON hm.id_medico = m.id
-            JOIN medico_x_especialidad me ON m.id = me.id_medico
-            JOIN especialidad e ON me.id_especialidad = e.id
             WHERE a.fecha BETWEEN ? AND ?
               AND et.nombre = 'Atendido'
             ORDER BY a.fecha
@@ -106,16 +104,35 @@ class ReportesRepository:
         if not rows:
             return []
 
-        return [
-            {
+        # ✅ Traer todas las especialidades de los médicos que aparecen en los resultados
+        id_medicos = list({row["id_medico"] for row in rows})
+        especialidades_map = {}
+
+        if id_medicos:
+            placeholders = ",".join("?" for _ in id_medicos)
+            esp_query = f"""
+                SELECT me.id_medico, e.nombre AS especialidad
+                FROM medico_x_especialidad me
+                JOIN especialidad e ON me.id_especialidad = e.id
+                WHERE me.id_medico IN ({placeholders})
+            """
+            esp_rows = self.db.execute_query(esp_query, tuple(id_medicos), fetch=True)
+            for r in esp_rows:
+                especialidades_map.setdefault(r["id_medico"], []).append(r["especialidad"])
+
+        # ✅ Unificar resultados
+        pacientes = []
+        for row in rows:
+            especialidades = especialidades_map.get(row["id_medico"], [])
+            pacientes.append({
                 "paciente": f"{row['nombre_paciente']} {row['apellido_paciente']}",
                 "dni": row["dni"],
                 "fecha_atencion": row["fecha"],
                 "medico": f"{row['nombre_medico']} {row['apellido_medico']}",
-                "especialidad": row["especialidad"]
-            }
-            for row in rows
-        ]
+                "especialidad": ", ".join(especialidades) if especialidades else "-"
+            })
+
+        return pacientes
 
     # 4️⃣ Asistencia vs Inasistencia
     def get_asistencia_vs_inasistencia(self):

@@ -265,5 +265,20 @@ document.addEventListener('DOMContentLoaded', () => {
     showStep("step1");
     loadSpecialties();
     generateCalendarUI(currentCalendarDate);
-});
 
+    // 🔹 Acción para el botón "X" de cerrar
+    const closeBtn = document.querySelector(".close-btn");
+    if (closeBtn) {
+        closeBtn.addEventListener("click", () => {
+            window.location.href = "/home";
+            // Volvemos al paso 1 y reseteamos los valores
+            selectedSpecialty = null;
+            selectedDoctor = null;
+            selectedDate = null;
+            selectedSlot = null;
+
+            showStep("step1");
+            document.getElementById("specialty-list").scrollIntoView({ behavior: "smooth" });
+        });
+    }
+});

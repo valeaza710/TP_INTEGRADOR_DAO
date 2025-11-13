@@ -38,7 +38,7 @@ def obtener_tipo_usuario(id):
 
 
 # -----------------------------------
-# POST /api/tipo-usuario/
+# POST /api/tipo-usuario
 # -----------------------------------
 @tipo_usuario_bp.route('/', methods=['POST'])
 def crear_tipo_usuario():

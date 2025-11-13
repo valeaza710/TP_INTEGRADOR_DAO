@@ -10,12 +10,11 @@ class UsuarioRepository(Repository):
 
     def save(self, usuario: Usuario):
         query = """
-            INSERT INTO usuario (nombre_usuario, contrasena, rol)
+            INSERT INTO usuario (nombre_usuario, contrasena, tipo_usuario)
             VALUES (?, ?, ?)
         """
-        rol_id = usuario.tipo_usuario.id if usuario.tipo_usuario else None
-        print(rol_id)
-        params = (usuario.nombre_usuario, usuario.contrasena, rol_id)
+        tipo_id = usuario.tipo_usuario.id if usuario.tipo_usuario else None
+        params = (usuario.nombre_usuario, usuario.contrasena, tipo_id)
 
         conn = self.db.connect()
         if not conn:
@@ -46,8 +45,10 @@ class UsuarioRepository(Repository):
         row = data[0]
 
         tipo_usuario = None
-        if row["rol"]:
-            tipo_data = self.db.execute_query("SELECT * FROM tipo_usuario WHERE id = ?", (row["rol"],), fetch=True)
+        if row["tipo_usuario"]:
+            tipo_data = self.db.execute_query(
+                "SELECT * FROM tipo_usuario WHERE id = ?", (row["tipo_usuario"],), fetch=True
+            )
             if tipo_data:
                 t = tipo_data[0]
                 tipo_usuario = TipoUsuario(t["id"], t["tipo"])
@@ -67,8 +68,10 @@ class UsuarioRepository(Repository):
         if usuarios_data:
             for row in usuarios_data:
                 tipo_usuario = None
-                if row["rol"]:
-                    tipo_data = self.db.execute_query("SELECT * FROM tipo_usuario WHERE id = ?", (row["rol"],), fetch=True)
+                if row["id_tipo_usuario"]:
+                    tipo_data = self.db.execute_query(
+                        "SELECT * FROM tipo_usuario WHERE id = ?", (row["id_tipo_usuario"],), fetch=True
+                    )
                     if tipo_data:
                         t = tipo_data[0]
                         tipo_usuario = TipoUsuario(t["id"], t["tipo"])
@@ -85,11 +88,11 @@ class UsuarioRepository(Repository):
     def modify(self, usuario: Usuario):
         query = """
             UPDATE usuario 
-            SET nombre_usuario = ?, contrasena = ?, rol = ?
+            SET nombre_usuario = ?, contrasena = ?, tipo_usuario = ?
             WHERE id = ?
         """
-        rol_id = usuario.tipo_usuario.id if usuario.tipo_usuario else None
-        params = (usuario.nombre_usuario, usuario.contrasena, rol_id, usuario.id)
+        tipo_id = usuario.tipo_usuario.id if usuario.tipo_usuario else None
+        params = (usuario.nombre_usuario, usuario.contrasena, tipo_id, usuario.id)
 
         success = self.db.execute_query(query, params)
         return usuario if success else None

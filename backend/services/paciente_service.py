@@ -140,6 +140,6 @@ class PacienteService:
             'usuario': {
                 'id': p.usuario.id,
                 'nombre_usuario': getattr(p.usuario, 'nombre_usuario', None),
-                'rol': getattr(p.usuario, 'rol', None)
+                'tipo_usuario': getattr(p.usuario.tipo_usuario, 'tipo_usuario', None)
             } if p.usuario else None
         }

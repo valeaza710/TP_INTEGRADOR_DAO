@@ -1,7 +1,7 @@
-from repository.historial_clinico_repository import HistorialClinicoRepository
-from repository.paciente_repository import PacienteRepository
-from clases.historial_clinico import HistorialClinico
-from clases.paciente import Paciente
+from backend.repository.historial_clinico_repository import HistorialClinicoRepository
+from backend.repository.paciente_repository import PacienteRepository
+from backend.clases.historial_clinico import HistorialClinico
+from backend.clases.paciente import Paciente
 
 
 class HistorialClinicoService:

@@ -1,12 +1,15 @@
-# backend/repository/paciente_repository.py
 from backend.data_base.connection import DataBaseConnection
 from backend.clases.paciente import Paciente
 from backend.repository.repository import Repository
+from backend.clases.usuario import Usuario
 
 class PacienteRepository(Repository):
     def __init__(self):
         self.db = DataBaseConnection()
 
+    # ------------------------------
+    # CREATE
+    # ------------------------------
     def save(self, paciente: Paciente):
         """Guardar nuevo paciente"""
         query = """
@@ -47,6 +50,30 @@ class PacienteRepository(Repository):
                 cursor.close()
             conn.close()
 
+    # ------------------------------
+    # READ
+    # ------------------------------
+    def get_all(self):
+        """Obtener todos los pacientes"""
+        query = "SELECT * FROM paciente"
+        pacientes_data = self.db.execute_query(query, fetch=True)
+        pacientes = []
+
+        if pacientes_data:
+            for row in pacientes_data:
+                paciente = self._build_paciente(row)
+                if paciente:
+                    pacientes.append(paciente)
+        return pacientes
+
+    def get_by_id(self, paciente_id: int):
+        """Buscar paciente por ID"""
+        query = "SELECT * FROM paciente WHERE id = ?"
+        data = self.db.execute_query(query, (paciente_id,), fetch=True)
+        if not data:
+            return None
+        return self._build_paciente(data[0])
+
     def get_by_dni(self, dni: str):
         """Buscar paciente por DNI"""
         query = "SELECT * FROM paciente WHERE dni = ?"
@@ -71,27 +98,9 @@ class PacienteRepository(Repository):
             return None
         return self._build_paciente(data[0])
 
-    def get_by_id(self, paciente_id: int):
-        """Buscar paciente por ID"""
-        query = "SELECT * FROM paciente WHERE id = ?"
-        data = self.db.execute_query(query, (paciente_id,), fetch=True)
-        if not data:
-            return None
-        return self._build_paciente(data[0])
-
-    def get_all(self):
-        """Obtener todos los pacientes"""
-        query = "SELECT * FROM paciente"
-        pacientes_data = self.db.execute_query(query, fetch=True)
-        pacientes = []
-
-        if pacientes_data:
-            for row in pacientes_data:
-                paciente = self._build_paciente(row)
-                if paciente:
-                    pacientes.append(paciente)
-        return pacientes
-
+    # ------------------------------
+    # UPDATE
+    # ------------------------------
     def modify(self, paciente: Paciente):
         """Actualizar paciente"""
         query = """
@@ -106,7 +115,7 @@ class PacienteRepository(Repository):
             paciente.dni,
             paciente.edad,
             paciente.fecha_nacimiento,
-            paciente.email,
+            paciente.mail,
             paciente.telefono,
             paciente.direccion,
             paciente.id
@@ -115,12 +124,18 @@ class PacienteRepository(Repository):
         success = self.db.execute_query(query, params)
         return paciente if success else None
 
+    # ------------------------------
+    # DELETE
+    # ------------------------------
     def delete(self, paciente: Paciente):
         """Eliminar paciente"""
         query = "DELETE FROM paciente WHERE id = ?"
         success = self.db.execute_query(query, (paciente.id,))
         return success
 
+    # ------------------------------
+    # PRIVATE BUILDER
+    # ------------------------------
     def _build_paciente(self, row):
         """Construir objeto Paciente desde una fila de BD"""
         return Paciente(
@@ -136,13 +151,32 @@ class PacienteRepository(Repository):
             id_usuario=row.get("id_usuario")
         )
     
-    def get_by_email(self, mail: str):
-        """Buscar paciente por mail"""
-        query = "SELECT * FROM paciente WHERE mail = ?"
-        data = self.db.execute_query(query, (mail,), fetch=True)
-        if not data:
-            return None
-        return self._build_paciente(data[0])
+    # ------------------------------
+    # LOGIN
+    # ------------------------------
+    def get_paciente_id_by_credentials(self, username: str, password: str):
+        """
+        Verifica credenciales del usuario y, si es un paciente, 
+        devuelve su ID de paciente.
+        """
+        # 1. Verificar credenciales del usuario
+        usuario = self.usuario_repo.get_by_username_and_password(username, password)
+        
+        if not usuario:
+            print(f"❌ Login fallido para usuario: {username}")
+            return None # Credenciales incorrectas
+
+        # 2. Si el usuario existe, obtener el paciente asociado
+        paciente = self.get_by_id_usuario(usuario.id)
+        
+        if not paciente:
+            print(f"⚠️ Usuario {username} (ID: {usuario.id}) no tiene registro de paciente asociado.")
+            # Esto puede pasar si el usuario es un médico, secretario o administrador.
+            return None 
+            
+        # 3. Devolver el ID REAL del paciente
+        print(f"✅ Login exitoso. Paciente ID: {paciente.id}")
+        return paciente.id
 
     def get_by_dni_nofunciono(self, dni: str):
         """Buscar paciente por DNI"""

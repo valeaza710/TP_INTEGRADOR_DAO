@@ -272,3 +272,32 @@ class AgendaTurnoRepository(Repository):
             }
             for row in rows
         ]
+    
+    def get_slots_by_filters(self, id_especialidad, id_medico, fecha):
+            """
+            Obtiene slots (disponibles y ocupados) filtrados por especialidad, 
+            médico (opcional) y fecha.
+            """
+            # ⚠️ IMPORTANTE: Esta consulta une 4 tablas para asegurar que el slot
+            # esté relacionado con la ESPECIALIDAD Y el MEDICO seleccionados.
+            query = """
+                SELECT 
+                    at.id, at.fecha, at.hora, at.id_paciente, at.id_estado_turno, 
+                    at.id_horario_medico,
+                    m.nombre as medico_nombre, m.apellido as medico_apellido, m.id as medico_id
+                FROM agenda_turno at
+                JOIN horario_medico hm ON at.id_horario_medico = hm.id
+                JOIN medico m ON hm.id_medico = m.id
+                JOIN medico_x_especialidad mxe ON m.id = mxe.id_medico
+                WHERE mxe.id_especialidad = ?
+                AND at.fecha = ?
+            """
+            params = [id_especialidad, fecha]
+            
+            if id_medico is not None:
+                query += " AND m.id = ?"
+                params.append(id_medico)
+
+            rows = self.db.execute_query(query, params, fetch=True)
+            return rows
+

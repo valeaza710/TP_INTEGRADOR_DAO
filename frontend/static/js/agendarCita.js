@@ -23,24 +23,16 @@ const descriptions = {
 
 /**
  * Muestra el paso deseado y actualiza la UI.
- * @param {string} stepId - ID del paso a mostrar (e.g., "step1").
  */
 function showStep(stepId) {
-    [step1, step2, step3].forEach(step => {
-        if (step) {
-            step.classList.add("hidden");
-        }
-    });
+    [step1, step2, step3].forEach(step => step?.classList.add("hidden"));
 
     const targetStep = document.getElementById(stepId);
-    if (targetStep) {
-        targetStep.classList.remove("hidden");
-    }
+    if (targetStep) targetStep.classList.remove("hidden");
 
-    // Actualizar Header y botón de Volver
     const stepNumber = parseInt(stepId.replace("step", ""));
     dialogDescription.textContent = descriptions[stepId];
-    
+
     if (stepNumber > 1) {
         backButton.classList.remove("hidden");
         backButton.setAttribute("onclick", `goBack(${stepNumber - 1})`);
@@ -49,19 +41,41 @@ function showStep(stepId) {
     }
 }
 
+// --- 🔹 PASO 1: CARGAR Y SELECCIONAR ESPECIALIDAD ---
+async function loadSpecialties() {
+    const specialtiesContainer = document.getElementById("specialty-list");
+    specialtiesContainer.innerHTML = "<p>Cargando especialidades...</p>";
 
-// --- PASO 1: SELECCIONAR ESPECIALIDAD ---
+    try {
+        const res = await fetch("/api/especialidades/");
+        const data = await res.json();
+
+        if (!data.success) throw new Error(data.error || "Error al obtener especialidades");
+
+        specialtiesContainer.innerHTML = "";
+
+        data.data.forEach(especialidad => {
+            const card = document.createElement("div");
+            card.className = "specialty-card";
+            card.textContent = especialidad.nombre;
+            card.onclick = () => selectSpecialty(especialidad.nombre, card);
+            specialtiesContainer.appendChild(card);
+        });
+
+    } catch (err) {
+        console.error("❌ Error cargando especialidades:", err);
+        specialtiesContainer.innerHTML = "<p class='text-red-500'>Error al cargar especialidades.</p>";
+    }
+}
+
 function selectSpecialty(specialty, element) {
     selectedSpecialty = specialty;
-    
-    // Marcar la tarjeta seleccionada (para el CSS)
     document.querySelectorAll(".specialty-card").forEach(card => card.classList.remove("selected"));
     element.classList.add("selected");
-
     selectedSpecialtyName.textContent = specialty;
-    
-    // Cargar Doctores
-    fetch(`/api/doctores/${specialty}`) 
+
+    // Cargar doctores de esa especialidad
+    fetch(`/api/doctores/${specialty}`)
         .then(res => res.json())
         .then(doctors => {
             doctorSelect.innerHTML = `<option value="all">Todos los médicos de la especialidad</option>`;
@@ -72,27 +86,20 @@ function selectSpecialty(specialty, element) {
         })
         .catch(error => {
             console.error("Error al cargar doctores:", error);
-            // Mostrar mensaje de error o continuar al paso 2 sin doctores cargados
             showStep("step2");
         });
 }
 
-
-// --- PASO 2: SELECCIÓN DE DOCTOR Y AVANCE ---
+// --- 🔹 PASO 2: DOCTOR ---
 function goToCalendar() {
     selectedDoctor = doctorSelect.value;
     showStep("step3");
-    
-    // Generar la visualización inicial del calendario (solo si es necesario)
-    generateCalendarUI(new Date()); 
+    generateCalendarUI(new Date());
 }
 
-
-// --- PASO 3: NAVEGACIÓN Y CALENDARIO ---
+// --- 🔹 VOLVER ATRÁS ---
 function goBack(targetStepNumber) {
     showStep(`step${targetStepNumber}`);
-    
-    // Limpiar estados al regresar (opcional)
     if (targetStepNumber === 1) {
         selectedDoctor = "all";
         selectedSpecialty = "";
@@ -103,119 +110,42 @@ function goBack(targetStepNumber) {
     }
 }
 
-// Lógica básica para simular un calendario visual
-function generateCalendarUI(currentDate) {
-    const monthLabel = document.getElementById("month-label");
-    const datesGrid = document.getElementById("calendar-dates-grid");
-    
-    // Simulación: establecer la fecha actual en el input
-    // Para ver los días y que tu CSS funcione, esto debe ser dinámico.
-    // Para simplificar, solo mostramos el mes y el input date sigue controlando la fecha real.
-    
-    monthLabel.textContent = currentDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
-    
-    // Implementación más compleja del calendario visual va aquí.
-    // Por ahora, solo asegúrate de que el contenedor de la cuadrícula no esté vacío
-    if (datesGrid) {
-        datesGrid.innerHTML = `
-            <div class="date-item date-padding">27</div>
-            <div class="date-item date-padding">28</div>
-            <div class="date-item date-padding">29</div>
-            <div class="date-item date-padding">30</div>
-            <div class="date-item">1</div>
-            <div class="date-item">2</div>
-            <div class="date-item">3</div>
-            <div class="date-item selected">4</div>
-            <div class="date-item">5</div>
-            <div class="date-item">6</div>
-            <div class="date-item">7</div>
-            <div class="date-item">8</div>
-            <div class="date-item">9</div>
-            <div class="date-item">10</div>
-            <div class="date-item">...</div>
-        `;
-    }
-}
-
-
-// --- PASO 3: CARGAR TURNOS ---
-function loadSlots() {
-    const date = dateInput.value;
-    if (!date) return;
-
-    fetch("/api/turnos/slots", { 
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ specialty: selectedSpecialty, doctor: selectedDoctor, date: date })
-    })
-    .then(res => res.json())
-    .then(slots => {
-        slotsContainer.innerHTML = "";
-        
-        if (slots.length === 0) {
-            slotsContainer.innerHTML = '<div class="info-message text-center py-8">No hay turnos disponibles para esta fecha.</div>';
-            return;
-        }
-
-        slots.forEach(s => {
-            const slotCard = document.createElement("button");
-            slotCard.className = "slot-card";
-            slotCard.innerHTML = `<strong>${s.time}</strong> - ${s.doctor}`;
-            slotCard.onclick = () => confirmAppointment(s);
-            slotsContainer.appendChild(slotCard);
-        });
-    });
-}
-
-
-
-
+// --- 🔹 CALENDARIO ---
 function generateCalendarUI(date) {
     const monthLabel = document.getElementById("month-label");
     const datesGrid = document.getElementById("calendar-dates-grid");
-    datesGrid.innerHTML = ""; // Limpiar cuadrícula
+    datesGrid.innerHTML = "";
 
     const year = date.getFullYear();
-    const month = date.getMonth(); // 0-11
-    
-    // Configuración regional
+    const month = date.getMonth();
     const locale = 'es-ES';
 
-    // 1. Etiqueta del Mes
     monthLabel.textContent = date.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
 
-    // 2. Determinar el primer día del mes (0 = Domingo, 1 = Lunes)
     const firstDayOfMonth = new Date(year, month, 1);
-    // getDay() devuelve 0 (domingo) a 6 (sábado). Queremos 0 para Lunes.
     let startingDayOfWeek = firstDayOfMonth.getDay();
-    // Ajuste para que Lunes sea 0 y Domingo sea 6
-    startingDayOfWeek = (startingDayOfWeek === 0) ? 6 : startingDayOfWeek - 1; 
-    
-    // 3. Obtener el número de días en el mes
+    startingDayOfWeek = (startingDayOfWeek === 0) ? 6 : startingDayOfWeek - 1;
+
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    // 4. Días de relleno (del mes anterior)
-    let paddingDays = startingDayOfWeek;
-    for (let i = 0; i < paddingDays; i++) {
+    for (let i = 0; i < startingDayOfWeek; i++) {
         const div = document.createElement("div");
         div.className = "date-item date-padding";
         datesGrid.appendChild(div);
     }
 
-    // 5. Días del Mes Actual
     const today = new Date();
-    today.setHours(0, 0, 0, 0); 
+    today.setHours(0, 0, 0, 0);
 
     for (let day = 1; day <= daysInMonth; day++) {
         const div = document.createElement("div");
         const dayDate = new Date(year, month, day);
         const dayDateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        
+
         div.textContent = day;
         div.className = "date-item";
         div.setAttribute('data-date', dayDateString);
-        
-        // Determinar si es día pasado o si está seleccionado
+
         const isPastDay = dayDate < today;
         const isSelected = selectedDate && dayDateString === selectedDate;
 
@@ -223,67 +153,64 @@ function generateCalendarUI(date) {
             div.classList.add("past-day");
         } else {
             div.onclick = () => selectDay(dayDateString, div);
-            
-            if (isSelected) {
-                div.classList.add("selected");
-            }
+            if (isSelected) div.classList.add("selected");
         }
-        
+
         datesGrid.appendChild(div);
     }
 }
 
-/**
- * Maneja la selección de un día en el calendario.
- */
 function selectDay(dateString, element) {
     if (element.classList.contains("past-day")) return;
-
-    // 1. Limpiar la selección anterior
     document.querySelectorAll(".date-item").forEach(d => d.classList.remove("selected"));
-    
-    // 2. Aplicar la nueva selección (Clase CSS)
     element.classList.add("selected");
-    
-    // 3. Almacenar la fecha seleccionada
-    selectedDate = dateString; 
-    
-    // 4. Actualizar el input type="date" oculto
-    document.getElementById("date-input").value = dateString; 
-    
-    // 5. Cargar los turnos
+    selectedDate = dateString;
+    document.getElementById("date-input").value = dateString;
     loadSlots();
 }
 
-/**
- * Navega al mes anterior y regenera el calendario.
- */
 function prevMonth() {
     currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
     generateCalendarUI(currentCalendarDate);
 }
 
-/**
- * Navega al mes siguiente y regenera el calendario.
- */
 function nextMonth() {
     currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
     generateCalendarUI(currentCalendarDate);
 }
 
-// ... (El resto de tus funciones: loadSlots, confirmAppointment) ...
+// --- 🔹 TURNOS DISPONIBLES ---
+function loadSlots() {
+    const date = dateInput.value;
+    if (!date) return;
 
+    fetch("/api/turnos/slots", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ specialty: selectedSpecialty, doctor: selectedDoctor, date })
+    })
+        .then(res => res.json())
+        .then(slots => {
+            slotsContainer.innerHTML = "";
+            if (slots.length === 0) {
+                slotsContainer.innerHTML = '<div class="info-message text-center py-8">No hay turnos disponibles para esta fecha.</div>';
+                return;
+            }
 
-// Inicializar la aplicación para mostrar el primer paso y el calendario
-document.addEventListener('DOMContentLoaded', () => {
-    showStep("step1");
-    // Inicializa el calendario al cargar
-    generateCalendarUI(currentCalendarDate); 
-});
+            slots.forEach(s => {
+                const slotCard = document.createElement("button");
+                slotCard.className = "slot-card";
+                slotCard.innerHTML = `<strong>${s.time}</strong> - ${s.doctor}`;
+                slotCard.onclick = () => confirmAppointment(s);
+                slotsContainer.appendChild(slotCard);
+            });
+        });
+}
 
+// --- 🔹 CONFIRMAR TURNO ---
 function confirmAppointment(slot) {
     const date = dateInput.value;
-    const currentUserId = 1; // <- reemplazar con tu lógica de usuario actual
+    const currentUserId = 1; // <- reemplazar con tu lógica real
 
     fetch("/api/turnos", {
         method: "POST",
@@ -292,17 +219,23 @@ function confirmAppointment(slot) {
             fecha: date,
             hora: slot.time,
             id_paciente: currentUserId,
-            id_estado_turno: 1, // Pendiente
+            id_estado_turno: 1,
             id_horario_medico: slot.id_horario_medico
         })
     })
-    .then(res => res.json())
-    .then(data => {
-        alert("Cita agendada exitosamente");
-        // Opcional: redirigir o cerrar modal
-    })
-    .catch(err => {
-        console.error("Error al agendar:", err);
-        alert("No se pudo agendar la cita");
-    });
+        .then(res => res.json())
+        .then(data => {
+            alert("✅ Cita agendada exitosamente");
+        })
+        .catch(err => {
+            console.error("Error al agendar:", err);
+            alert("❌ No se pudo agendar la cita");
+        });
 }
+
+// --- 🔹 INICIALIZACIÓN ---
+document.addEventListener('DOMContentLoaded', () => {
+    showStep("step1");
+    loadSpecialties(); // 👈 acá cargamos las especialidades desde tu BD
+    generateCalendarUI(currentCalendarDate);
+});

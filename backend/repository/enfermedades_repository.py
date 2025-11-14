@@ -8,7 +8,7 @@ class EnfermedadRepository(Repository):
         self.db = DataBaseConnection()
 
     def save(self, enfermedad: Enfermedad):
-        query = "INSERT INTO enfermedad (nombre, descripcion) VALUES (?, ?)"
+        query = "INSERT INTO enfermedades (nombre, descripcion) VALUES (?, ?)"
         params = (enfermedad.nombre, enfermedad.descripcion)
 
         conn = None

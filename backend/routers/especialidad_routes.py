@@ -176,3 +176,25 @@ def eliminar_especialidad(id):
             'success': False,
             'error': str(e)
         }), 500
+    
+@especialidades_bp.route('/buscar', methods=['GET'])
+def buscar_especialidades_por_nombre():
+    """GET /api/especialidades/buscar?nombre=cardiologia"""
+    try:
+        # 1. Obtener el parámetro 'nombre' de la URL
+        nombre = request.args.get('nombre', None)
+        
+        if not nombre:
+            return jsonify({'success': False, 'error': 'Debe especificar un valor de búsqueda (nombre)'}), 400
+
+        # 2. Llamar al Service de especialidades
+        # 💡 Asegúrate de que este service exista y tenga el método search_by_nombre
+        resultados = especialidad_service.search_by_nombre(nombre) 
+        
+        # 3. Devolver los resultados en formato JSON
+        return jsonify({'success': True, 'data': resultados, 'count': len(resultados)}), 200
+        
+    except Exception as e:
+        # Esto captura errores internos del Service/Repository y los devuelve como Error 500
+        print(f"ERROR EN BUSCAR ESPECIALIDADES: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500

@@ -185,3 +185,15 @@ class MedicoService:
             print(f"Error en get_all_basic: {e}")
             raise Exception("Error al obtener médicos básicos")
 
+    def search(self, query_text: str):
+        """Busca médicos por texto y devuelve lista de diccionarios"""
+        try:
+            # Llama al nuevo método del repositorio
+            medicos = self.repository.search_by_name_or_matricula(query_text)
+            
+            # Asumo que tienes un _to_dict en tu MedicoService
+            return [self._to_dict(m) for m in medicos] 
+            
+        except Exception as e:
+            print(f"Error en MedicoService.search: {e}")
+            raise 

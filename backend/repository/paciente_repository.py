@@ -208,26 +208,22 @@ class PacienteRepository(Repository):
     
 
     def get_by_dni(self, dni_parcial: str):
+        """Busca pacientes por DNI parcial (coincidencia LIKE)"""
+    
         query = """
-            SELECT id, nombre, apellido, dni, id_usuario, fecha_nacimiento, mail, telefono, direccion
-            FROM paciente
-            WHERE dni LIKE ?
+        SELECT * FROM paciente
+        WHERE dni LIKE ?
         """
         param = (f"%{dni_parcial}%",)
+
         resultados = self.db.execute_query(query, param, fetch=True)  # Supongo que devuelve lista de tuplas o diccionarios
         pacientes = []
-        for r in resultados:
-            pacientes.append(Paciente(
-                id=r['id'],
-                nombre=r['nombre'],
-                apellido=r['apellido'],
-                dni=r['dni'],
-                id_usuario=r['id_usuario'],
-                fecha_nacimiento=r['fecha_nacimiento'],
-                mail=r.get('mail'),
-                telefono=r.get('telefono'),
-                direccion=r.get('direccion')
-            ))
+    
+        if resultados:
+           for row in resultados:
+            # 💡 ¡USAR EL BUILDER QUE YA EXISTE Y FUNCIONA!
+            pacientes.append(self._build_paciente(row))
+            
         return pacientes
 
     def get_paciente_id_by_user_id(self, usuario_id: int):
@@ -241,3 +237,4 @@ class PacienteRepository(Repository):
             return None  # No existe paciente para ese usuario
 
         return result[0]["id"]
+

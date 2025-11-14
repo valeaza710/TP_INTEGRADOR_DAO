@@ -124,9 +124,17 @@ class PacienteService:
     # ------------------------------------
     # Buscar por DNI parcial
     def search_by_dni(self, dni_parcial: str):
-        pacientes = self.repository.get_by_dni(dni_parcial)
-        print(pacientes)
-        return [self._to_dict(p) for p in pacientes]
+        try:
+            # Ahora el repositorio get_by_dni devuelve una lista de objetos Paciente
+            pacientes = self.repository.get_by_dni(dni_parcial)
+            
+            # Convierte la lista de objetos Paciente a lista de diccionarios
+            return [self._to_dict(p) for p in pacientes]
+            
+        except Exception as e:
+            # Si hay un error, el log en el router mostrará el stack trace
+            print(f"Error en search_by_dni: {e}")
+            raise Exception("Error al buscar pacientes por DNI")
 
     # Serializador simple que evita errores de atributos
     def _to_dict(self, p: Paciente):
@@ -137,7 +145,6 @@ class PacienteService:
             'dni': p.dni
             # omite campos complicados por ahora
         }
-
 
     # ------------------------------------
     # GET BY ID

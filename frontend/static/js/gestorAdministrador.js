@@ -4,6 +4,23 @@
 
 document.addEventListener("DOMContentLoaded", () => {
 
+    // --- MAPAS DE CONFIGURACIÓN ---
+    const TAB_HEADERS = {
+        pacientes: ['Nombre', 'Apellido', 'DNI', 'Teléfono', 'Dirección'], 
+        medicos: ['Matrícula', 'Nombre', 'Apellido'],          
+        especialidades: ['ID', 'Nombre', ''], 
+        enfermedades: ['ID', 'Nombre', 'Descripción'],
+    };
+
+    const TAB_ATTRIBUTES = {
+        pacientes: ['nombre', 'apellido', 'dni', 'telefono', 'direccion'], 
+        medicos: ['matricula', 'nombre', 'apellido'],
+        especialidades: ['id', 'nombre'],
+        enfermedades: ['id', 'nombre','descripcion'],
+    };
+
+// ... (El resto del código dentro de DOMContentLoaded) ...
+    
     // -----------------------
     // CONFIGURACIÓN BASE
     // -----------------------
@@ -40,31 +57,75 @@ document.addEventListener("DOMContentLoaded", () => {
     window.changeTab = async function(tabName) {
         currentTab = tabName;
 
+        // 1. Actualizar estilos de pestaña y título (Mismo que antes)
         document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
         document.getElementById(`${tabName}-tab`).classList.add("active");
-        document.getElementById("table-title").textContent = tabName.toUpperCase();
+        
+        const displayTitles = {
+            pacientes: 'Gestión de Pacientes',
+            medicos: 'Gestión de Médicos',
+            especialidades: 'Gestión de Especialidades',
+            enfermedades: 'Gestión de Enfermedades'
+        };
+        document.getElementById("table-title").textContent = displayTitles[tabName] || tabName.toUpperCase();
 
+        // 2. ***ACTUALIZAR ENCABEZADOS DE LA TABLA***
+        const headers = TAB_HEADERS[tabName] || [];
+        
+        // El máximo de columnas de datos es 5
+        for (let i = 0; i < 5; i++) {
+            const headerElement = document.getElementById(`header-col-${i + 1}`);
+            if (headerElement) {
+                // Asigna el nombre, o deja vacío si no existe
+                headerElement.textContent = headers[i] || ''; 
+                
+                // Muestra la columna si tiene un encabezado o si es una de las 2 primeras (mínimo)
+                if (headers[i] || i < 2) { 
+                    headerElement.style.display = 'table-cell';
+                } else {
+                    headerElement.style.display = 'none'; // Oculta si no hay encabezado
+                }
+            }
+        }
+        
+        // 3. Cargar datos
         const tbody = document.getElementById("table-body");
-        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4">Cargando...</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4">Cargando...</td></tr>`; // Colspan ahora es 6 (5 datos + 1 acción)
 
         const data = await fetchData(tabName);
 
         tbody.innerHTML = data.length
-            ? data.map(item => renderRow(item)).join("")
-            : `<tr><td colspan="4" class="text-center py-4">No hay registros</td></tr>`;
+            ? data.map(item => renderRow(item, tabName)).join("") 
+            : `<tr><td colspan="6" class="text-center py-4">No hay registros</td></tr>`;
     };
 
     // -----------------------
     // RENDERIZAR FILA
     // -----------------------
-    function renderRow(item) {
-        const cols = Object.keys(item).slice(0, 3)
-            .map(k => `<td class="px-6 py-4">${item[k]}</td>`)
+    function renderRow(item, type) {
+            const attributes = TAB_ATTRIBUTES[type] || [];
+        
+        // Generar las celdas de datos (<td>)
+        const cols = attributes
+            .map(attr => {
+                let value = item[attr];
+                
+                // Lógica especial para 'pacientes' para nombre completo si decides usarla
+                // if (type === 'pacientes' && attr === 'nombre_completo') { ... }
+
+                // Todas las celdas de datos deben tener px-6 py-4 y text-left/text-sm
+                return `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${value || "N/A"}</td>`;
+            })
             .join("");
+
+        // NOTA: No necesitamos rellenar con celdas ocultas (emptyCols) si la tabla está bien definida.
+        // Simplemente pegamos las columnas de datos y luego la columna de Acciones.
+        
         return `
             <tr>
                 ${cols}
-                <td class="px-6 py-4 text-center">
+                
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"> 
                     <button onclick="editItem(${item.id})" class="text-blue-500">✏️</button>
                     <button onclick="deleteItem(${item.id})" class="text-red-500 ml-2">🗑️</button>
                 </td>
@@ -97,7 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
             pacientes: ["nombre", "apellido", "dni", "telefono", "direccion"],
             medicos: ["nombre", "apellido", "matricula"],
             especialidades: ["nombre"],
-            enfermedades: ["nombre"]
+            enfermedades: ["nombre", "descripcion"]
         };
         const fields = fieldsMap[type] || [];
         return fields.map(f => `
@@ -170,26 +231,82 @@ document.addEventListener("DOMContentLoaded", () => {
     // -----------------------
     // BUSCADOR
     // -----------------------
-    document.getElementById("searchInput").addEventListener("input", async e => {
-        const search = e.target.value.trim();
-        const tbody = document.getElementById("table-body");
+    // -----------------------
+// BUSCADOR (CORREGIDO PARA VERIFICACIÓN DE URL)
+// -----------------------
+document.getElementById("searchInput").addEventListener("input", async e => {
+    const search = e.target.value.trim();
+    const tbody = document.getElementById("table-body");
+    
+    // 1. Si la caja de búsqueda está vacía, recargar la tabla completa
+    if (!search) {
+        return changeTab(currentTab); 
+    }
 
-        if (!search) return changeTab(currentTab);
+    let url = null;
+    let queryParam = null;
 
-        let url;
-        if (currentTab === "pacientes") url = `/api/pacientes/buscar?dni=${search}`;
-        else if (currentTab === "enfermedades") url = `/api/enfermedades/buscar?nombre=${search}`;
-        else return;
-
+    // 2. Definición de las rutas de búsqueda para cada módulo
+    switch (currentTab) {
+        case "pacientes":
+            // Opción 1: Buscar por DNI (Asumiendo que es el identificador principal)
+            url = `/api/pacientes/buscar`;
+            queryParam = `dni=${search}`;
+            break;
+            
+        case "medicos":
+            // Opción 2: Busca por Nombre
+            url = `/api/medicos/buscar`;
+            queryParam = `nombre=${search}`; 
+            break;
+            
+        case "especialidades":
+            url = `/api/especialidades/buscar`;
+            queryParam = `nombre=${search}`;
+            break;
+            
+        case "enfermedades":
+            url = `/api/enfermedades/buscar`;
+            queryParam = `nombre=${search}`;
+            break;
+    }
+    
+    // 3. Ejecución de la búsqueda
+    if (url && queryParam) {
         try {
-            const res = await fetch(url);
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4">Buscando...</td></tr>`;
+            
+            // La URL final será, por ejemplo: /api/pacientes/buscar?dni=12345678
+            const fullUrl = `${url}?${queryParam}`; 
+            
+            // Verifica en la consola qué URL está intentando usar
+            console.log("Intentando buscar en URL:", fullUrl); 
+            
+            const res = await fetch(fullUrl);
+            
+            // Si el error es 404 (Not Found), fallará aquí
+            if (!res.ok) { 
+                throw new Error(`HTTP Error: ${res.status} al buscar en ${fullUrl}`);
+            }
+
             const json = await res.json();
-            if (!json.success) throw new Error(json.error);
-            tbody.innerHTML = json.data.map(i => renderRow(i)).join("");
-        } catch {
-            showToast("Error al buscar", "error");
+            
+            if (!json.success) throw new Error(json.error || "Búsqueda fallida en la API.");
+            
+            tbody.innerHTML = json.data.length
+                ? json.data.map(i => renderRow(i, currentTab)).join("")
+                : `<tr><td colspan="6" class="text-center py-4">No se encontraron resultados para "${search}"</td></tr>`;
+
+        } catch (error) {
+            console.error("Error de búsqueda:", error);
+            showToast("Error al realizar la búsqueda. Verifique la consola para detalles.", "error");
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-red-500">Error al cargar resultados.</td></tr>`;
         }
-    });
+    } else {
+        // En caso de que no haya ruta de búsqueda definida para la pestaña
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-gray-400">Búsqueda no implementada para ${currentTab}.</td></tr>`;
+    }
+});
 
     // -----------------------
     // TOASTS

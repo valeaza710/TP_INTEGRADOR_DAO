@@ -20,7 +20,21 @@ def listar_medicos():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
-
+@medicos_bp.route('/buscar', methods=['GET'])
+def buscar_medicos():
+    # 💡 Asumiendo que el JS envía 'nombre' o 'q'
+    query_text = request.args.get('nombre') or request.args.get('q') 
+    
+    if not query_text:
+        return jsonify({'success': False, 'error': 'Falta parámetro de búsqueda'}), 400
+    
+    try:
+        # Llama al MedicoService.search
+        resultados = medico_service.search(query_text)
+        return jsonify({'success': True, 'data': resultados}), 200
+    except Exception as e:
+        print(f"ERROR EN BUSCAR MÉDICOS: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 # -----------------------------------
 # GET /api/medicos/<id>
 # -----------------------------------

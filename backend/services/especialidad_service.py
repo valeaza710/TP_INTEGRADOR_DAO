@@ -104,6 +104,23 @@ class EspecialidadService:
         except Exception as e:
             print(f"Error en delete: {e}")
             raise Exception("Error al eliminar especialidad")
+        
+    # ------------------------------------
+    # BUSCAR POR NOMBRE
+        
+    def search_by_nombre(self, nombre_parcial: str):
+        """Busca especialidades por nombre parcial y serializa los resultados."""
+        try:
+            # Llama al repositorio (donde la lógica LIKE ya existe)
+            especialidades = self.repository.search_by_nombre(nombre_parcial)
+            
+            # Convierte la lista de objetos Especialidad a una lista de diccionarios
+            return [self._to_dict(e) for e in especialidades]
+            
+        except Exception as e:
+            print(f"Error en search_by_nombre (Service): {e}")
+            # Si hay un error, lo elevamos para que el router lo maneje como 500
+            raise Exception("Error al buscar especialidades por nombre")
 
     # ------------------------------------
     # SERIALIZADOR

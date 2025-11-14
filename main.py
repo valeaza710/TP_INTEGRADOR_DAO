@@ -1,4 +1,5 @@
 # backend/app.py
+import os
 from flask import Flask
 from flask_cors import CORS
 from backend.services.notificacion_service import NotificacionService
@@ -36,8 +37,8 @@ def create_app():
         template_folder="frontend/templates",  # HTML del frontend
         static_folder="frontend/static"       # CSS, JS, imágenes, etc.
     )
-    app.run(debug=True)
 
+    app.secret_key = os.environ.get("SECRET_KEY", "tu_clave_secreta_super_segura")
     # Habilitar CORS para todas las rutas bajo /api/
     CORS(app, resources={r"/api/*": {"origins": "*"}})
 

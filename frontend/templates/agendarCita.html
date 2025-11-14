@@ -116,10 +116,8 @@
 
   <!-- Scripts -->
 <script>
-    // Corregido el default(0) ya que la lógica de JS lo convierte a 0.
-    // Si no hay ID de sesión, usa 0 o un valor nulo para que el JS lo maneje.
-    // Aunque si usas el query parameter, este bloque no será el principal.
-    const GLOBAL_PACIENTE_ID_FROM_SESSION = "{{id_paciente_logueado | default('')}}";
+    const GLOBAL_PACIENTE_ID_FROM_SESSION = "{{ id_paciente_logueado }}";
+    const GLOBAL_USER_ID = "{{ user_id }}";
 </script>
   <script src="{{ url_for('static', filename='js/agendarCita.js') }}"></script>
 

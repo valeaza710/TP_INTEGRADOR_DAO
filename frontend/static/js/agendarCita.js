@@ -302,7 +302,8 @@ function selectSlot(slot, button) {
 // --- 🔹 Función de redirección simple (NECESARIO PARA EL BOTÓN DEL MODAL) ---
 function redirectToHome() {
     // Redirige al home del paciente 
-    window.location.href = `/home/${pacienteId}`; 
+    window.location.href = `/home/${GLOBAL_USER_ID}`;
+
 }
 
 // --- 🔹 Mostrar Modal de Confirmación (NECESARIO PARA UX) ---
@@ -424,7 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (closeBtn) {
         closeBtn.addEventListener("click", () => {
             // ✅ CORRECCIÓN SINTÁCTICA: Quitar el doble punto y coma y usar la global 'pacienteId'
-            window.location.href = `/home/${pacienteId}`; 
+            window.location.href = `/home/${GLOBAL_USER_ID}`;; 
         });
     }
 });

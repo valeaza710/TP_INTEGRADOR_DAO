@@ -3,8 +3,6 @@ from backend.services.usuario_service import UsuarioService
 
 usuarios_bp = Blueprint('usuarios', __name__, url_prefix='/api/usuarios')
 usuario_service = UsuarioService()
-usuario_service = UsuarioService()
-usuario_service = UsuarioService()
 
 @usuarios_bp.route('/login', methods=['POST'])
 def login():

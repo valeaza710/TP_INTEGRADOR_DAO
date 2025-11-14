@@ -38,24 +38,20 @@ def home(user_id):
 
 @frontend_bp.route('/agendar')
 def agendar_cita():
-    # 🚨 Lógica de seguridad para no acceder si no está logueado
     if 'paciente_id' not in session:
-        # Aquí puedes redirigir a login o mostrar un mensaje de error
         return redirect(url_for('frontend.login'))
 
-    paciente_id_logueado = session.get('paciente_id', 0)
+    print("SESSION COMPLETA:", session)
 
-    # Las especialidades se cargan de la BD.
-    # ¡Asegúrate que get_all() devuelva objetos con .name y .doctors_count!
-    specialties = especialidad_repo.get_all()
+    paciente_id_logueado = session.get('paciente_id')
+    user_id = paciente_repo.get_by_id(session['paciente_id']).usuario.id
 
-    # Para que funcione con el HTML, si el objeto de la BD solo tiene 'nombre', necesitamos adaptarlo:
-    # specialties_for_template = [{'name': s.nombre, 'doctors_count': s.medicos_disponibles} for s in specialties]
+    session.pop('user_id', None)
 
     return render_template(
         'agendarCita.html',
         id_paciente_logueado=paciente_id_logueado,
-        user_id=session.get("user_id")
+        user_id=user_id
     )
 
 @frontend_bp.route('/historial/<int:paciente_id>')

@@ -54,69 +54,46 @@ class HorarioMedicoService:
     # CREATE (CON ORQUESTACIÓN DE AGENDA Y MANEJO DE INTEGRIDAD)
     # ------------------------------------
     def create(self, data: dict):
-        # 🚨 Asegúrate que tu frontend envíe "Lunes", "Martes", "Miercoles", "Jueves", "Viernes" (sin tilde)
         try:
-            # 🚨 VALIDACIÓN DE CAMPOS OBLIGATORIOS
-            required_fields = ["id_medico", "mes", "anio", "dia_semana", "hora_inicio", "hora_fin", "duracion_turno_min"]
+            required_fields = ["id_medico", "mes", "anio", "dia_semana", "hora_inicio", "hora_fin",
+                               "duracion_turno_min"]
             for field in required_fields:
                 if not data.get(field):
-                    raise ValueError(f"El campo '{field}' es obligatorio y no puede ser nulo.")
-            
-            # Validación de CHECK constraint para dia_semana ANTES de ir a la DB (opcional, pero útil)
-            dias_permitidos = {'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'}
-            if data['dia_semana'] not in dias_permitidos:
-                 raise ValueError(f"El valor '{data['dia_semana']}' para dia_semana no es válido. Debe ser uno de: {dias_permitidos}")
+                    raise ValueError(f"El campo '{field}' es obligatorio.")
 
+            dias_permitidos = {'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'}
+            if data["dia_semana"] not in dias_permitidos:
+                raise ValueError(f"El valor '{data['dia_semana']}' no es válido.")
 
             nuevo_horario = HorarioMedico(
                 medico=Medico(id=data["id_medico"]),
                 mes=data.get("mes"),
                 anio=data.get("anio"),
                 dia_semana=data.get("dia_semana"),
-                hora_inicio=data.get("hora_inicio"), 
+                hora_inicio=data.get("hora_inicio"),
                 hora_fin=data.get("hora_fin"),
                 duracion_turno_min=data.get("duracion_turno_min")
             )
 
-            # 1. Guardar el Horario Médico
+            # 👉 guardar horario
             guardado = self.repository.save(nuevo_horario)
             if not guardado:
-                raise Exception("El repositorio devolvió None. No se pudo guardar el horario médico.")
+                raise Exception("No se pudo guardar el horario médico")
 
-            # 2. 💡 Orquestación: Llamar al AgendaService para generar los Turnos
-            print(f"✅ Horario Médico ID {guardado.id} creado. Generando turnos...")
-            
-            self.agenda_service.generar_turnos_para_horario(guardado) 
-            
-            print("✅ Turnos generados exitosamente.")
-            
-            # 3. Retornar el horario completo
             completo = self.repository.get_by_id(guardado.id)
 
             try:
-                # ⭐ Intentamos generar turnos
                 self._generar_turnos_para_horario(completo)
-
             except Exception as e:
-                # ❌ Si falla, borramos el horario generado
                 print(f"Error generando turnos, eliminando horario... {e}")
-                self.repository.delete(guardado.id)  # ⭐ rollback manual
+                self.repository.delete(guardado.id)
                 raise Exception(str(e))
 
             return self._to_dict(completo)
 
-        except ValueError as e:
-            # Captura errores de validación de datos (campos nulos, día no permitido)
-            print(f"Error en create (Validación/Data): {e}")
-            raise e
-        except sqlite3.IntegrityError as e:
-            # 🚨 Captura errores específicos de SQL (CHECK Constraint, NOT NULL, FK)
-            print(f"❌ Error de Integridad de BD: {e}")
-            raise Exception(f"Fallo de restricción al guardar el horario médico: {e}")
         except Exception as e:
-            # Captura cualquier otro error (ej: fallo en la generación de turnos)
-            print(f"Error en create (General): {e}")
-            raise Exception("Error al crear horario médico")
+            print(f"Error en create: {e}")
+            raise
 
     def _generar_turnos_para_horario(self, horario):
         agenda_repo = AgendaTurnoRepository()

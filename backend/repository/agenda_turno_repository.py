@@ -447,3 +447,67 @@ class AgendaTurnoRepository(Repository):
 
         return len(rows) > 0
 
+    def get_todos_los_turnos(self):
+        query = """
+               SELECT 
+                   a.id,
+                   a.fecha,
+                   a.hora,
+                   p.dni AS dni_paciente,
+                   p.nombre AS nombre_paciente,
+                   p.apellido AS apellido_paciente,
+                   m.nombre AS nombre_medico,
+                   m.apellido AS apellido_medico,
+                   et.nombre AS estado
+               FROM agenda_turno a
+               LEFT JOIN paciente p ON a.id_paciente = p.id
+               LEFT JOIN horario_medico hm ON a.id_horario_medico = hm.id
+               LEFT JOIN medico m ON hm.id_medico = m.id
+               LEFT JOIN estado_turno et ON a.id_estado_turno = et.id
+               ORDER BY a.fecha, a.hora
+           """
+        rows = self.db.execute_query(query, fetch=True)
+
+        if not rows:
+            return []
+
+        return [
+            {
+                "id_turno": row["id"],
+                "fecha": row["fecha"],
+                "hora_turno": row["hora"],
+                "dni_paciente": row.get("dni_paciente") or "",
+                "paciente": f"{row.get('nombre_paciente') or ''} {row.get('apellido_paciente') or ''}".strip(),
+                "medico": f"{row.get('nombre_medico') or ''} {row.get('apellido_medico') or ''}".strip(),
+                "estado": row.get("estado") or ""
+            }
+            for row in rows
+        ]
+
+    def get_slots_by_filters(self, id_especialidad, id_medico, fecha):
+        """
+        Obtiene slots (disponibles y ocupados) filtrados por especialidad,
+        médico (opcional) y fecha.
+        """
+        # ⚠️ IMPORTANTE: Esta consulta une 4 tablas para asegurar que el slot
+        # esté relacionado con la ESPECIALIDAD Y el MEDICO seleccionados.
+        query = """
+            SELECT 
+                at.id, at.fecha, at.hora, at.id_paciente, at.id_estado_turno, 
+                at.id_horario_medico,
+                m.nombre as medico_nombre, m.apellido as medico_apellido, m.id as medico_id
+            FROM agenda_turno at
+            JOIN horario_medico hm ON at.id_horario_medico = hm.id
+            JOIN medico m ON hm.id_medico = m.id
+            JOIN medico_x_especialidad mxe ON m.id = mxe.id_medico
+            WHERE mxe.id_especialidad = ?
+            AND at.fecha = ?
+        """
+        params = [id_especialidad, fecha]
+
+        if id_medico is not None:
+            query += " AND m.id = ?"
+            params.append(id_medico)
+
+        rows = self.db.execute_query(query, params, fetch=True)
+        return rows

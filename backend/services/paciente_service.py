@@ -142,7 +142,9 @@ class PacienteService:
             'id': p.id,
             'nombre': p.nombre,
             'apellido': p.apellido,
-            'dni': p.dni
+            'dni': p.dni,
+            'direccion': p.direccion,
+            'telefono': p.telefono,
             # omite campos complicados por ahora
         }
 

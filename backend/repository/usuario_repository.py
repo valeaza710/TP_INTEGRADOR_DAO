@@ -129,5 +129,5 @@ class UsuarioRepository(Repository):
             
         return self._build_usuario(data[0])
 
-# ...
+
 

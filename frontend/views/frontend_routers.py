@@ -1,3 +1,4 @@
+from backend.repository.usuario_repository import UsuarioRepository
 from flask import Blueprint, render_template, jsonify, request, redirect, url_for, session # 🚨 Importado 'session' correctamente de Flask
 
 from backend.repository.medico_repository import MedicoRepository
@@ -10,6 +11,7 @@ paciente_repo = PacienteRepository()
 especialidad_repo = EspecialidadRepository()
 medico_repo = MedicoRepository()
 agenda_repo = AgendaTurnoRepository()
+
 
 # Página principal
 @frontend_bp.route('/')
@@ -38,15 +40,9 @@ def home(user_id):
 
 @frontend_bp.route('/agendar')
 def agendar_cita():
-    if 'paciente_id' not in session:
-        return redirect(url_for('frontend.login'))
-
-    print("SESSION COMPLETA:", session)
-
-    paciente_id_logueado = session.get('paciente_id')
-    user_id = paciente_repo.get_by_id(session['paciente_id']).usuario.id
-
-    session.pop('user_id', None)
+    
+    paciente_id_logueado = request.args.get("pacienteId")
+    user_id = paciente_repo.get_usuario_id_by_paciente_id(paciente_id_logueado)
 
     return render_template(
         'agendarCita.html',

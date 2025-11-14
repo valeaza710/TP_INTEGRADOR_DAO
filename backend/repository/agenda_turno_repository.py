@@ -5,7 +5,7 @@ from backend.repository.estado_turno_repository import EstadoTurnoRepository
 from backend.repository.horario_medico_repository import HorarioMedicoRepository
 from backend.repository.repository import Repository
 from datetime import date
-
+from backend.data_base.connection import DataBaseConnection
 
 class AgendaTurnoRepository(Repository):
     def __init__(self):
@@ -14,6 +14,36 @@ class AgendaTurnoRepository(Repository):
         self.estado_repo = EstadoTurnoRepository()
         self.horario_repo = HorarioMedicoRepository()
 
+
+    def save_many(self, turnos):
+        """
+        Guarda múltiples objetos AgendaTurno en la base de datos.
+        :param turnos: Lista de objetos AgendaTurno.
+        :return: Número de filas insertadas.
+        """
+        query = """
+            INSERT INTO agenda_turno (fecha, hora, id_paciente, id_estado_turno, id_horario_medico)
+            VALUES (?, ?, ?, ?, ?)
+        """
+
+        params = [
+            (t.fecha, t.hora, t.id_paciente, t.id_estado_turno, t.id_horario_medico)
+            for t in turnos
+        ]
+
+        try:
+            cur = self.db.cursor()
+            cur.executemany(query, params)
+            self.db.commit()
+            print(f"✅ [DB] {len(params)} turnos guardados masivamente.")
+            return len(params)
+        except Exception as e:
+            # Revertir la transacción en caso de error
+            self.db.rollback() 
+            print(f"❌ [DB Error] Fallo al guardar turnos masivamente: {e}")
+            raise
+
+    
     # -------------------------------------------------------------------------
     # Crear un nuevo turno
     # -------------------------------------------------------------------------

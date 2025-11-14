@@ -201,6 +201,7 @@ class AgendaTurnoService:
     # ------------------------------------------------------------
     # Convertir turno a diccionario
     # ------------------------------------------------------------
+# --- 🔹 FUNCIÓN _to_dict CORREGIDA 🔹 ---
     def _to_dict(self, a):
         if not a:
             return None
@@ -216,7 +217,7 @@ class AgendaTurnoService:
             } if a.paciente else None,
             "estado_turno": {
                 "id": a.estado_turno.id,
-                "estado": a.estado_turno.estado
+                "estado": a.estado_turno.nombre # ✅ CAMBIADO DE '.estado' A '.nombre'
             } if a.estado_turno else None,
             "horario_medico": {
                 "id": a.horario_medico.id,

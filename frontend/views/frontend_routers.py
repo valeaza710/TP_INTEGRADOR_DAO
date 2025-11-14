@@ -12,6 +12,25 @@ medico_repo = MedicoRepository()
 # Página principal
 @frontend_bp.route('/')
 def index():
+    # 1. Verificar si el paciente ya está en sesión
+    paciente_id_from_session = session.get('paciente_id')
+    
+    if paciente_id_from_session is not None:
+        # Si está logueado, redirige a su home
+        # Necesitas el user_id para la URL /home/<int:user_id>, asumiendo que el login guarda el user_id también
+        # Mejor simplifica: si el login te lleva a /home/<user_id>, redirige allí. 
+        # Si sólo guardaste paciente_id en la sesión, esta parte es difícil. 
+        # Asumamos que el login guardó 'user_id' en la sesión.
+
+        # 🚨 Asumiendo que el login guarda 'user_id' en la sesión:
+        user_id = session.get('user_id') 
+        if user_id is not None:
+            return redirect(url_for('frontend.home', user_id=user_id))
+        else:
+            # Si tiene paciente_id pero no user_id (caso anómalo), redirige a ingreso
+            return redirect(url_for('frontend.ingreso'))
+
+    # 2. Si no está logueado, redirige a la página de ingreso
     return redirect(url_for('frontend.ingreso'))
 
 @frontend_bp.route('/ingreso')
@@ -26,6 +45,8 @@ def registro():
 def login():
     return render_template('login.html')
 
+
+
 @frontend_bp.route('/home/<int:user_id>')
 def home(user_id):
     paciente_id = paciente_repo.get_paciente_id_by_user_id(user_id)
@@ -36,24 +57,35 @@ def home(user_id):
 
 @frontend_bp.route('/agendar')
 def agendar_cita():
-    # 🚨 Lógica de seguridad para no acceder si no está logueado
-    if 'paciente_id' not in session:
-        # Aquí puedes redirigir a login o mostrar un mensaje de error
+    # 1. Intentar obtener el ID del paciente del query parameter (URL)
+    # request.args.get() lee 'pacienteId' de la URL: /agendar?pacienteId=4
+    paciente_id_from_url = request.args.get('pacienteId')
+    
+    # 2. Intentar obtener el ID del paciente de la sesión
+    paciente_id_from_session = session.get('paciente_id')
+    
+    # 3. Determinar el ID final, priorizando la sesión o la URL (si viene de home)
+    paciente_id_logueado = paciente_id_from_session if paciente_id_from_session is not None else paciente_id_from_url
+
+    # 🚨 Lógica de seguridad: Si no hay ID en NINGÚN lado, redirigir.
+    if paciente_id_logueado is None:
         return redirect(url_for('frontend.login'))
-
-    paciente_id_logueado = session.get('paciente_id', 0)
-
+    
+    # Aseguramos que el ID, sin importar la fuente, se convierta a entero
+    try:
+        paciente_id_logueado = int(paciente_id_logueado)
+    except (ValueError, TypeError):
+        # Manejar caso de ID inválido, si es necesario
+        return redirect(url_for('frontend.login')) 
+    
     # Las especialidades se cargan de la BD.
-    # ¡Asegúrate que get_all() devuelva objetos con .name y .doctors_count!
     specialties = especialidad_repo.get_all()
-
-    # Para que funcione con el HTML, si el objeto de la BD solo tiene 'nombre', necesitamos adaptarlo:
-    # specialties_for_template = [{'name': s.nombre, 'doctors_count': s.medicos_disponibles} for s in specialties]
 
     return render_template(
         'agendarCita.html',
-        id_paciente_logueado=paciente_id_logueado,
-        specialties=specialties # O specialties_for_template si necesitas el mapeo
+        # Ahora el template Jinja recibe el ID, ya sea de sesión o de la URL.
+        id_paciente_logueado=paciente_id_logueado, 
+        specialties=specialties 
     )
 
 @frontend_bp.route('/historial')

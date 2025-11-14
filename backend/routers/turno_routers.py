@@ -39,12 +39,11 @@ def crear_turno():
             return nuevo # Devuelve (response, status_code)
         
         # Si es exitoso, devolvemos el objeto serializado
-        return jsonify({"message": "Turno creado/reservado exitosamente", "turno": nuevo}), 201
+        return jsonify({"success": True, "message": "Turno creado/reservado exitosamente", "turno": nuevo}), 201
 
     except Exception as e:
         print(f"❌ Error al intentar crear turno: {e}")
-        return jsonify({"error": "Error interno del servidor al crear turno"}), 500
-
+        return jsonify({"success": False, "error": "Error interno del servidor al crear turno"}), 500
 # ---------------------------------------------
 # DELETE: eliminar turno por ID
 # ---------------------------------------------

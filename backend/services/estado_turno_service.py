@@ -89,15 +89,10 @@ class EstadoTurnoService:
         except Exception as e:
             print(f"Error en delete: {e}")
             raise Exception("Error al eliminar estado de turno")
+        
 
-    # ------------------------------------
-    # SERIALIZADOR
-    # ------------------------------------
-    def _to_dict(self, e: EstadoTurno):
-        if not e:
-            return None
-
-        return {
-            "id": e.id,
-            "nombre": e.nombre
-        }
+def _to_dict(self, e: EstadoTurno):
+    return {
+        "id": e.id,
+        "nombre": e.nombre 
+    }

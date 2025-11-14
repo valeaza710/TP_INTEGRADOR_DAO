@@ -1,7 +1,9 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session
 from backend.services.usuario_service import UsuarioService
 
 usuarios_bp = Blueprint('usuarios', __name__, url_prefix='/api/usuarios')
+usuario_service = UsuarioService()
+usuario_service = UsuarioService()
 usuario_service = UsuarioService()
 
 @usuarios_bp.route('/login', methods=['POST'])
@@ -14,13 +16,14 @@ def login():
     try:
         data = request.get_json()
 
+        # 1. Validación de credenciales
         if not data or not data.get('username') or not data.get('password'):
             return jsonify({
                 "success": False,
                 "message": "Faltan credenciales"
             }), 400
         
-        # Llamar al servicio para autenticar
+        # 2. Llamar al servicio para autenticar
         usuario = usuario_service.login(data['username'], data['password'])
         
         if not usuario:
@@ -29,42 +32,55 @@ def login():
                 "message": "Credenciales incorrectas"
             }), 401
         
-        # Obtener datos completos (usuario + paciente si existe)
+        # 3. Obtener datos completos (usuario + paciente si existe)
         usuario_completo = usuario_service.get_usuario_completo(usuario.id)
         
         if usuario_completo and usuario_completo.get('paciente'):
-            # Si tiene datos de paciente, retornarlos
+            # Si tiene datos de paciente, es un paciente.
             paciente = usuario_completo['paciente']
+            
+            # 💡 PASO CRUCIAL: GUARDAR EN LA SESIÓN DE FLASK
+            session['user_id'] = usuario.id 
+            # Asume que 'paciente' tiene una clave 'id' que es el ID del paciente.
+            session['paciente_id'] = paciente['id'] 
+            
+            # Quitar paciente_id si no está usando ese rol
+            # (aunque la línea anterior lo sobreescribe, es buena práctica)
+            # session.pop('doctor_id', None) 
+            
             return jsonify({
                 "success": True,
                 "user": {
                     "id": usuario.id,
                     "username": usuario.nombre_usuario,
-                    "rol": usuario.tipo_usuario.tipo if usuario.tipo_usuario else "PACIENTE",
-                    "nombre": paciente['nombre'],
-                    "apellido": paciente['apellido'],
-                    "mail": paciente['mail'],
-                    "dni": paciente['dni']
+                    "rol": "PACIENTE",
+                    # Puedes agregar más datos del paciente aquí si los necesitas en el frontend
                 }
             }), 200
         else:
-            # Si NO tiene paciente (ej: es admin o médico)
+            # Si NO tiene paciente (ej: es admin, médico, u otro rol)
+            
+            # 💡 PASO CRUCIAL: GUARDAR user_id y LIMPIAR paciente_id
+            session['user_id'] = usuario.id
+            session.pop('paciente_id', None) # Limpiamos si quedó un ID anterior
+            
             return jsonify({
                 "success": True,
                 "user": {
                     "id": usuario.id,
                     "username": usuario.nombre_usuario,
+                    # El rol lo tomas de la BD si existe, o pones un default
                     "rol": usuario.tipo_usuario.tipo if usuario.tipo_usuario else "USUARIO"
                 }
             }), 200
         
     except Exception as e:
-        print(f"❌ Error en login: {e}")
+        # Imprimir el error en la consola del servidor (si debug está True)
+        print(f"❌ Error interno en login: {e}") 
         return jsonify({
             "success": False,
-            "message": "Error interno del servidor"
+            "message": "Error interno del servidor. Consulte logs."
         }), 500
-
 
 @usuarios_bp.route('/registro', methods=['POST'])
 def registro():

@@ -491,81 +491,46 @@ label {
 
 /* --- Turnos Disponibles (Slots) --- */
 
-.slots-title {
-    font-size: 18px;
-    font-weight: 600;
-    margin-top: 25px;
-    margin-bottom: 15px;
-    color: var(--text-dark);
-}
-
-#slots-date-display {
-    color: var(--primary-color);
-    font-weight: 500;
-    font-size: 16px;
-}
-
+/* Reemplaza .slots-container (que ya existe en el HTML) */
 .slots-container {
     display: flex;
     flex-direction: column;
     gap: 12px; /* Aumentar el espacio entre slots */
 }
 
-.slot-card {
+/* 🚨 REEMPLAZAR .slot-card POR .slot-btn */
+.slot-btn { /* Ahora aplica el estilo de la card al botón */
     display: flex;
     align-items: center;
-    background-color: var(--card-bg);
+    background-color: var(--card-bg, white);
     border: 2px solid #f0f0f0; /* Borde más visible */
     border-radius: 12px;
     padding: 15px 20px;
     cursor: pointer;
     transition: all 0.2s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    /* Asegurar que el botón no tenga estilos de texto feos por defecto */
+    text-align: left;
+    width: 100%; 
+    font-family: inherit;
 }
 
-.slot-card:hover {
+.slot-btn:hover {
     border-color: var(--primary-color);
     background-color: #f7fcfd;
     box-shadow: 0 4px 10px rgba(0, 188, 212, 0.1);
 }
 
-.slot-card.selected {
+/* 🚨 REEMPLAZAR .slot-card.selected POR .slot-btn.active */
+/* Esta clase 'active' es la que usa tu JS para marcar el seleccionado temporal */
+.slot-btn.active {
     border-color: var(--primary-color);
     background-color: var(--light-bg);
     /* Sombra más dramática para destacar la selección */
     box-shadow: 0 6px 15px rgba(0, 188, 212, 0.3);
 }
 
-.icon-placeholder {
-    background-color: #e0f7fa;
-    color: var(--primary-color);
-    border-radius: 50%;
-    width: 45px; /* Icono un poco más grande */
-    height: 45px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-right: 15px;
-    flex-shrink: 0;
-}
-
-.icon-placeholder svg {
-    width: 22px;
-    height: 22px;
-}
-
-.slot-details {
-    flex-grow: 1;
-}
-
-.slot-details strong {
-    font-size: 19px; /* Un poco más grande y legible */
-    font-weight: 700;
-    color: var(--text-dark);
-    display: block;
-    line-height: 1.2;
-}
-
+/* El resto de estilos (doctor-name, slots-title, etc.) deberían seguir funcionando si las variables CSS están definidas. */
 .doctor-name {
     font-size: 14px;
     color: var(--text-secondary);

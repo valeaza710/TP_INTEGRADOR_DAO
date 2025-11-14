@@ -36,7 +36,7 @@ def create_app():
         template_folder="frontend/templates",  # HTML del frontend
         static_folder="frontend/static"       # CSS, JS, imágenes, etc.
     )
-    app.secret_key = 'DAO_1234_TP_INTEGRADOR'  # Clave secreta para sesiones
+    app.run(debug=True)
 
     # Habilitar CORS para todas las rutas bajo /api/
     CORS(app, resources={r"/api/*": {"origins": "*"}})

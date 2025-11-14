@@ -115,12 +115,12 @@
   </div> <!-- ✅ Cierra div class="container sm:max-w-[600px]" -->
 
   <!-- Scripts -->
-  <script>
-    // CORRECCIÓN: Se envuelve el Jinja en comillas. Esto hace que el navegador vea:
-    // const GLOBAL_PACIENTE_ID = "123"; (en lugar de const GLOBAL_PACIENTE_ID = 123;)
-    // y se resuelve el 'SyntaxError: Unexpected token {'
-    const GLOBAL_PACIENTE_ID = "{{id_paciente_logueado | default(0)}}";
-  </script>
+<script>
+    // Corregido el default(0) ya que la lógica de JS lo convierte a 0.
+    // Si no hay ID de sesión, usa 0 o un valor nulo para que el JS lo maneje.
+    // Aunque si usas el query parameter, este bloque no será el principal.
+    const GLOBAL_PACIENTE_ID_FROM_SESSION = "{{id_paciente_logueado | default('')}}";
+</script>
   <script src="{{ url_for('static', filename='js/agendarCita.js') }}"></script>
 
 </body>

@@ -236,10 +236,20 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    // -----------------------
-    // BUSCADOR
-    // -----------------------
-    // -----------------------
+// -----------------------
+// MANEJO CONDICIONAL DEL BOTÓN 'NUEVO'
+// -----------------------
+window.handleNewRecordClick = function(tabName) {
+    // Si la pestaña es 'pacientes', redirige directamente.
+    if (tabName === "pacientes") {
+        window.location.href = "/registro";
+        return; // Detiene la ejecución.
+    }
+    
+    // Para cualquier otra pestaña (medicos, especialidades, etc.), abre el modal.
+    openFormModal(tabName, 'Nuevo Registro');
+};
+
 // BUSCADOR (CORREGIDO PARA VERIFICACIÓN DE URL)
 // -----------------------
 document.getElementById("searchInput").addEventListener("input", async e => {

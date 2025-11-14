@@ -102,11 +102,23 @@
                 </div>
             </div>
 
-        </div> </div> <script>
-        const GLOBAL_PACIENTE_ID_FROM_SESSION = "{{ id_paciente_logueado }}";
-        const GLOBAL_USER_ID = "{{ user_id }}";
-    </script>
-    <script src="{{ url_for('static', filename='js/agendarCita.js') }}"></script>
-
+        </div> 
+        </div> 
+        
+        <div id="confirmation-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <div class="modal-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h2 id="modal-title" class="modal-title">Turno Registrado Exitosamente</h2>
+                <p id="modal-message" class="modal-message">Tu cita ha sido confirmada. Revisa tu agenda para ver los detalles.</p>
+                <button id="modal-close-btn" class="btn-primary" onclick="redirectToHome()">Volver a Home</button>
+            </div>
+        </div>
+        <script>
+                const GLOBAL_PACIENTE_ID_FROM_SESSION = "{{ id_paciente_logueado }}";
+                const GLOBAL_USER_ID = "{{ user_id }}";
+            </script>
+            <script src="{{ url_for('static', filename='js/agendarCita.js') }}"></script>
 </body>
 </html>

@@ -301,3 +301,37 @@ class AgendaTurnoRepository(Repository):
             rows = self.db.execute_query(query, params, fetch=True)
             return rows
 
+    def existe_turno(self, fecha, hora, id_medico, dia_semana):
+        """
+        Verifica si ya existe un turno con:
+        - médico
+        - fecha real (YYYY-MM-DD)
+        - hora
+        - día de la semana del horario
+        """
+
+        query = """
+            SELECT a.id
+            FROM agenda_turno a
+            JOIN horario_medico h ON a.id_horario_medico = h.id
+            WHERE h.id_medico = ?
+              AND a.fecha = ?
+              AND a.hora = ?
+              AND h.dia_semana = ?
+        """
+
+        rows = self.db.execute_query(
+            query,
+            (
+                id_medico,
+                fecha,
+                hora,
+                dia_semana
+            ),
+            fetch=True
+        )
+
+        return len(rows) > 0
+
+
+

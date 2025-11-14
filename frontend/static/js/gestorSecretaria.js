@@ -339,10 +339,6 @@ function renderMedicos(medicos) {
             <td class="px-4 py-3">${espStr || "-"}</td>
             <td class="px-4 py-3 text-right flex justify-end gap-2">
                 <button class="px-4 py-1 bg-blue-500 text-white rounded">Generar horario</button>
-                <button onclick="generarAgenda(${m.id})" 
-                    class="px-4 py-1 bg-green-500 text-white rounded">
-                Generar Agenda
-            </button>
             </td>
         `;
 
@@ -571,7 +567,7 @@ document.getElementById("scheduleForm").addEventListener("submit", async functio
             document.getElementById("confirmationMessage").classList.remove("hidden");
             console.log("Horario generado:", result);
         } else {
-            alert(result.error || "Error generando horario");
+            alert(result.error || "Error generando horario (horarios duplicados)");
         }
     } catch (err) {
         console.error(err);

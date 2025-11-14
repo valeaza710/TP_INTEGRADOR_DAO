@@ -1,3 +1,9 @@
+from calendar import monthrange
+from datetime import datetime, timedelta
+
+from backend.clases.agenda_turno import AgendaTurno
+from backend.repository.agenda_turno_repository import AgendaTurnoRepository
+from backend.repository.estado_turno_repository import EstadoTurnoRepository
 from backend.repository.horario_medico_repository import HorarioMedicoRepository
 from backend.clases.horario_medico import HorarioMedico
 from backend.clases.medico import Medico
@@ -63,6 +69,17 @@ class HorarioMedicoService:
                 raise Exception("No se pudo guardar el horario médico")
 
             completo = self.repository.get_by_id(guardado.id)
+
+            try:
+                # ⭐ Intentamos generar turnos
+                self._generar_turnos_para_horario(completo)
+
+            except Exception as e:
+                # ❌ Si falla, borramos el horario generado
+                print(f"Error generando turnos, eliminando horario... {e}")
+                self.repository.delete(guardado.id)  # ⭐ rollback manual
+                raise Exception(str(e))
+
             return self._to_dict(completo)
 
         except ValueError as e:
@@ -70,6 +87,68 @@ class HorarioMedicoService:
         except Exception as e:
             print(f"Error en create: {e}")
             raise Exception("Error al crear horario médico")
+
+    def _generar_turnos_para_horario(self, horario):
+        agenda_repo = AgendaTurnoRepository()
+        estado_repo = EstadoTurnoRepository()
+
+        estado_disponible = estado_repo.get_by_id(1)
+
+        anio = horario.anio
+        mes = horario.mes
+        DAYS_MAP = {
+            "Lunes": 0,
+            "Martes": 1,
+            "Mircoles": 2,
+            "Miércoles": 2,
+            "Jueves": 3,
+            "Viernes": 4,
+            "Sabado": 5,
+            "Sábado": 5,
+            "Domingo": 6
+        }
+        dia_semana_objetivo = DAYS_MAP.get(horario.dia_semana)  # 0=lun, 6=dom
+
+        # días del mes
+        _, ultimo_dia = monthrange(anio, mes)
+
+        for dia in range(1, ultimo_dia + 1):
+
+            fecha_actual_dt = datetime(anio, mes, dia)
+
+            if fecha_actual_dt.weekday() == dia_semana_objetivo:
+
+                fecha_str = fecha_actual_dt.strftime("%Y-%m-%d")
+
+                hora_actual = datetime.strptime(horario.hora_inicio, "%H:%M")
+                hora_fin = datetime.strptime(horario.hora_fin, "%H:%M")
+
+                while hora_actual < hora_fin:
+
+                    hora_str = hora_actual.strftime("%H:%M")
+
+                    # evitar duplicados
+                    if agenda_repo.existe_turno(
+                            fecha_str,
+                            hora_str,
+                            horario.medico.id,
+                            horario.dia_semana
+                    ):
+                        raise Exception(
+                            f"Turno duplicado detectado: {fecha_str} {hora_str} - Medico ID {horario.medico.id}"
+                        )
+
+                    nuevo_turno = AgendaTurno(
+                        fecha=fecha_str,  # 🔥 AHORA ES STRING
+                        hora=hora_str,
+                        paciente=None,
+                        estado_turno=estado_disponible,
+                        horario_medico=horario
+                    )
+
+                    agenda_repo.save(nuevo_turno)
+
+                    hora_actual += timedelta(minutes=horario.duracion_turno_min)
 
     # ------------------------------------
     # UPDATE

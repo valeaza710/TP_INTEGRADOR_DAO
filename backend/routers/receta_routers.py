@@ -45,11 +45,10 @@ def obtener_receta(id):
 def crear_receta():
     try:
         data = request.get_json()
-
         if not data:
             return jsonify({"success": False, "error": "No se enviaron datos"}), 400
-        
-        nueva = receta_service.create(data)
+
+        nueva = receta_service.create_from_front(data)
 
         return jsonify({
             "success": True,

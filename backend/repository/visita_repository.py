@@ -18,7 +18,7 @@ class VisitaRepository(Repository):
         """
         params = (
             visita.historial_clinico.id if visita.historial_clinico else None,
-            visita.agenda_turno.id if visita.agenda_turno else None,
+            visita.turno.id if visita.turno else None,
             visita.comentario
         )
 

@@ -82,14 +82,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Receta
         if (e.target.closest(".btn-recipe")) {
+            const turnoId = card.dataset.id;
+            window.currentTurnoId = turnoId;
+
             const pacienteNombre = card.querySelector("p.font-semibold")?.textContent || "Paciente";
             const pacienteDni = card.querySelector("p.text-sm")?.textContent.split(": ")[1] || "-";
 
             patientInfoElement.textContent = `Paciente: ${pacienteNombre} - DNI: ${pacienteDni}`;
 
-            medicationCounter = 1;
-            const template = document.querySelector('.medication-block');
-            medicationContainer.innerHTML = template ? template.outerHTML : `
+            // Limpiar contenedor y crear primer bloque de medicamento
+            medicationContainer.innerHTML = `
                 <div class="medication-block p-4 border rounded-lg bg-gray-50">
                     <h4 class="font-semibold text-gray-800 mb-3">Medicamento 1</h4>
                     <div class="space-y-3">
@@ -100,8 +102,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     </div>
                 </div>
             `;
-            recipeDialog.style.display = "flex";
+            medicationCounter = 1;
+
+            // Mostrar modal solo acá
+            recipeDialog.classList.remove("hidden");
+
         }
+
     });
 
     // ------------------- GUARDAR RECETA -------------------
@@ -126,6 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const payload = {
             visita: { id: window.currentVisitaId },
             paciente: { id: window.currentPacienteId },
+            turno: { id: window.currentTurnoId },
             enfermedad: enfermedadId ? { id: enfermedadId } : null,
             medicamentos: medicamentos,
             observaciones: observaciones,
@@ -135,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("JSON ENVIADO AL BACKEND:", payload);
 
         try {
-            const response = await fetch("/api/guardar_receta", {
+            const response = await fetch("/api/recetas/", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
@@ -143,7 +151,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (response.ok) {
                 alert("Receta médica registrada correctamente!");
-                recipeDialog.style.display = "none";
+                recipeDialog.classList.add("hidden");
+
             } else {
                 const error = await response.json();
                 alert("Error al guardar la receta: " + error.message);
@@ -157,10 +166,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // ------------------- CERRAR MODAL CANCELAR -------------------
-    closeDialogBtn.addEventListener("click", () => {
-        cancelDialog.style.display = "none";
-        selectedTurnoId = null;
+    document.getElementById("cancel-recipe-btn").addEventListener("click", () => {
+        recipeDialog.classList.add("hidden");
+
     });
+    document.getElementById("close-recipe-dialog").addEventListener("click", () => {
+        recipeDialog.classList.add("hidden");
+
+    });
+
 
     // ------------------- FETCH TURNOS DE HOY -------------------
     const fetchTurnosHoy = async () => {

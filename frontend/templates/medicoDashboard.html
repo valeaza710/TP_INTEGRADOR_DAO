@@ -377,7 +377,7 @@
         </div>
 
         <!-- Diálogo Modal de Generar Receta Médica (Nuevo) -->
-        <div id="recipe-dialog" class="modal-dialog fixed inset-0 flex items-center justify-center p-4 z-50">
+        <div id="recipe-dialog" class="modal-dialog fixed inset-0 flex items-center justify-center p-4 z-50 hidden">
             <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full transform transition-all duration-300">
 
                 <!-- Header del Modal -->
@@ -414,16 +414,7 @@
                         <div id="medication-container" class="space-y-6 mb-6">
 
                             <!-- Bloque inicial de medicamento -->
-                            <div class="medication-block p-4 border rounded-lg bg-gray-50">
-                                <h4 class="font-semibold text-gray-800 mb-3">Medicamento 1</h4>
-
-                                <div class="space-y-3">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Medicamento</label>
-                                        <input type="text" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-cyan-500 focus:border-cyan-500" placeholder="Ej: Ibuprofeno 600mg">
-                                    </div>
-                                </div>
-                            </div>
+        
                         </div>
 
                         <!-- Botón para agregar más medicamentos -->
@@ -505,16 +496,18 @@
             document.querySelectorAll(".btn-cancel").forEach(btn => {
                 btn.addEventListener("click", (e) => {
                     // Cerrar modal de receta si está abierto
-                    recipeDialog.style.display = "none";
+                    recipeDialog.classList.add("hidden");
+
                     // Obtener el ID del turno (del atributo data-id de la tarjeta .card más cercana)
                     selectedTurnoId = e.target.closest(".card").dataset.id;
-                    cancelDialog.style.display = "flex"; // Muestra el modal
+                    recipeDialog.classList.remove("hidden"); // Muestra el modal
                 });
             });
 
             // Cerrar modal de cancelación
             closeCancelDialogBtn.addEventListener("click", () => {
-                cancelDialog.style.display = "none";
+                recipeDialog.classList.add("hidden");
+
             });
 
             // Confirmar cancelación (funcionalidad simulada)
@@ -527,7 +520,8 @@
                         cardToRemove.remove();
                     }
                 }
-                cancelDialog.style.display = "none";
+                recipeDialog.classList.add("hidden");
+
                 selectedTurnoId = null;
             });
             
@@ -560,7 +554,8 @@
             document.querySelectorAll(".btn-recipe").forEach(btn => {
                 btn.addEventListener("click", (e) => {
                     // Cerrar modal de cancelación si está abierto
-                    cancelDialog.style.display = "none";
+                    recipeDialog.classList.add("hidden");
+
                     
                     const card = e.target.closest(".card");
                     
@@ -576,17 +571,20 @@
                     medicationContainer.innerHTML = document.querySelector('.medication-block').outerHTML; // Restablece al primer bloque
                     
                     // Muestra el modal de receta
-                    recipeDialog.style.display = "flex"; 
+                    recipeDialog.classList.remove("hidden");
+
                 });
             });
 
             // 2. Cerrar el modal de receta
             closeRecipeDialogBtn.addEventListener("click", () => {
-                recipeDialog.style.display = "none";
+                recipeDialog.classList.add("hidden");
+
             });
 
             cancelRecipeBtn.addEventListener("click", () => {
-                recipeDialog.style.display = "none";
+                recipeDialog.classList.add("hidden");
+
             });
 
             // 3. Lógica para agregar otro medicamento
@@ -641,7 +639,8 @@
 
                     if (response.ok) {
                         alert("Receta médica registrada correctamente!");
-                        recipeDialog.style.display = "none";
+                        recipeDialog.classList.add("hidden");
+
                     } else {
                         const error = await response.json();
                         alert("Error al guardar la receta: " + error.message);

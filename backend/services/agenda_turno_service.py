@@ -113,7 +113,7 @@ class AgendaTurnoService:
                         fecha=fecha.strftime("%Y-%m-%d"),
                         hora=current.strftime("%H:%M"),
                         paciente=None, # Disponible (Ningún paciente asignado)
-                        estado_turno=1, # Asume que 1 es el ID para 'Libre'
+                        estado_turno=5, # Asume que 1 es el ID para 'Libre'
                         horario_medico=horario.id # Enlazar al horario original
                     )
                 )
@@ -174,7 +174,7 @@ class AgendaTurnoService:
                 return jsonify({"error": f"El turno con ID {id_agenda} no fue encontrado."}), 404
 
             # 4. Verificar que esté Disponible (estado 1)
-            if getattr(agenda.estado_turno, "id", None) != 1:
+            if getattr(agenda.estado_turno, "id", None) != 5:
                 return jsonify({"error": "El turno ya no está disponible."}), 400
 
             # 5. ACTUALIZAR el Slot
@@ -268,7 +268,7 @@ class AgendaTurnoService:
     # ------------------------------------------------------------
     def get_by_medico(self, id_medico: int):
         """
-        Devuelve los turnos de un médico, excluyendo estados 1, 4 y 5.
+        Devuelve los turnos de un médico, excluyendo estados 3, 4 y 5.
         """
         try:
             turnos = self.repository.get_by_medico(id_medico)

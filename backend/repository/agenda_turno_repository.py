@@ -159,7 +159,7 @@ class AgendaTurnoRepository(Repository):
         return success
 
     # -------------------------------------------------------------------------
-    # Obtener todos los turnos de un médico (excepto estados 1, 4, 5)
+    # Obtener todos los turnos de un médico (excepto estados 3, 4, 5)
     # -------------------------------------------------------------------------
     def get_by_medico(self, id_medico: int):
         query = """

@@ -114,3 +114,4 @@ def turnos_hoy_medico(id_medico):
         "count": len(turnos_dict),
         "data": turnos_dict
     })
+

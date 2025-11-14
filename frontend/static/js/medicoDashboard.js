@@ -21,13 +21,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // ------------------- MODAL CANCELAR -------------------
+    // ------------------- MODALES -------------------
     const cancelDialog = document.getElementById("cancel-dialog");
-    const closeDialogBtn = document.getElementById("close-cancel-dialog"); // corregido
+    const closeDialogBtn = document.getElementById("close-cancel-dialog");
     const confirmCancelBtn = document.getElementById("confirm-cancel");
     let selectedTurnoId = null;
 
-    // ------------------- MODAL RECETA -------------------
     const recipeDialog = document.getElementById("recipe-dialog");
     const patientInfoElement = document.getElementById("patient-info");
     const medicationContainer = document.getElementById("medication-container");
@@ -38,18 +37,50 @@ document.addEventListener("DOMContentLoaded", () => {
     const turnosCount = document.getElementById("turnos-count");
     const turnosCountText = document.getElementById("turnos-count-text");
 
+    // ------------------- FUNCIONES AUXILIARES -------------------
+    const actualizarContadores = () => {
+        const cantidad = turnosContainer.querySelectorAll(".card").length;
+        turnosCount.textContent = cantidad;
+        turnosCountText.textContent = cantidad;
+    };
+
+    const actualizarEstadoTurno = async (turnoId, estadoId, card) => {
+        try {
+            const response = await fetch(`/api/agenda/${turnoId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id_estado_turno: estadoId })
+            });
+            if (response.ok) {
+                card.remove();
+                actualizarContadores();
+            } else {
+                console.error("Error al actualizar el turno:", response.statusText);
+            }
+        } catch (error) {
+            console.error("Error de red al actualizar el turno:", error);
+        }
+    };
+
     // ------------------- DELEGACIÓN DE EVENTOS -------------------
     turnosContainer.addEventListener("click", async (e) => {
         const card = e.target.closest(".card");
         if (!card) return;
+        const turnoId = card.dataset.id;
 
-        // CANCELAR TURNO
-        if (e.target.closest(".btn-cancel")) {
-            selectedTurnoId = card.dataset.id;
-            cancelDialog.style.display = "flex";
+        // Atendido OJO ACA HAY QUE VER A QUE LE CORRESPONDE EL COMPLETADO!!!!!!!!!!!
+        if (e.target.closest(".btn-attended")) {
+            actualizarEstadoTurno(turnoId, 4, card); 
+            return;
         }
 
-        // RECETA
+        // Cancelar OJO ACA HAY QUE VER A QUE LE CORRESPONDE EL CANCELADO!!!!!!!!!!!
+        if (e.target.closest(".btn-cancel")) {
+            actualizarEstadoTurno(turnoId, 3, card); // 3 = Cancelado
+            return;
+        }
+
+        // Receta
         if (e.target.closest(".btn-recipe")) {
             const pacienteNombre = card.querySelector("p.font-semibold")?.textContent || "Paciente";
             const pacienteDni = card.querySelector("p.text-sm")?.textContent.split(": ")[1] || "-";
@@ -57,8 +88,6 @@ document.addEventListener("DOMContentLoaded", () => {
             patientInfoElement.textContent = `Paciente: ${pacienteNombre} - DNI: ${pacienteDni}`;
 
             medicationCounter = 1;
-
-            // Si hay un bloque de medicamento inicial, lo clona; si no, crea uno vacío
             const template = document.querySelector('.medication-block');
             medicationContainer.innerHTML = template ? template.outerHTML : `
                 <div class="medication-block p-4 border rounded-lg bg-gray-50">
@@ -95,40 +124,6 @@ document.addEventListener("DOMContentLoaded", () => {
         selectedTurnoId = null;
     });
 
-    // ------------------- CONFIRMAR CANCELACIÓN -------------------
-    confirmCancelBtn.addEventListener("click", async () => {
-        if (!selectedTurnoId) return;
-
-        try {
-            const response = await fetch("/cancel", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id: selectedTurnoId })
-            });
-
-            if (response.ok) {
-                const elementToRemove = document.querySelector(`[data-id="${selectedTurnoId}"]`);
-                if (elementToRemove) elementToRemove.remove();
-            } else {
-                console.error("Error al cancelar el turno:", response.statusText);
-            }
-
-        } catch (error) {
-            console.error("Error de red al cancelar:", error);
-        } finally {
-            cancelDialog.style.display = "none";
-            selectedTurnoId = null;
-            actualizarContadores();
-        }
-    });
-
-    // ------------------- FUNCIONES AUXILIARES -------------------
-    const actualizarContadores = () => {
-        const cantidad = turnosContainer.querySelectorAll(".card").length;
-        turnosCount.textContent = cantidad;
-        turnosCountText.textContent = cantidad;
-    };
-
     // ------------------- FETCH TURNOS DE HOY -------------------
     const fetchTurnosHoy = async () => {
         try {
@@ -163,6 +158,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     <div class="flex flex-col items-end space-y-2">
                         <span class="text-gray-600 text-sm">${turno.hora}</span>
                         <div class="flex space-x-2">
+                            <button class="btn-attended bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm flex items-center">
+                                <i class="ph ph-check-circle mr-1"></i> Atendido
+                            </button>
                             <button class="btn-recipe bg-cyan-600 text-white px-3 py-1 rounded hover:bg-cyan-700 text-sm flex items-center">
                                 <i class="ph ph-note mr-1"></i> Receta
                             </button>

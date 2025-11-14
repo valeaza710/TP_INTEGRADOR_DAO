@@ -205,7 +205,8 @@ class AgendaTurnoService:
     # ------------------------------------------------------------
     # Convertir turno a diccionario
     # ------------------------------------------------------------
-    def _to_dict(self, a: AgendaTurno):
+# --- 🔹 FUNCIÓN _to_dict CORREGIDA 🔹 ---
+    def _to_dict(self, a):
         if not a:
             return None
 

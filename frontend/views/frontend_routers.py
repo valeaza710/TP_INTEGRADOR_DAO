@@ -55,7 +55,7 @@ def agendar_cita():
     return render_template(
         'agendarCita.html',
         id_paciente_logueado=paciente_id_logueado,
-        specialties=specialties # O specialties_for_template si necesitas el mapeo
+        user_id=session.get("user_id")
     )
 
 @frontend_bp.route('/historial/<int:paciente_id>')

@@ -60,6 +60,7 @@ class EstadoTurnoRepository(Repository):
         success = self.db.execute_query(query, params)
         return self.get_by_id(estado.id) if success else None
 
+
     def delete(self, estado: EstadoTurno):
         query = "DELETE FROM estado_turno WHERE id = ?"
         success = self.db.execute_query(query, (estado.id,))

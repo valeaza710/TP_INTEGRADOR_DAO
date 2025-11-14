@@ -57,7 +57,7 @@ class UsuarioService:
                 print(f"⚠️ El DNI '{data['dni']}' ya está registrado")
                 return None
             
-            tipo_usuario = TipoUsuario(id=3, tipo="PACIENTE")
+            tipo_usuario = TipoUsuario(id=1, tipo="PACIENTE")
             nuevo_usuario = Usuario(
                 nombre_usuario=data['username'],
                 contrasena=data['password'],

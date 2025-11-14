@@ -372,13 +372,6 @@ async function registerTurno() {
             })
         });
 
-        console.log("Datos a enviar:", {
-                id_paciente: pacienteIdFinal, 
-                id_turno: selectedSlot.id_turno, 
-                doctor_id: selectedSlot.doctor_id, 
-                fecha: selectedDate,
-                hora: selectedSlot.time
-            });
 
         const data = await response.json();
         

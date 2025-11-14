@@ -8,7 +8,7 @@ class EnfermedadRepository(Repository):
         self.db = DataBaseConnection()
 
     def save(self, enfermedad: Enfermedad):
-        query = "INSERT INTO enfermedad (nombre, descripcion) VALUES (?, ?)"
+        query = "INSERT INTO enfermedades (nombre, descripcion) VALUES (?, ?)"
         params = (enfermedad.nombre, enfermedad.descripcion)
 
         conn = None
@@ -37,7 +37,7 @@ class EnfermedadRepository(Repository):
                 conn.close()
 
     def get_by_id(self, enfermedad_id: int):
-        query = "SELECT * FROM enfermedad WHERE id = ?"
+        query = "SELECT * FROM enfermedades WHERE id = ?"
         data = self.db.execute_query(query, (enfermedad_id,), fetch=True)
         if not data:
             return None

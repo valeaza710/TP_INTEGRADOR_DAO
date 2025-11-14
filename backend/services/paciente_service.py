@@ -114,18 +114,18 @@ class PacienteService:
     # ------------------------------------
     def search_by_dni(self, dni_parcial: str):
         try:
-            paciente = self.repository.get_by_dni(dni_parcial)  # Puede devolver un único Paciente
-            if paciente is None:
-                return []  # No se encontró nadie
-            # Siempre devolvemos lista
-            if not isinstance(paciente, list):
-                paciente = [paciente]
-            return [self._to_dict(p) for p in paciente]
+            # Ahora el repositorio get_by_dni devuelve una lista de objetos Paciente
+            pacientes = self.repository.get_by_dni(dni_parcial)
+            
+            # Convierte la lista de objetos Paciente a lista de diccionarios
+            return [self._to_dict(p) for p in pacientes]
+            
         except Exception as e:
+            # Si hay un error, el log en el router mostrará el stack trace
             print(f"Error en search_by_dni: {e}")
             raise Exception("Error al buscar pacientes por DNI")
 
-
+    
     # ------------------------------------
     # SERIALIZADOR
     # ------------------------------------

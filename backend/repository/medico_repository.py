@@ -191,3 +191,64 @@ class MedicoRepository(Repository):
         except Exception as e:
             print(f"❌ Error en get_by_especialidad: {e}")
             return []
+        
+    # EN MedicoRepository.py
+    def medico_simple(self, row):
+        if not row:
+            return None
+        
+        # 1. Cargar Usuario (Simplificado para evitar errores 500)
+        usuario = None
+        if row.get("id_usuario"):
+            # IMPORTANTE: Reemplazar por tu método de repositorio de usuario si existe.
+            # Por simplicidad, solo creamos el objeto Usuario básico aquí, asumiendo que 
+            # los datos de usuario no son necesarios para la visualización en la tabla.
+            usuario = Usuario(id=row["id_usuario"], nombre_usuario=None, contrasena=None, tipo_usuario=None)
+
+        # 2. Cargar Especialidades (Dejamos vacío para la búsqueda rápida)
+        # La búsqueda rápida en la tabla ADMIN no necesita cargar todas las especialidades
+        # ya que esto añade mucha sobrecarga y puede ser la causa del 500 si falla el fetch.
+        especialidades = [] 
+        
+        return Medico(
+            id=row["id"],
+            nombre=row["nombre"],
+            apellido=row["apellido"],
+            dni=row.get("dni"),
+            matricula=row.get("matricula"),
+            telefono=row.get("telefono"),
+            mail=row.get("mail"),
+            direccion=row.get("direccion"),
+            especialidades=especialidades, # Lista vacía para la búsqueda simple
+            usuario=usuario
+        )
+
+
+    # ✅ NUEVO MÉTODO DE BÚSQUEDA
+    def search_by_name_or_matricula(self, query_text: str):
+        """Busca médicos por nombre, apellido o matrícula parcial."""
+        
+        param_pattern = f"%{query_text}%"
+        
+        # Usamos SELECT * para obtener todos los campos necesarios para _build_medico_from_row
+        query = """
+            SELECT * FROM medico
+            WHERE nombre LIKE ? OR apellido LIKE ? OR matricula LIKE ?
+        """
+        # Repetimos el patrón de búsqueda para cada campo
+        params = (param_pattern, param_pattern, param_pattern)
+        
+        try:
+            resultados = self.db.execute_query(query, params, fetch=True) 
+            medicos = []
+            
+            if resultados:
+                for row in resultados:
+                    # 💡 Usamos el builder simplificado
+                    medicos.append(self.medico_simple(row))
+            
+            return medicos
+            
+        except Exception as e:
+            print(f"❌ Error en search_by_name_or_matricula: {e}")
+            raise # Lanzar la excepción para que el router la atrape y devuelva el 500

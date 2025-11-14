@@ -149,8 +149,8 @@ class RecetaService:
             "fecha_emision": str(r.fecha_emision),
             "visita": {
                 "id": r.visita.id,
-                "medico_nombre": r.visita.agenda_turno.horario_medico.medico.nombre,
-                "medico_apellido": r.visita.agenda_turno.horario_medico.medico.apellido
+                "medico_nombre": r.visita.turno.horario_medico.medico,
+                "medico_apellido": r.visita.turno.horario_medico.medico
             } if r.visita else None,
             "paciente": {
                 "id": r.paciente.id,
@@ -193,18 +193,25 @@ class RecetaService:
 
             # Crear historial clínico si no existe
             historial = self.historial_repository.get_by_paciente(id_paciente=paciente.id)
+            if not historial:
+                historailaa = HistorialClinico(paciente=paciente)
+                historial = self.historial_repository.save(historailaa)
+            historial_id = historial.id
+
 
             # Obtener turno
             agenda_turno = self.agenda_repo.get_by_id(id_agenda_turno)
             if not agenda_turno:
                 raise ValueError(f"No se encontró el turno con ID {id_agenda_turno}")
+            agenda_turno_id = agenda_turno.id
 
             # Crear visita con los comentarios (observaciones)
-            visita = Visita(
-                comentario=data.get("observaciones", ""),
-                historial_clinico=historial,
-                turno=agenda_turno,
-            )
+            visita = {
+                "comentario": data.get("observaciones", ""),
+                "turno_id": agenda_turno_id,
+                "historial_clinico_id": historial_id,
+            }
+
             visita = self.visita_repository.save(visita)
 
             # Preparar descripción de la receta a partir de los medicamentos
@@ -222,10 +229,41 @@ class RecetaService:
             )
             receta = self.repository.save(receta)
 
-            return self._to_dict(receta)
+            visita_pro = Visita(
+                historial_clinico = receta.visita.get("historial_clinico_id"),
+                turno = receta.visita.get("turno_id"),
+                comentario = receta.visita.get("comentario"),
+                id = receta.visita.get("id")
+            )
+
+            receta.visita = visita_pro
+
+            return self._to_dict2(receta)
 
         except ValueError as e:
             raise e
         except Exception as e:
             print(f"Error en create_from_front: {e}")
             raise Exception("Error al crear la receta desde el front")
+
+
+    def _to_dict2(self, r: Receta):
+        if not r:
+            return None
+
+        return {
+            "id": r.id,
+            "descripcion": r.descripcion,
+            "fecha_emision": str(r.fecha_emision),
+            "paciente": {
+                "id": r.paciente.id,
+                "nombre": r.paciente.nombre,
+                "apellido": r.paciente.apellido,
+                "dni": r.paciente.dni,
+            } if r.paciente else None,
+            "enfermedad": {
+                "id": r.enfermedad.id,
+                "nombre": r.enfermedad.nombre,
+                "descripcion": r.enfermedad.descripcion,
+            } if r.enfermedad else None,
+        }

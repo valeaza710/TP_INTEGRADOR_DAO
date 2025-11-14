@@ -154,7 +154,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         } catch (err) {
             console.error(err);
-            alert("Error inesperado al guardar receta.");
         }
     });
 

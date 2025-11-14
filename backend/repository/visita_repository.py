@@ -11,15 +11,15 @@ class VisitaRepository(Repository):
         self.historial_repo = HistorialClinicoRepository()
         self.agenda_repo = AgendaTurnoRepository()
 
-    def save(self, visita: Visita):
+    def save(self, visita):
         query = """
             INSERT INTO visita (id_historial_clinico, id_turno, comentario)
             VALUES (?, ?, ?)
         """
         params = (
-            visita.historial_clinico.id if visita.historial_clinico else None,
-            visita.turno.id if visita.turno else None,
-            visita.comentario
+            visita.get("historial_clinico_id"),  # suponer que traes el id directo
+            visita.get("turno_id"),  # suponer que traes el id directo
+            visita.get("comentario")
         )
 
         conn = self.db.connect()
@@ -32,7 +32,7 @@ class VisitaRepository(Repository):
             cursor = conn.cursor()
             cursor.execute(query, params)
             conn.commit()
-            visita.id = cursor.lastrowid
+            visita["id"] = cursor.lastrowid
             return visita
         except Exception as e:
             print(f"❌ Error al guardar visita: {e}")

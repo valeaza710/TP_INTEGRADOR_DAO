@@ -246,3 +246,16 @@ class PacienteRepository(Repository):
             return None
         return self._build_paciente(data[0])
 
+    def get_usuario_id_by_paciente_id(self, paciente_id: int):
+        query = """
+            SELECT usuario_id
+            FROM paciente
+            WHERE id = ?
+        """
+
+        result = self.db.execute_query(query, (paciente_id,), fetch=True)
+
+        if result:
+            return result[0]["usuario_id"]
+
+        return None

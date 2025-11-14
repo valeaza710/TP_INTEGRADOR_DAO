@@ -6,20 +6,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- MAPAS DE CONFIGURACIÓN ---
     const TAB_HEADERS = {
-        pacientes: ['Nombre', 'Apellido', 'DNI', 'Teléfono', 'Dirección'], 
+        pacientes: ['Nombre', 'Apellido', 'DNI','Fecha Nac.', 'Teléfono', 'Dirección'], 
         medicos: ['Matrícula', 'Nombre', 'Apellido'],          
         especialidades: ['ID', 'Nombre', ''], 
         enfermedades: ['ID', 'Nombre', 'Descripción'],
     };
 
     const TAB_ATTRIBUTES = {
-        pacientes: ['nombre', 'apellido', 'dni', 'telefono', 'direccion'], 
+        pacientes: ['nombre', 'apellido', 'dni','fecha_nacimiento', 'telefono', 'direccion'], 
         medicos: ['matricula', 'nombre', 'apellido'],
         especialidades: ['id', 'nombre'],
         enfermedades: ['id', 'nombre','descripcion'],
     };
 
-// ... (El resto del código dentro de DOMContentLoaded) ...
     
     // -----------------------
     // CONFIGURACIÓN BASE
@@ -73,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const headers = TAB_HEADERS[tabName] || [];
         
         // El máximo de columnas de datos es 5
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 6; i++) {
             const headerElement = document.getElementById(`header-col-${i + 1}`);
             if (headerElement) {
                 // Asigna el nombre, o deja vacío si no existe
@@ -90,13 +89,12 @@ document.addEventListener("DOMContentLoaded", () => {
         
         // 3. Cargar datos
         const tbody = document.getElementById("table-body");
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4">Cargando...</td></tr>`; // Colspan ahora es 6 (5 datos + 1 acción)
-
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4">Cargando...</td></tr>`;
         const data = await fetchData(tabName);
 
         tbody.innerHTML = data.length
             ? data.map(item => renderRow(item, tabName)).join("") 
-            : `<tr><td colspan="6" class="text-center py-4">No hay registros</td></tr>`;
+            : `<tr><td colspan="7" class="text-center py-4">No hay registros</td></tr>`;
     };
 
     // -----------------------
@@ -155,17 +153,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function generateFormFields(type, data) {
         const fieldsMap = {
-            pacientes: ["nombre", "apellido", "dni", "telefono", "direccion"],
-            medicos: ["nombre", "apellido", "matricula"],
+            // 💡 CAMBIO REQUERIDO
+            pacientes: ["nombre", "apellido", "dni", "fecha_nacimiento", "telefono", "direccion"],
+            medicos: ["nombre", "apellido", "matricula", "nombre_usuario", "contrasena"], // Asumo que ya corrigiste este
             especialidades: ["nombre"],
             enfermedades: ["nombre", "descripcion"]
         };
+        
         const fields = fieldsMap[type] || [];
-        return fields.map(f => `
-            <label class="block text-sm font-medium">${f}</label>
-            <input type="text" name="${f}" value="${data[f] || ""}"
-                   class="w-full border rounded p-2" required />
-        `).join("");
+        return fields.map(f => {
+            let inputType = "text";
+            // 💡 Lógica para cambiar el tipo de input a 'date'
+            if (f === "fecha_nacimiento") {
+                inputType = "date";
+            }
+            
+            return `
+                <label class="block text-sm font-medium">${f.replace(/_/g, ' ')}</label>
+                <input type="${inputType}" name="${f}" value="${data[f] || ""}"
+                       class="w-full border rounded p-2" required />
+            `;
+        }).join("");
     }
 
     // -----------------------

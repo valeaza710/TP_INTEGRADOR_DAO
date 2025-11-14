@@ -143,6 +143,7 @@ class PacienteService:
             'nombre': p.nombre,
             'apellido': p.apellido,
             'dni': p.dni,
+            "fecha_nacimiento": p.fecha_nacimiento,
             'direccion': p.direccion,
             'telefono': p.telefono,
             # omite campos complicados por ahora

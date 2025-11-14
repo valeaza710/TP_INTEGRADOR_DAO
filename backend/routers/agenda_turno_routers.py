@@ -105,14 +105,16 @@ def obtener_turnos_hoy_medico(id_medico):
     Devuelve los turnos del día actual de un médico.
     """
     try:
+        print(f"📩 [ROUTER] Solicitando turnos de hoy para médico ID={id_medico}")
         turnos = service.get_turnos_hoy_by_medico(id_medico)
         return jsonify({
             "success": True,
             "data": turnos,
             "count": len(turnos)
         }), 200
+
     except Exception as e:
-        print(f"❌ Error en obtener_turnos_hoy_medico: {e}")
+        print(f"❌ Error en obtener_turnos_hoy_medico (router): {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
 # GET /api/agenda/detalles

@@ -27,6 +27,5 @@ class MedicoXEspecialidadRepository:
             WHERE LOWER(e.nombre) = LOWER(?)
         """
         rows = self.db.execute_query(query, (nombre_especialidad,), fetch=True)
+
         return rows or []
-
-

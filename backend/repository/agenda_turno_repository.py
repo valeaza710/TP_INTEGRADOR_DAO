@@ -165,11 +165,12 @@ class AgendaTurnoRepository(Repository):
             "paciente": {
                 "id": a.paciente.id,
                 "nombre": a.paciente.nombre,
+                "apellido": a.paciente.apellido,
                 "dni": a.paciente.dni
             } if a.paciente else None,
             "estado_turno": {
                 "id": a.estado_turno.id,
-                "estado": a.estado_turno.estado
+                "nombre": a.estado_turno.nombre
             } if a.estado_turno else None,
             "horario_medico": {
                 "id": a.horario_medico.id,
@@ -178,10 +179,19 @@ class AgendaTurnoRepository(Repository):
                 "medico": {
                     "id": a.horario_medico.medico.id,
                     "nombre": a.horario_medico.medico.nombre,
-                    "especialidad": a.horario_medico.medico.especialidad.nombre
+                    "especialidades": [
+                        {"id": e.id, "nombre": e.nombre} for e in a.horario_medico.medico.especialidades
+                    ] if a.horario_medico.medico.especialidades else [],
+                    "usuario": {
+                        "id": a.horario_medico.medico.usuario.id,
+                        "username": a.horario_medico.medico.usuario.nombre_usuario,
+                        "tipo": a.horario_medico.medico.usuario.tipo_usuario
+                    } if a.horario_medico.medico.usuario else None
                 }
             } if a.horario_medico else None
         }
+
+
 
     # -------------------------------------------------------------------------
     # Ver turnos ya atendidos por médico (historial)
@@ -209,95 +219,127 @@ class AgendaTurnoRepository(Repository):
         return turnos
 
     # -------------------------------------------------------------------------
-    # Ver turnos del día actual por médico
+    # Obtener turnos del día actual para atender por médico
     # -------------------------------------------------------------------------
     def get_turnos_hoy_by_medico(self, id_medico: int):
         """
         Devuelve los turnos del día actual de un médico.
-        Excluye los estados cancelado (4) y ausente (5).
+        Excluye los estados que no correspondan (usa solo Confirmado = 2).
         """
-        hoy = date.today().isoformat()
-        query = """
-            SELECT a.*
-            FROM agenda_turno a
-            JOIN horario_medico h ON a.id_horario_medico = h.id
-            WHERE h.id_medico = ?
-              AND a.fecha = ?
-              AND a.id_estado_turno NOT IN (4, 5)
-            ORDER BY a.hora ASC
-        """
-        rows = self.db.execute_query(query, (id_medico, hoy), fetch=True)
-        if not rows:
-            return []
-
-        turnos = []
-        for r in rows:
-            turnos.append(self._map_row_to_agenda_turno(r))
-        return turnos
-
-#PARA PANEL SECRETARIA
-    def get_todos_los_turnos(self):
-        query = """
-            SELECT 
-                a.id,
-                a.fecha,
-                a.hora,
-                p.dni AS dni_paciente,
-                p.nombre AS nombre_paciente,
-                p.apellido AS apellido_paciente,
-                m.nombre AS nombre_medico,
-                m.apellido AS apellido_medico,
-                et.nombre AS estado
-            FROM agenda_turno a
-            LEFT JOIN paciente p ON a.id_paciente = p.id
-            LEFT JOIN horario_medico hm ON a.id_horario_medico = hm.id
-            LEFT JOIN medico m ON hm.id_medico = m.id
-            LEFT JOIN estado_turno et ON a.id_estado_turno = et.id
-            ORDER BY a.fecha, a.hora
-        """
-        rows = self.db.execute_query(query, fetch=True)
-
-        if not rows:
-            return []
-
-        return [
-            {
-                "id_turno": row["id"],
-                "fecha": row["fecha"],
-                "hora_turno": row["hora"],
-                "dni_paciente": row.get("dni_paciente") or "",
-                "paciente": f"{row.get('nombre_paciente') or ''} {row.get('apellido_paciente') or ''}".strip(),
-                "medico": f"{row.get('nombre_medico') or ''} {row.get('apellido_medico') or ''}".strip(),
-                "estado": row.get("estado") or ""
-            }
-            for row in rows
-        ]
-    
-    def get_slots_by_filters(self, id_especialidad, id_medico, fecha):
-            """
-            Obtiene slots (disponibles y ocupados) filtrados por especialidad, 
-            médico (opcional) y fecha.
-            """
-            # ⚠️ IMPORTANTE: Esta consulta une 4 tablas para asegurar que el slot
-            # esté relacionado con la ESPECIALIDAD Y el MEDICO seleccionados.
+        try:
+            hoy = date.today().strftime("%Y-%m-%d")
             query = """
-                SELECT 
-                    at.id, at.fecha, at.hora, at.id_paciente, at.id_estado_turno, 
-                    at.id_horario_medico,
-                    m.nombre as medico_nombre, m.apellido as medico_apellido, m.id as medico_id
-                FROM agenda_turno at
-                JOIN horario_medico hm ON at.id_horario_medico = hm.id
-                JOIN medico m ON hm.id_medico = m.id
-                JOIN medico_x_especialidad mxe ON m.id = mxe.id_medico
-                WHERE mxe.id_especialidad = ?
-                AND at.fecha = ?
+                SELECT a.*
+                FROM agenda_turno AS a
+                INNER JOIN horario_medico AS h ON a.id_horario_medico = h.id
+                WHERE h.id_medico = ?
+                    AND a.fecha = ?
+                    AND a.id_estado_turno IN (2)
+                ORDER BY a.hora ASC
             """
-            params = [id_especialidad, fecha]
-            
-            if id_medico is not None:
-                query += " AND m.id = ?"
-                params.append(id_medico)
 
-            rows = self.db.execute_query(query, params, fetch=True)
-            return rows
+            print(f"Ejecutando query para médico ID={id_medico}")
+            rows = self.db.execute_query(query, (id_medico, hoy), fetch=True)
+            print(f"Turnos encontrados: {len(rows)}")
 
+            if not rows:
+                print("ℹNo hay turnos hoy")
+                return []
+
+            turnos = []
+            for idx, row in enumerate(rows):
+                print(f"🔹 Procesando fila {idx}: {row}")
+
+                # debug dentro del mapping
+                try:
+                    turno = self._map_row_to_agenda_turno(row)
+                    print(f"✅ Turno mapeado: {turno}")
+                    turnos.append(turno)
+                except Exception as e_map:
+                    print(f"❌ Error mapeando fila {idx}: {e_map}")
+                    raise
+
+            return turnos
+
+        except Exception as e:
+            print(f"❌ Error general en get_turnos_hoy_by_medico: {e}")
+            raise
+
+
+
+     # -------------------------------------------------------------------------
+    # Método auxiliar (ya lo usás en get_by_medico)
+    # -------------------------------------------------------------------------
+    def _map_row_to_agenda_turno(self, row):
+        """
+        Mapea una fila de la tabla agenda_turno a un objeto AgendaTurno.
+        Incluye debug detallado para identificar errores en repositorios.
+        """
+        print(f"🔹 _map_row_to_agenda_turno - row: {row}")
+
+        # Inicializamos variables
+        paciente = None
+        estado = None
+        horario = None
+
+        # -------------------------------
+        # Obtener paciente
+        # -------------------------------
+        try:
+            if row.get("id_paciente"):
+                print(f"   🔹 Obteniendo paciente ID={row['id_paciente']}")
+                paciente = self.paciente_repo.get_by_id(row["id_paciente"])
+                print(f"   ✅ Paciente obtenido: {paciente}")
+            else:
+                print("   ℹ️ No hay paciente asociado a este turno")
+        except Exception as e:
+            print(f"   ❌ Error obteniendo paciente (ID={row.get('id_paciente')}): {e}")
+            raise
+
+        # -------------------------------
+        # Obtener estado del turno
+        # -------------------------------
+        try:
+            if row.get("id_estado_turno"):
+                print(f"   🔹 Obteniendo estado turno ID={row['id_estado_turno']}")
+                estado = self.estado_repo.get_by_id(row["id_estado_turno"])
+                print(f"   ✅ Estado obtenido: {estado}")
+            else:
+                print("   ℹ️ No hay estado de turno asociado")
+        except Exception as e:
+            print(f"   ❌ Error obteniendo estado turno (ID={row.get('id_estado_turno')}): {e}")
+            raise
+
+        # -------------------------------
+        # Obtener horario del médico
+        # -------------------------------
+        try:
+            if row.get("id_horario_medico"):
+                print(f"   🔹 Obteniendo horario médico ID={row['id_horario_medico']}")
+                horario = self.horario_repo.get_by_id(row["id_horario_medico"])
+                print(f"   ✅ Horario obtenido: {horario}")
+            else:
+                print("   ℹ️ No hay horario médico asociado")
+        except Exception as e:
+            print(f"   ❌ Error obteniendo horario médico (ID={row.get('id_horario_medico')}): {e}")
+            raise
+
+        # -------------------------------
+        # Construir el objeto AgendaTurno
+        # -------------------------------
+        try:
+            turno = AgendaTurno(
+                id=row["id"],
+                fecha=row["fecha"],
+                hora=row["hora"],
+                paciente=paciente,
+                estado_turno=estado,
+                horario_medico=horario
+            )
+            print(f"   ✅ Turno mapeado correctamente: {turno}")
+            return turno
+        except Exception as e:
+            print(f"   ❌ Error construyendo AgendaTurno: {e}")
+            raise
+
+  

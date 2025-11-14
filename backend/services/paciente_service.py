@@ -130,6 +130,17 @@ class PacienteService:
 
 
     # ------------------------------------
+    # GET BY ID
+    # ------------------------------------
+    def get_by_id_completo(self, paciente_id: int):
+        try:
+            paciente = self.repository.get_by_id(paciente_id)
+            return self._to_dict_viejo(paciente) if paciente else None
+        except Exception as e:
+            print(f"Error en get_by_id: {e}")
+            raise Exception("Error al obtener paciente")
+
+    # ------------------------------------
     # SERIALIZADOR
     # ------------------------------------
     def _to_dict_viejo(self, p: Paciente):
@@ -152,7 +163,6 @@ class PacienteService:
                 'tipo_usuario': getattr(p.usuario.tipo_usuario, 'tipo_usuario', None)
             } if p.usuario else None
         }
-
 
 
     def get_basic_info(self):

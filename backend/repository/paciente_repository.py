@@ -141,6 +141,9 @@ class PacienteRepository(Repository):
     # ------------------------------
     def _build_paciente(self, row):
         """Construir objeto Paciente desde una fila de BD"""
+
+        usuario = self.usuario_repo.get_by_id(row["id_usuario"]) if row["id_usuario"] else None
+
         return Paciente(
             id=row["id"],
             nombre=row.get("nombre"),
@@ -151,7 +154,7 @@ class PacienteRepository(Repository):
             mail=row.get("mail"),
             telefono=row.get("telefono"),
             direccion=row.get("direccion"),
-            id_usuario=row.get("id_usuario")
+            usuario=usuario
         )
     
     # ------------------------------

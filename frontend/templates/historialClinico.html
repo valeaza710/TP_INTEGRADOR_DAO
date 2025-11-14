@@ -63,60 +63,10 @@
 
         </div>
     </div>
-    
-    <!-- Botón de prueba para abrir la modal (opcional, si no está enlazada) -->
-    <!-- <button onclick="openDialog()">Abrir Historial Clínico</button> -->
-
     <script>
-        // La data mock se define aquí para que JS la use
-        const patientData = {
-            weight: "70 kg",
-            height: "1.75 m",
-            bloodType: "O+",
-            chronicDiseases: "Diabetes Tipo 2, Asma (alergias respiratorias)",
-        };
-
-        const prescriptions = [
-            {
-                id: "1",
-                date: "15 de Febrero, 2025",
-                doctorName: "Dr. Sarah Johnson",
-                diagnosis: "Hipertensión leve",
-                medications: [
-                    { name: "Losartán", dosage: "50mg", frequency: "1 vez al día", duration: "30 días" },
-                    { name: "Aspirina", dosage: "100mg", frequency: "1 vez al día", duration: "30 días" },
-                ],
-            },
-            {
-                id: "2",
-                date: "3 de Enero, 2025",
-                doctorName: "Dr. Michael Chen",
-                diagnosis: "Infección respiratoria",
-                medications: [
-                    { name: "Amoxicilina", dosage: "500mg", frequency: "Cada 8 horas", duration: "7 días" },
-                    { name: "Ibuprofeno", dosage: "400mg", frequency: "Cada 6 horas", duration: "5 días" },
-                ],
-            },
-            {
-                id: "3",
-                date: "1 de Julio, 2024",
-                doctorName: "Dra. Carolina Ríos",
-                diagnosis: "Alergia Estacional",
-                medications: [
-                    { name: "Cetirizina", dosage: "10mg", frequency: "1 vez al día", duration: "14 días" },
-                ],
-            },
-             {
-                id: "4",
-                date: "10 de Abril, 2024",
-                doctorName: "Dr. Michael Chen",
-                diagnosis: "Dolor de espalda",
-                medications: [
-                    { name: "Paracetamol", dosage: "500mg", frequency: "Cada 8 horas", duration: "3 días" },
-                ],
-            },
-        ];
+        const paciente_id = {{ paciente_id | tojson }};
     </script>
+
     <script src="{{ url_for('static', filename='js/historialClinico.js') }}"></script>
 </body>
 </html>

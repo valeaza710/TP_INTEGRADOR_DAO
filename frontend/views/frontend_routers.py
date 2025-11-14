@@ -56,9 +56,13 @@ def agendar_cita():
         specialties=specialties # O specialties_for_template si necesitas el mapeo
     )
 
-@frontend_bp.route('/historial')
-def historial_clinico():
-    return render_template('historialClinico.html')
+@frontend_bp.route('/historial/<int:paciente_id>')
+def historial_clinico(paciente_id):
+    paciente = paciente_repo.get_by_id(paciente_id)
+    if paciente is not None:
+        return render_template('historialClinico.html', paciente_id=paciente_id)
+    else:
+        return redirect(url_for('frontend.login'))
 
 @frontend_bp.route('/secretaria')
 def gestor_secretaria():

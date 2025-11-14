@@ -201,31 +201,34 @@ class AgendaTurnoService:
     # ------------------------------------------------------------
     # Convertir turno a diccionario
     # ------------------------------------------------------------
-    def _to_dict(self, a):
+    def _to_dict(self, a: AgendaTurno):
         if not a:
             return None
 
         return {
-            "id": a.id,
-            "fecha": str(a.fecha),
-            "hora": str(a.hora),
+            "id": getattr(a, "id", None),
+            "fecha": str(getattr(a, "fecha", "")),
+            "hora": str(getattr(a, "hora", "")),
             "paciente": {
-                "id": a.paciente.id,
-                "nombre": a.paciente.nombre,
-                "dni": a.paciente.dni
+                "id": getattr(a.paciente, "id", None),
+                "nombre": getattr(a.paciente, "nombre", None),
+                "dni": getattr(a.paciente, "dni", None)
             } if a.paciente else None,
             "estado_turno": {
-                "id": a.estado_turno.id,
-                "estado": a.estado_turno.estado
+                "id": getattr(a.estado_turno, "id", None),
+                "nombre": getattr(a.estado_turno, "nombre", None)
             } if a.estado_turno else None,
             "horario_medico": {
-                "id": a.horario_medico.id,
-                "hora_inicio": str(a.horario_medico.hora_inicio),
-                "hora_fin": str(a.horario_medico.hora_fin),
+                "id": getattr(a.horario_medico, "id", None),
+                "hora_inicio": str(getattr(a.horario_medico, "hora_inicio", "")),
+                "hora_fin": str(getattr(a.horario_medico, "hora_fin", "")),
                 "medico": {
-                    "id": a.horario_medico.medico.id,
-                    "nombre": a.horario_medico.medico.nombre
-                }
+                    "id": getattr(a.horario_medico.medico, "id", None),
+                    "nombre": getattr(a.horario_medico.medico, "apellido", None),
+                    "especialidad": [
+                    getattr(e, "nombre", None) for e in getattr(a.horario_medico.medico, "especialidades", [])
+                ] if getattr(a.horario_medico.medico, "especialidades", None) else []
+                } if getattr(a.horario_medico, "medico", None) else None
             } if a.horario_medico else None
         }
 
@@ -243,9 +246,8 @@ class AgendaTurnoService:
             # obtenemos todos los turnos
             agendas = self.get_all()
             # filtramos solo los que coinciden con el id_paciente
-            agendas_paciente = [a for a in agendas if a.get("id_paciente") == paciente_id]
+            agendas_paciente = [a for a in agendas if a.get("paciente") and a["paciente"].get("id") == paciente_id]
             return agendas_paciente
         except Exception as e:
             print(f"Error en get_by_paciente: {e}")
             raise Exception("Error al obtener las agendas del paciente")
-

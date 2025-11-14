@@ -129,11 +129,24 @@ class RecetaService:
             "descripcion": r.descripcion,
             "fecha_emision": str(r.fecha_emision),
             "visita": {
-                "id": r.visita.id
+                "id": r.visita.id,
+                "medico_nombre": r.visita.agenda_turno.horario_medico.medico.nombre,
+                "medico_apellido": r.visita.agenda_turno.horario_medico.medico.apellido
             } if r.visita else None,
             "paciente": {
-                "id": r.paciente.id
-            } if r.paciente else None
+                "id": r.paciente.id,
+                "nombre": r.paciente.nombre,
+                "apellido": r.paciente.apellido,
+                "dni": r.paciente.dni,
+                "edad": r.paciente.edad,
+                "fecha_nacimiento": r.paciente.fecha_nacimiento,
+                "mail": r.paciente.mail,
+            } if r.paciente else None,
+            "enfermedad": {
+                "id": r.enfermedad.id,
+                "nombre": r.enfermedad.nombre,
+                "descripcion": r.enfermedad.descripcion,
+            } if r.enfermedad else None,
         }
 
 

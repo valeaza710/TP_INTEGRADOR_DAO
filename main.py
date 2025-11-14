@@ -10,7 +10,6 @@ import threading
 # Importar blueprints del backend (API)
 from backend.routers.especialidad_routes import especialidades_bp
 from backend.routers.historial_clinico_routers import historial_bp
-from backend.routers.historial_enfermedad_routes import historial_enfermedad_bp
 from backend.routers.paciente_routers import pacientes_bp
 from backend.routers.usuario_routers import usuarios_bp
 from backend.routers.receta_routers import recetas_bp
@@ -58,7 +57,6 @@ def create_app():
     app.register_blueprint(agenda_turno_bp)
     app.register_blueprint(reportes_bp)
     app.register_blueprint(historial_bp)
-    app.register_blueprint(historial_enfermedad_bp)
     app.register_blueprint(turnos_bp)
     
 

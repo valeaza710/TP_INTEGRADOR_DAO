@@ -147,3 +147,19 @@ def listar_pacientes_basico():
         }), 200
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# -----------------------------------
+# GET /api/pacientes/historial/<id>
+# -----------------------------------
+@pacientes_bp.route('/historial/<int:id>', methods=['GET'])
+def obtener_paciente_completo(id):
+    """GET /api/pacientes/:id - Obtener un paciente por ID"""
+    try:
+        paciente = paciente_service.get_by_id_completo(id)
+        if not paciente:
+            return jsonify({'success': False, 'error': 'Paciente no encontrado'}), 404
+
+        return jsonify({'success': True, 'data': paciente}), 200
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500

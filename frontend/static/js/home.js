@@ -64,16 +64,19 @@ document.addEventListener("DOMContentLoaded", () => {
             card.classList.add("appointment-card");
             card.setAttribute("data-appointment-id", cita.id);
 
+            const especialidades = cita.horario_medico?.medico?.especialidad?.length
+                ? cita.horario_medico.medico.especialidad.join(", ")
+                : "-";
+
             card.innerHTML = `
                 <div class="card-header">
-                    <h3 class="doctor-name">${cita.medico}</h3>
-                    <span class="status-tag">${cita.estado || "Próxima"}</span>
+                    <h3 class="doctor-name"> Dr. ${cita.horario_medico.medico.nombre}</h3>
+                    <span class="status-tag">${cita.estado_turno.nombre || "Próxima"}</span>
                 </div>
-                <p class="specialty">${cita.especialidad || "-"}</p>
+                <p class="specialty">${especialidades}</p>
                 <div class="details">
                     <p class="detail-item"><span class="icon">📅</span> ${cita.fecha}</p>
                     <p class="detail-item"><span class="icon">🕒</span> ${cita.hora}</p>
-                    <p class="detail-item"><span class="icon">📍</span> ${cita.lugar || "-"}</p>
                 </div>
                 <button class="cancel-btn">Cancelar Cita</button>
             `;
@@ -92,31 +95,35 @@ document.addEventListener("DOMContentLoaded", () => {
     // ----------------------------
     // 3️⃣ Cancelar cita
     // ----------------------------
-    async function cancelarCita(id, cardElement) {
-        const confirmar = confirm("¿Seguro que desea cancelar esta cita?");
-        if (!confirmar) return;
+async function cancelarCita(id, cardElement) {
+    const confirmar = confirm("¿Seguro que desea cancelar esta cita?");
+    if (!confirmar) return;
 
-        try {
-            const res = await fetch(`http://localhost:5000/api/turnos/${id}`, { method: "DELETE" });
-            const data = await res.json();
+    try {
+        const res = await fetch(`http://localhost:5000/api/agenda/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id_estado_turno: 4 }) // 4 = Cancelado
+        });
 
-            if (data.success) {
-                log(`Cita ${id} cancelada correctamente.`);
-                cardElement.style.transition = "opacity 0.4s ease-out";
-                cardElement.style.opacity = "0";
-                setTimeout(() => cardElement.remove(), 400);
-            } else {
-                alert("⚠️ No se pudo cancelar la cita.");
-            }
-        } catch (error) {
-            log("Error al cancelar cita: " + error.message, "error");
-            alert("❌ Error al intentar cancelar la cita.");
+        const data = await res.json();
+
+        if (!data.error) {
+            console.log(`Cita ${id} cancelada correctamente.`);
+            cardElement.style.transition = "opacity 0.4s ease-out";
+            cardElement.style.opacity = "0";
+            setTimeout(() => cardElement.remove(), 400);
+        } else {
+            alert("⚠️ No se pudo cancelar la cita.");
         }
+    } catch (error) {
+        console.error("Error al cancelar cita: " + error.message);
+        alert("❌ Error al intentar cancelar la cita.");
+    }
     }
 
     // ----------------------------
     // 🚀 Inicializar con un paciente de prueba
     // ----------------------------
-    const pacienteIdPrueba = 7; // reemplazar con el ID real del paciente
     cargarCitas(paciente_id);
 });

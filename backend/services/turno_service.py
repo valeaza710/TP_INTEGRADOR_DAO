@@ -85,7 +85,7 @@ class TurnoService:
             # 4. Filtrar por Estado (id_estado_turno = 1) y Formatear
             for t in turnos_encontrados:
                 # Aquí está el filtro clave: SOLO el estado 1 (Disponible)
-                if t["id_estado_turno"] == 1: 
+                if t["id_estado_turno"] == 5:  # Estado 5 = Disponible
                     available_slots.append({
                         "doctor_id": t['medico_id'],
                         "doctor": f"{t['medico_nombre']} {t['medico_apellido']}",

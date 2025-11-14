@@ -167,7 +167,7 @@ class AgendaTurnoRepository(Repository):
             FROM agenda_turno a
             JOIN horario_medico h ON a.id_horario_medico = h.id
             WHERE h.id_medico = ?
-              AND a.id_estado_turno NOT IN (1, 4, 5)
+              AND a.id_estado_turno NOT IN (3, 4, 5)
             ORDER BY a.fecha, a.hora
         """
 

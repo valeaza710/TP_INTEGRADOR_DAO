@@ -7,11 +7,15 @@ from backend.repository.estado_turno_repository import EstadoTurnoRepository
 from backend.repository.horario_medico_repository import HorarioMedicoRepository
 from backend.clases.horario_medico import HorarioMedico
 from backend.clases.medico import Medico
-
+# 🚨 Importación Necesaria: Importamos el servicio que maneja la lógica de creación de turnos
+from backend.services.agenda_turno_service import AgendaTurnoService 
+import sqlite3 # Importamos para manejar errores específicos de SQLite
 
 class HorarioMedicoService:
     def __init__(self):
         self.repository = HorarioMedicoRepository()
+        # 💡 INSTANCIACIÓN: Instanciar el servicio de agenda aquí para usarlo.
+        self.agenda_service = AgendaTurnoService() 
 
     # ------------------------------------
     # GET ALL
@@ -47,27 +51,46 @@ class HorarioMedicoService:
             raise Exception("Error al obtener horarios por médico")
 
     # ------------------------------------
-    # CREATE
+    # CREATE (CON ORQUESTACIÓN DE AGENDA Y MANEJO DE INTEGRIDAD)
     # ------------------------------------
     def create(self, data: dict):
+        # 🚨 Asegúrate que tu frontend envíe "Lunes", "Martes", "Miercoles", "Jueves", "Viernes" (sin tilde)
         try:
-            if not data.get("id_medico"):
-                raise ValueError("El campo 'id_medico' es obligatorio")
+            # 🚨 VALIDACIÓN DE CAMPOS OBLIGATORIOS
+            required_fields = ["id_medico", "mes", "anio", "dia_semana", "hora_inicio", "hora_fin", "duracion_turno_min"]
+            for field in required_fields:
+                if not data.get(field):
+                    raise ValueError(f"El campo '{field}' es obligatorio y no puede ser nulo.")
+            
+            # Validación de CHECK constraint para dia_semana ANTES de ir a la DB (opcional, pero útil)
+            dias_permitidos = {'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'}
+            if data['dia_semana'] not in dias_permitidos:
+                 raise ValueError(f"El valor '{data['dia_semana']}' para dia_semana no es válido. Debe ser uno de: {dias_permitidos}")
+
 
             nuevo_horario = HorarioMedico(
                 medico=Medico(id=data["id_medico"]),
                 mes=data.get("mes"),
                 anio=data.get("anio"),
                 dia_semana=data.get("dia_semana"),
-                hora_inicio=data.get("hora_inicio"),
+                hora_inicio=data.get("hora_inicio"), 
                 hora_fin=data.get("hora_fin"),
                 duracion_turno_min=data.get("duracion_turno_min")
             )
 
+            # 1. Guardar el Horario Médico
             guardado = self.repository.save(nuevo_horario)
             if not guardado:
-                raise Exception("No se pudo guardar el horario médico")
+                raise Exception("El repositorio devolvió None. No se pudo guardar el horario médico.")
 
+            # 2. 💡 Orquestación: Llamar al AgendaService para generar los Turnos
+            print(f"✅ Horario Médico ID {guardado.id} creado. Generando turnos...")
+            
+            self.agenda_service.generar_turnos_para_horario(guardado) 
+            
+            print("✅ Turnos generados exitosamente.")
+            
+            # 3. Retornar el horario completo
             completo = self.repository.get_by_id(guardado.id)
 
             try:
@@ -83,9 +106,16 @@ class HorarioMedicoService:
             return self._to_dict(completo)
 
         except ValueError as e:
+            # Captura errores de validación de datos (campos nulos, día no permitido)
+            print(f"Error en create (Validación/Data): {e}")
             raise e
+        except sqlite3.IntegrityError as e:
+            # 🚨 Captura errores específicos de SQL (CHECK Constraint, NOT NULL, FK)
+            print(f"❌ Error de Integridad de BD: {e}")
+            raise Exception(f"Fallo de restricción al guardar el horario médico: {e}")
         except Exception as e:
-            print(f"Error en create: {e}")
+            # Captura cualquier otro error (ej: fallo en la generación de turnos)
+            print(f"Error en create (General): {e}")
             raise Exception("Error al crear horario médico")
 
     def _generar_turnos_para_horario(self, horario):
@@ -196,22 +226,19 @@ class HorarioMedicoService:
     # ------------------------------------
     # SERIALIZADOR
     # ------------------------------------
-    def _to_dict(self, h: HorarioMedico):
-        if not h:
+    # ------------------------------------
+    # Helper 
+    # ------------------------------------
+    def _to_dict(self, horario: HorarioMedico):
+        if not horario:
             return None
-
         return {
-            "id": h.id,
-            "mes": h.mes,
-            "anio": h.anio,
-            "dia_semana": h.dia_semana,
-            "hora_inicio": h.hora_inicio,
-            "hora_fin": h.hora_fin,
-            "duracion_turno_min": h.duracion_turno_min,
-            "medico": {
-                "id": h.medico.id if h.medico else None,
-                "nombre": getattr(h.medico, "nombre", None),
-                "apellido": getattr(h.medico, "apellido", None),
-                "matricula": getattr(h.medico, "matricula", None)
-            } if h.medico else None
-        }
+            "id": horario.id,
+            "id_medico": horario.medico.id if horario.medico else None,
+            "mes": horario.mes,
+            "anio": horario.anio,
+            "dia_semana": horario.dia_semana,
+            "hora_inicio": str(horario.hora_inicio),
+            "hora_fin": str(horario.hora_fin),
+            "duracion_turno_min": horario.duracion_turno_min
+            }

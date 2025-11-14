@@ -621,12 +621,50 @@
                 }
             });
 
-            // 5. Lógica para Generar PDF (simulado)
-            document.getElementById("generate-pdf-btn").addEventListener("click", () => {
-                alert("Simulando generación de Receta Médica en formato PDF/Impresión.");
-                // Aquí iría la lógica real de recopilación de datos y generación del documento
-                recipeDialog.style.display = "none";
+            // 5. Lógica para mandar la receta al back
+            document.getElementById("generate-pdf-btn").addEventListener("click", async () => {
+                const patientInfo = patientInfoElement.textContent.match(/DNI: (\d+)/);
+                const dniPaciente = patientInfo ? patientInfo[1] : null;
+                
+                // Recolectar datos de los medicamentos
+                const medicamentos = Array.from(document.querySelectorAll('.medication-block')).map(block => ({
+                    nombre: block.querySelector('input[placeholder^="Ej:"]').value,
+                    dosis: block.querySelector('input[placeholder*="comprimido"], input[placeholder*="cápsula"]').value,
+                    frecuencia: block.querySelector('input[placeholder*="Cada"]').value,
+                    duracion: block.querySelector('input[placeholder*="días"]').value
+                }));
+
+                // Observaciones
+                const observaciones = document.querySelector('#recipe-form textarea').value;
+
+                // Crear payload
+                const data = {
+                    dni_paciente: dniPaciente,
+                    medicamentos: medicamentos,
+                    observaciones: observaciones,
+                    medico_id: window.MEDICO_ID
+                };
+
+                try {
+                    const response = await fetch("/api/guardar_receta", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response.ok) {
+                        alert("Receta médica registrada correctamente!");
+                        recipeDialog.style.display = "none";
+                    } else {
+                        const error = await response.json();
+                        alert("Error al guardar la receta: " + error.message);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("Ocurrió un error inesperado al guardar la receta.");
+                }
             });
+
         });
     </script>
     <script src="{{ url_for('static', filename='js/medicoDashboard.js') }}" defer></script>

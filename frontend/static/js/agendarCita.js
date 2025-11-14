@@ -285,9 +285,11 @@ async function loadSlots() {
 function selectSlot(slot, button) {
     selectedSlot = slot;
     console.log(selectedSlot);
+// ⬇️ ESTE ES EL LUGAR ⬇️
     // 🚨 Agregado para marcar visualmente el slot seleccionado
     document.querySelectorAll(".slot-btn").forEach(btn => btn.classList.remove("active"));
     button.classList.add("active");
+    // ⬆️ ESTE ES EL LUGAR ⬆️
 
     let confirmBtn = document.getElementById("confirm-btn");
     if (!confirmBtn) {

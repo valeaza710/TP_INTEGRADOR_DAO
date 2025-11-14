@@ -1,125 +1,124 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MediCare - Agendar Nueva Cita</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediCare - Agendar Nueva Cita</title>
 
-  <!-- Estilos -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
 <body>
 
-  <div class="container sm:max-w-[600px]">
+    <div class="appointment-dialog-container">
+        
+        <div class="dialog-header">
+            <div class="header-content">
+                <button id="back-button" class="back-arrow hidden" onclick="goBack(1)" aria-label="Volver">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
 
-    <!-- Encabezado -->
-    <div class="dialog-header">
-      <div class="flex items-center gap-2">
+                <div class="header-text-group">
+                    <h1 class="main-title">Agendar Nueva Cita</h1>
+                    <p id="dialog-description" class="subtitle">Selecciona una especialidad médica</p>
+                </div>
+            </div>
+            
+            <button class="close-btn" aria-label="Cerrar ventana">&times;</button>
+        </div>
 
-        <button id="back-button" class="back-arrow h-8 w-8 hidden" onclick="goBack(1)" aria-label="Volver">
-          <i class="fas fa-chevron-left h-4 w-4"></i>
-        </button>
+        <div class="dialog-body">
 
-        <div>
-          <h1 class="main-title">Agendar Nueva Cita</h1>
-          <p id="dialog-description" class="subtitle">Selecciona una especialidad médica</p>
-        </div>
-      </div>
+            <div id="step1" class="step active">
+                <label class="label">Especialidad</label>
 
-      <button class="close-btn" aria-label="Cerrar ventana">&times;</button>
-    </div>
+                <div id="specialty-list" class="options-grid">
+                    {% for specialty in specialties %}
+                        <button 
+                            class="specialty-card" 
+                            data-specialty="{{ specialty.name }}" 
+                            onclick="selectSpecialty('{{ specialty.name }}', this)"
+                        >
+                            <p class="font-medium text-foreground">{{ specialty.name }}</p>
+                            <p class="text-xs text-muted-foreground mt-1">{{ specialty.doctors_count }} médicos disponibles</p>
+                        </button>
+                    {% endfor %}
+                </div>
+            </div>
 
-    <!-- Contenido principal -->
-    <div class="mt-4">
+            <div id="step2" class="step hidden">
+                <div class="space-y-4">
+                    <div class="space-y-2">
+                        <label class="label">Médico (opcional)</label>
+                        <div class="select-wrapper">
+                            <select id="doctor-select" class="input-field">
+                                <option value="all">Todos los médicos de la especialidad</option>
+                            </select>
+                            <i class="fas fa-chevron-down select-icon"></i>
+                        </div>
+                    </div>
 
-      <!-- Paso 1 -->
-      <div id="step1" class="step active">
-        <label class="label">Especialidad</label>
+                    <div class="specialty-display-card">
+                        <p class="text-sm font-medium">Especialidad seleccionada:</p>
+                        <p id="selected-specialty-name" class="text-lg font-bold">Medicina General</p>
+                        <p id="selected-doctor-display" class="text-sm text-muted-foreground hidden"></p>
+                    </div>
 
-        <div id="specialty-list" class="options-grid">
-          {% for specialty in specialties %}
-            <button 
-              class="specialty-card p-4 border border-border rounded-lg text-left group" 
-              data-specialty="{{ specialty.name }}" 
-              onclick="selectSpecialty('{{ specialty.name }}', this)"
-            >
-              <p class="font-medium text-foreground">{{ specialty.name }}</p>
-              <p class="text-xs text-muted-foreground mt-1">{{ specialty.doctors_count }} médicos disponibles</p>
-            </button>
-          {% endfor %}
-        </div>
-      </div>
+                    <button id="view-slots-btn" class="btn-primary w-full" onclick="goToCalendar()">
+                        Ver Turnos Disponibles
+                    </button>
+                </div>
+            </div>
 
-      <!-- Paso 2 -->
-      <div id="step2" class="step hidden">
-        <div class="space-y-4">
-          <div class="space-y-2">
-            <label class="label">Médico (opcional)</label>
-            <select id="doctor-select" class="input-field">
-              <option value="all">Todos los médicos de la especialidad</option>
-            </select>
-          </div>
+            <div id="step3" class="step hidden">
+                <div class="space-y-4">
+                    <label class="label">Selecciona una fecha</label>
+                    <input type="date" id="date-input" class="hidden-date-input" onchange="loadSlots()">
 
-          <div class="specialty-display-card bg-muted/50 rounded-lg p-4 space-y-2">
-            <p class="text-sm font-medium text-foreground">Especialidad seleccionada:</p>
-            <p id="selected-specialty-name" class="text-sm text-muted-foreground">Medicina General</p>
-            <p id="selected-doctor-display" class="text-sm text-muted-foreground hidden"></p>
-          </div>
+                    <div id="calendar-widget">
+                        <div class="calendar-header">
+                            <button class="nav-arrow" onclick="prevMonth()"><i class="fas fa-chevron-left"></i></button>
+                            <span id="month-label" class="month-label">Noviembre 2025</span>
+                            <button class="nav-arrow" onclick="nextMonth()"><i class="fas fa-chevron-right"></i></button>
+                        </div>
 
-          <button id="view-slots-btn" class="btn-primary w-full" onclick="goToCalendar()">
-            Ver Turnos Disponibles
-          </button>
-        </div>
-      </div>
+                        <div class="calendar-days-of-week">
+                            <span>do</span><span>lu</span><span>ma</span><span>mi</span><span>ju</span><span>vi</span><span>sá</span>
+                        </div>
 
-      <!-- Paso 3 -->
-      <div id="step3" class="step hidden">
-        <div class="space-y-4">
-          <div class="space-y-2">
-            <label class="label">Selecciona una fecha</label>
+                        <div id="calendar-dates-grid" class="calendar-dates-grid"></div>
+                    </div>
 
-            <input type="date" id="date-input" class="hidden-date-input" onchange="loadSlots()">
+                    <div id="slots-section" class="space-y-2">
+                        <h3 class="slots-title">Turnos disponibles - <span id="slots-date-display"></span></h3>
+                        
+                        <div id="slots-container" class="slots-container max-h-[240px] overflow-y-auto">
+                            <div id="slots" class="info-message">Por favor, selecciona una fecha.</div>
+                        </div>
+                    </div>
+                    
+                    <button id="confirm-btn" class="btn-primary hidden" disabled>Confirmar Cita</button>
+                </div>
+            </div>
 
-            <div id="calendar-widget">
-              <div class="calendar-header">
-                <button class="nav-arrow" onclick="prevMonth()"><i class="fas fa-chevron-left"></i></button>
-                <span id="month-label" class="month-label">noviembre 2025</span>
-                <button class="nav-arrow" onclick="nextMonth()"><i class="fas fa-chevron-right"></i></button>
-              </div>
-
-              <div class="calendar-days-of-week">
-                <span>lu</span><span>ma</span><span>mi</span><span>ju</span><span>vi</span><span>sá</span><span>do</span>
-            </div>
-
-              <div id="calendar-dates-grid" class="calendar-dates-grid"></div>
-            </div>
-          </div>
-
-          <div id="slots-section" class="space-y-2">
-            <h3 class="slots-title">Turnos disponibles - <span id="slots-date-display"></span></h3>
-            <div id="slots-container" class="slots-container max-h-[240px] overflow-y-auto space-y-2">
-              <div id="slots" class="info-message">Por favor, selecciona una fecha.</div>
-            </div>
-          </div>
-
-          <div id="no-slots-message" class="info-message hidden text-center py-8 text-muted-foreground">
-            <p>No hay turnos disponibles para esta fecha.</p>
-            <p class="text-sm mt-2">Por favor, selecciona otra fecha.</p>
-          </div>
-        </div>
-      </div>
-
-    </div> <!-- ✅ Cierra div class="mt-4" -->
-  </div> <!-- ✅ Cierra div class="container sm:max-w-[600px]" -->
-
-  <!-- Scripts -->
-<script>
-    const GLOBAL_PACIENTE_ID_FROM_SESSION = "{{ id_paciente_logueado }}";
-    const GLOBAL_USER_ID = "{{ user_id }}";
-</script>
-  <script src="{{ url_for('static', filename='js/agendarCita.js') }}"></script>
-
+        </div> 
+        </div> 
+        
+        <div id="confirmation-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <div class="modal-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h2 id="modal-title" class="modal-title">Turno Registrado Exitosamente</h2>
+                <p id="modal-message" class="modal-message">Tu cita ha sido confirmada. Revisa tu agenda para ver los detalles.</p>
+                <button id="modal-close-btn" class="btn-primary" onclick="redirectToHome()">Volver a Home</button>
+            </div>
+        </div>
+        <script>
+                const GLOBAL_PACIENTE_ID_FROM_SESSION = "{{ id_paciente_logueado }}";
+                const GLOBAL_USER_ID = "{{ user_id }}";
+            </script>
+            <script src="{{ url_for('static', filename='js/agendarCita.js') }}"></script>
 </body>
 </html>

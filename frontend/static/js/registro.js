@@ -1,4 +1,40 @@
+// Función para calcular la edad a partir de la fecha de nacimiento (YYYY-MM-DD)
+function calcularEdad(fechaNacimiento) {
+    if (!fechaNacimiento) {
+        return null;
+    }
+    
+    try {
+        const today = new Date();
+        // Parsear la fecha de nacimiento de forma segura
+        const [year, month, day] = fechaNacimiento.split('-').map(Number);
+        const birthDate = new Date(year, month - 1, day); // month - 1 porque los meses son 0-indexados
+
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDifference = today.getMonth() - birthDate.getMonth();
+        
+        // Ajusta la edad si aún no ha cumplido años este mes/día
+        if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        
+        // Validar que la edad sea no negativa
+        return Math.max(0, age);
+
+    } catch (error) {
+        console.error("Error al procesar la fecha de nacimiento:", error);
+        return null; 
+    }
+}
+
+
 document.addEventListener("DOMContentLoaded", () => {
+    const dobInput = document.getElementById("dob");
+    if (dobInput) {
+        const today = new Date().toISOString().split('T')[0]; // Formato YYYY-MM-DD
+        dobInput.setAttribute('max', today);
+    }
+
     const form = document.getElementById("register-form");
 
     form.addEventListener("submit", async (e) => {
@@ -11,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
             nombre: document.getElementById("name").value.trim(),
             apellido: document.getElementById("lastname").value.trim(),
             dni: document.getElementById("dni").value.trim(),
-            edad: parseInt(document.getElementById("age").value),
+            edad: null, 
             fecha_nacimiento: document.getElementById("dob").value,
             email: document.getElementById("email").value.trim()
 
@@ -21,6 +57,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!formData.username || !formData.password || !formData.email || !formData.nombre || !formData.apellido || !formData.dni) {
             alertMessage("Complete todos los campos obligatorios", "error");
             return;
+        }
+
+        if (formData.edad== null) {
+            formData.edad = calcularEdad(formData.fecha_nacimiento);
+
         }
 
         if (formData.password.length < 8) {

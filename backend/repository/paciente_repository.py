@@ -237,4 +237,12 @@ class PacienteRepository(Repository):
             return None  # No existe paciente para ese usuario
 
         return result[0]["id"]
+    
+    def get_by_email(self, mail: str):
+        """Buscar paciente por mail"""
+        query = "SELECT * FROM paciente WHERE mail = ?"
+        data = self.db.execute_query(query, (mail,), fetch=True)
+        if not data:
+            return None
+        return self._build_paciente(data[0])
 

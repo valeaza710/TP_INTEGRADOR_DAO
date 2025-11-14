@@ -1,265 +1,363 @@
-/* Asegúrate de tener esta importación al principio de tu archivo CSS si usas iconos */
-@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
-/* Estilos Generales y Reseteo Básico */
-body {
-    font-family: Arial, sans-serif;
+/* --- Variables de Color y Estilo --- */
+:root {
+    --primary-color: #00BCD4; /* Turquesa MediCare */
+    --primary-hover: #00AEC3;
+    --secondary-text: #6c757d;
+    --dark-text: #343a40;
+    --background-light: #f4f7fb; /* Fondo muy suave */
+    --card-background: #FFFFFF;
+    --border-color: #dee2e6;
+    --shadow-subtle: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --shadow-heavy: 0 8px 25px rgba(0, 0, 0, 0.1);
+    --radius-small: 8px;
+    --radius-large: 15px;
+}
+
+/* --- Estilos Generales y Reseteo Básico --- */
+* {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    background-color: #f8f9fa; /* Fondo general de la página */
-    color: #343a40;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--background-light); 
+    color: var(--dark-text);
+    line-height: 1.6;
 }
 
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 40px; /* Más padding a los lados */
 }
 
-/* --- Encabezado (Header) --- */
+/* ------------------------------------------------ */
+/* 🔝 ENCABEZADO (HEADER) - EL GRAN CAMBIO 🔝       */
+/* ------------------------------------------------ */
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 5%;
-    background-color: #fff;
-    border-bottom: 1px solid #dee2e6;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    padding: 20px 40px;
+    background-color: var(--card-background);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-subtle);
+    position: sticky; /* Fija el header al hacer scroll */
+    top: 0;
+    z-index: 1000;
 }
-/* Contenedor principal del logo (icono + textos) */
+
+/* --- Sección del Logo --- */
 .logo-section {
     display: flex;
     align-items: center;
-    gap: 10px; /* Espacio entre el cuadrado del icono y el texto */
+    gap: 15px; /* Más espacio */
 }
 
-/* El cuadro del icono */
 .logo-icon-box {
-    background-color: #00bcd4; /* Color de fondo del cuadrado */
-    width: 48px; /* Ancho del cuadrado */
-    height: 48px; /* Alto del cuadrado */
-    border-radius: 8px; /* Bordes redondeados */
+    background-color: var(--primary-color);
+    width: 55px; /* Más grande */
+    height: 55px; /* Más grande */
+    border-radius: 12px; /* Más redondeado */
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+    box-shadow: 0 4px 10px rgba(0, 188, 212, 0.3); /* Sombra de color */
 }
 
-/* El icono de corazón dentro del cuadrado */
 .logo-icon-box .material-icons {
-    color: white; /* Color del icono */
-    font-size: 28px; /* Tamaño del icono */
+    color: white; 
+    font-size: 32px; /* Ícono más grande */
+    font-weight: 700;
 }
 
-/* Contenedor para los textos "MediCare" y "Gestor de Citas" */
-.logo-text-group {
-    display: flex;
-    flex-direction: column; /* Apila los textos verticalmente */
-    justify-content: center;
-}
-
-/* Estilo para "MediCare" */
 .logo-title {
-    font-size: 24px; /* Tamaño de fuente más grande */
-    font-weight: 700; /* Negrita */
-    color: #00BCD4; /* Color de texto oscuro */
-    margin: 0; /* Elimina márgenes por defecto */
-    margin-bottom: 0px;
-    line-height: 1; /* Ajusta la altura de línea */
-}
-/* Estilo para "Gestor de Citas" */
-.logo-subtitle {
-    font-size: 14px;
-    color: #6c757d;
-    
-    /* 2. CLAVE: Eliminar el margen superior por defecto */
-    margin-top: 0px; 
-    
-    line-height: 1; /* Asegura que el espacio vertical alrededor de "Gestor de Citas" sea mínimo */
+    font-size: 28px; /* Título principal más grande */
+    font-weight: 800; /* Extra bold */
+    color: var(--primary-color); 
+    margin: 0; 
+    line-height: 1.1; 
 }
 
-.logo {
-    font-size: 24px;
-    font-weight: bold;
-    color: #00bcd4; /* Color principal de la marca */
+.logo-subtitle {
+    font-size: 15px; /* Subtítulo con buen tamaño */
+    color: var(--secondary-text);
+    margin: 0; 
+    line-height: 1.1; 
+    font-weight: 500;
+}
+
+/* --- Botones de Navegación Derecha --- */
+.button-group-right {
+    display: flex;
+    gap: 15px; /* Espacio entre los botones */
+    align-items: center;
 }
 
 .new-appointment-btn {
-    background-color: #00bcd4; /* Color de botón principal */
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
+    text-decoration: none; /* Quita el subrayado del link */
+    padding: 12px 20px; /* Más padding */
+    border-radius: var(--radius-small);
+    font-size: 15px;
     font-weight: 600;
-    transition: background-color 0.3s;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
 }
 
-.new-appointment-btn:hover {
-    background-color: #0097a7;
+.historial-btn {
+    background-color: transparent;
+    color: var(--dark-text);
+    border: 2px solid var(--border-color);
+}
+.historial-btn:hover {
+    background-color: #e9f8fa;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
 }
 
-/* --- Área Principal de Título --- */
-.container:first-of-type { /* Selecciona el primer contenedor, donde está el título */
+.nueva-cita-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 4px 15px rgba(0, 188, 212, 0.4);
+}
+.nueva-cita-btn:hover {
+    background-color: var(--primary-hover);
+    box-shadow: 0 6px 20px rgba(0, 188, 212, 0.5);
+}
+
+
+/* ------------------------------------------------ */
+/* 📝 INTRODUCCIÓN Y DESCRIPCIÓN                   */
+/* ------------------------------------------------ */
+.container:first-of-type { 
     text-align: center;
-    padding: 50px 20px 70px 20px;
-    background-color: #e9f8fa; /* Fondo ligeramente azulado en la parte superior */
+    padding: 80px 40px 100px 40px; /* Más espacio */
+    background: linear-gradient(180deg, var(--card-background) 0%, #e9f8fa 100%); /* Degradado suave */
 }
 
+/* --- Modificación en home.css --- */
 .subtitle-tag {
     display: inline-block;
-    background-color: #00BCD4;
-    color: #f8f9fa;
-    padding: 5px 15px;
+    background-color: rgba(0, 188, 212, 0.1); 
+    color: var(--primary-color);
+    padding: 18px 36px; /* Aumenta el padding para que sea más grande visualmente */
     border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    margin-bottom: 20px;
+    font-size: 14px; /* Incrementa el tamaño de la fuente (antes 13px) */
+    font-weight: 700;
+    margin-bottom: 25px;
+    letter-spacing: 0.5px;
 }
 
 .main-title {
-    font-size: 36px;
-    color: #343a40;
-    margin: 0 0 10px 0;
+    font-size: 48px; /* Título más impactante */
+    font-weight: 800;
+    color: var(--dark-text);
+    margin: 0 0 15px 0;
 }
 
 .main-description {
-    font-size: 16px;
-    color: #6c757d;
-    max-width: 600px;
-    margin: 0 auto 40px auto;
+    font-size: 18px;
+    color: var(--secondary-text);
+    max-width: 700px;
+    margin: 0 auto 60px auto;
 }
 
-/* --- Contenedor de Tarjetas de Características --- */
+/* ------------------------------------------------ */
+/* ✨ CARACTERÍSTICAS (FEATURES)                   */
+/* ------------------------------------------------ */
 .features-grid {
     display: flex;
     justify-content: center;
-    gap: 30px; /* Espacio entre las tarjetas */
+    gap: 25px; 
     max-width: 1000px;
-    margin: 0 auto;
+    margin: -50px auto 60px auto; /* Mover la grid hacia arriba para solapar con la intro */
+    padding: 0 20px;
 }
 
 .feature-card {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    flex: 1; /* Distribuye el espacio equitativamente */
+    background-color: var(--card-background);
+    padding: 35px 25px;
+    border-radius: var(--radius-large);
+    box-shadow: var(--shadow-heavy); /* Sombra más fuerte para destacarlas */
+    flex: 1; 
     text-align: center;
-    min-height: 150px;
+    border: 1px solid #f0f0f0;
+    transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
 }
 
 .feature-card .icon {
-    font-size: 36px;
+    font-size: 40px; /* Ícono más grande */
     margin-bottom: 15px;
     display: block;
 }
 
 .feature-card h3 {
-    font-size: 18px;
-    font-weight: bold;
-    margin: 0 0 10px 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--dark-text);
+    margin: 0 0 8px 0;
 }
 
 .feature-card p {
-    font-size: 14px;
-    color: #6c757d;
-    margin: 0;
+    font-size: 15px;
+    color: var(--secondary-text);
 }
 
-/* --- Sección Próximas Citas --- */
+/* ------------------------------------------------ */
+/* 📅 SECCIÓN PRÓXIMAS CITAS                       */
+/* ------------------------------------------------ */
 .section-title {
-    font-size: 24px;
-    font-weight: bold;
-    border-top: 1px solid #dee2e6;
-    padding-top: 20px;
+    font-size: 32px; /* Título más grande */
+    font-weight: 700;
+    color: var(--dark-text);
     margin-top: 50px;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid var(--primary-color); /* Línea inferior más gruesa */
+    display: inline-block;
     text-align: left;
 }
 
 .appointments-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* 1, 2 o 3 columnas dependiendo del espacio */
-    gap: 20px;
-    padding-bottom: 50px;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); 
+    gap: 30px; /* Más espacio entre tarjetas */
+    padding-bottom: 60px;
 }
 
 .appointment-card {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 5px solid #00bcd4; /* Barra de color en el lado izquierdo */
+    background-color: var(--card-background);
+    padding: 25px;
+    border-radius: var(--radius-large);
+    box-shadow: var(--shadow-subtle);
+    border-left: 6px solid var(--primary-color); /* Barra lateral más gruesa */
+    transition: transform 0.3s ease;
+}
+
+.appointment-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
 }
 
 .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 .doctor-name {
-    font-size: 18px;
-    margin: 0;
-    color: #343a40;
+    font-size: 20px;
+    font-weight: 700;
 }
 
 .status-tag {
-    background-color: #00bcd4;
+    background-color: var(--primary-color);
     color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
 }
 
 .specialty {
-    color: #6c757d;
-    font-size: 14px;
-    margin: 0 0 15px 0;
-}
-
-.details {
-    margin-bottom: 15px;
+    color: var(--secondary-text);
+    font-size: 15px;
+    margin: 0 0 20px 0;
 }
 
 .detail-item {
-    font-size: 14px;
-    color: #495057;
-    margin: 5px 0;
-    display: flex;
-    align-items: center;
+    font-size: 16px;
+    color: var(--dark-text);
+    margin: 10px 0;
 }
 
 .detail-item .icon {
-    margin-right: 8px;
-    font-size: 16px;
+    margin-right: 10px;
+    font-size: 18px;
+    color: var(--primary-color); /* Iconos de detalle en color principal */
 }
 
 .cancel-btn {
+    background-color: #f7f7f7;
+    color: #dc3545;
+    border: 1px solid #f0f0f0;
+    padding: 12px 15px;
+    border-radius: var(--radius-small);
+    font-weight: 600;
+}
+.cancel-btn:hover {
     background-color: #dc3545;
     color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    width: 100%;
-    transition: background-color 0.3s;
+    border-color: #dc3545;
 }
 
-.cancel-btn:hover {
-    background-color: #c82333;
+/* --- Loader y Mensajes --- */
+.loader {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 50px auto;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+.hidden { display: none !important; }
+.no-citas, .error-text {
+    text-align: center;
+    font-size: 18px;
+    color: var(--secondary-text);
+    padding: 50px 0;
+    background-color: var(--card-background);
+    border-radius: var(--radius-large);
+    margin-top: 30px;
+    box-shadow: var(--shadow-subtle);
 }
 
-/* Responsive: Las tarjetas se apilan en pantallas pequeñas */
-@media (max-width: 768px) {
-    .features-grid {
-        flex-direction: column;
+/* ------------------------------------------------ */
+/* 📱 RESPONSIVO                                  */
+/* ------------------------------------------------ */
+@media (max-width: 992px) {
+    .container {
+        padding: 0 20px;
     }
     .header {
         padding: 15px 20px;
+        flex-wrap: wrap; /* Permite que los botones bajen si hay poco espacio */
+    }
+    .main-title {
+        font-size: 40px;
+    }
+    .features-grid {
+        flex-direction: column;
+        gap: 20px;
+    }
+    .feature-card {
+        max-width: 400px;
+        margin: 0 auto;
+    }
+    .section-title {
+        text-align: center;
+        width: 100%;
+        margin-top: 30px;
+    }
+    .button-group-right {
+        margin-top: 10px;
+        width: 100%;
+        justify-content: space-between;
+    }
+    .new-appointment-btn {
+        flex-grow: 1; /* Los botones llenan el ancho en móvil */
+        text-align: center;
     }
 }

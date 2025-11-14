@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
             localStorage.setItem("user", JSON.stringify(data.user));
 
             // ✅ Redirección según rol
-            const rol = data.user.rol?.toUpperCase() || "PACIENTE";
+        const rol = data.user.rol?.toUpperCase() || "PACIENTE";
             if (rol === "ADMINISTRADOR") {
                 window.location.href = "/administrador";
             } else if (rol === "MEDICO") {

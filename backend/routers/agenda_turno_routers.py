@@ -95,6 +95,29 @@ def obtener_historial_medico(id_medico):
         print(f"❌ Error en obtener_historial_medico: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
+# -----------------------------------
+# GET /api/agenda/medico/<id_medico>/pacientes
+# -----------------------------------
+@agenda_turno_bp.route("/medico/<int:id_medico>/pacientes", methods=["GET"])
+def obtener_pacientes_medico(id_medico):
+    """
+    Devuelve TODOS los pacientes que atendió el médico,
+    con fecha del último turno atendido.
+    """
+    try:
+        pacientes = service.get_pacientes_by_medico(id_medico)
+        return jsonify({
+            "success": True,
+            "count": len(pacientes),
+            "data": pacientes
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
 
 # -----------------------------------
 # GET /api/agenda/medico/<id_medico>/hoy

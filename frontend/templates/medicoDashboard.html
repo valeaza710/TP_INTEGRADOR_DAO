@@ -91,9 +91,10 @@
                         </p>
                 </div>
             </div>
-            <button class="flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 transition">
+            <button class="logout-btn flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
                 Cerrar Sesión
             </button>
@@ -136,17 +137,6 @@
 
             <!-- CARD PRINCIPAL DE BÚSQUEDA Y LISTADO -->
             <div class="bg-white p-6 rounded-2xl card-content">
-
-                <!-- BARRA DE BÚSQUEDA -->
-                <div class="flex flex-col sm:flex-row gap-3 mb-6">
-                    <input type="text" placeholder="Buscar por DNI, Nombre o Apellido..." 
-                           class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150" />
-                    <button class="flex-shrink-0 bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg 
-                                   hover:bg-indigo-700 transition duration-150 ease-in-out shadow-md hover:shadow-lg">
-                        <i class="ph ph-magnifying-glass mr-2"></i>
-                        Buscar
-                    </button>
-                </div>
 
                 <!-- LISTA DE PACIENTES (Tabla Estilizada) -->
                 <h4 class="text-lg font-bold text-gray-800 border-b pb-3 mb-4">Resultados Recientes</h4>
@@ -244,113 +234,8 @@
 
             <!-- CONTENEDOR DONDE SE MOVERÁN LOS TURNOS ATENDIDOS -->
                 <div id="history-list">
-                    <!-- Ejemplo de tarjeta de historial (pre-existente) -->
-                    <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-md mb-4">
-                        <div class="flex justify-between items-start mb-2">
-                            <div>
-                                <p class="font-bold text-lg text-gray-800">Ana Martínez</p>
-                                <p class="text-sm text-gray-500">DNI: 45678901</p>
-                            </div>
-                            <span class="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">Atendido</span>
-                        </div>
-                        <div class="text-sm text-gray-500 mb-2">
-                            <i class="ph ph-calendar-blank mr-1"></i> 2025-11-08 <i class="ph ph-clock-afternoon ml-3 mr-1"></i> 11:00
-                        </div>
-                        <p class="text-gray-600 mb-2">Motivo: Consulta general</p>
-                        <p class="text-sm italic text-gray-700">Nota: Paciente presentó mejora en síntomas tras tratamiento anterior.</p>
-                    </div>
                 </div>
 
-            <div class="space-y-6">
-
-                <!-- Tarjeta de Historial - Atendido (Turno 1) -->
-                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <h4 class="text-lg font-semibold text-gray-900">Ana Martínez</h4>
-                            <p class="text-sm text-gray-500">DNI: 45678901</p>
-                        </div>
-                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">Atendido</span>
-                    </div>
-
-                    <div class="flex items-center space-x-4 text-gray-600 text-sm mb-3">
-                        <span class="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h.01M9 14h.01M13 14h.01M15 11h.01M17 14h.01M4 11l4.472 4.472a1 1 0 00.707.293h7.642a1 1 0 00.707-.293L20 11M4 11V7a2 2 0 012-2h4M20 11V7a2 2 0 00-2-2h-4" />
-                            </svg>
-                            2025-11-08
-                        </span>
-                        <span class="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            11:00
-                        </span>
-                    </div>
-                    
-                    <p class="font-medium text-gray-800">Consulta general</p>
-                    <p class="text-sm text-gray-700 italic mt-1">Nota: Paciente presentó mejora en síntomas</p>
-                </div>
-
-                <!-- Tarjeta de Historial - Atendido (Turno 2) -->
-                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <h4 class="text-lg font-semibold text-gray-900">Luis Fernández</h4>
-                            <p class="text-sm text-gray-500">DNI: 56789012</p>
-                        </div>
-                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">Atendido</span>
-                    </div>
-
-                    <div class="flex items-center space-x-4 text-gray-600 text-sm mb-3">
-                        <span class="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h.01M9 14h.01M13 14h.01M15 11h.01M17 14h.01M4 11l4.472 4.472a1 1 0 00.707.293h7.642a1 1 0 00.707-.293L20 11M4 11V7a2 2 0 012-2h4M20 11V7a2 2 0 00-2-2h-4" />
-                            </svg>
-                            2025-11-07
-                        </span>
-                        <span class="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            15:30
-                        </span>
-                    </div>
-                    
-                    <p class="font-medium text-gray-800">Control post-operatorio</p>
-                    <p class="text-sm text-gray-700 italic mt-1">Nota: Evolución favorable</p>
-                </div>
-
-                <!-- Tarjeta de Historial - Cancelado (Turno 3) -->
-                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <h4 class="text-lg font-semibold text-gray-900">Sofía López</h4>
-                            <p class="text-sm text-gray-500">DNI: 67890123</p>
-                        </div>
-                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700">Cancelado</span>
-                    </div>
-
-                    <div class="flex items-center space-x-4 text-gray-600 text-sm mb-3">
-                        <span class="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h.01M9 14h.01M13 14h.01M15 11h.01M17 14h.01M4 11l4.472 4.472a1 1 0 00.707.293h7.642a1 1 0 00.707-.293L20 11M4 11V7a2 2 0 012-2h4M20 11V7a2 2 0 00-2-2h-4" />
-                            </svg>
-                            2025-11-06
-                        </span>
-                        <span class="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            09:30
-                        </span>
-                    </div>
-                    
-                    <p class="font-medium text-gray-800">Consulta de rutina</p>
-                    <p class="text-sm text-red-600 mt-2 font-medium">Motivo de cancelación: Paciente canceló por motivos personales</p>
-                </div>
-
-            </div>
         </div>
 
         <!-- Diálogo Modal de Cancelación -->
@@ -461,7 +346,10 @@
 
     <!-- Script JavaScript Integrado -->
     <script>
+        console.log("Medico ID desde plantilla:", window.MEDICO_ID);
+
         document.addEventListener("DOMContentLoaded", () => {
+            setupLogoutButton();
             // --- Declaración de Elementos de los Modales ---
                         
             // Modal de Cancelación
@@ -491,12 +379,141 @@
                     // 2. Activar la pestaña clickeada
                     tab.classList.add("active");
                     
-                    // 3. Ocultar todos los contenidos y mostrar el contenido de la pestaña
                     const target = tab.getAttribute("data-tab");
                     tabContents.forEach(c => c.classList.remove("active"));
-                    document.getElementById(target).classList.add("active");
+                    const targetEl = document.getElementById(target);
+                    if (targetEl) targetEl.classList.add("active");
+
+                    // Si abrimos la pestaña historial, cargamos los turnos atendidos
+                    if (target === "history") {
+                        fetchHistorialMedico();
+                    }
+
+                    if (target === "pacientes-content") {
+                        cargarPacientes();
+                    }
                 });
             });
+
+            function setupLogoutButton() {
+                const logoutBtn = document.querySelector(".logout-btn");
+                if (!logoutBtn) return;
+
+                logoutBtn.addEventListener("click", () => {
+                    window.location.href = "/";
+                });
+            }
+
+            const cargarPacientes = async () => {
+                try {
+                    const response = await fetch(`/api/agenda/medico/${window.MEDICO_ID}/pacientes`);
+                    if (!response.ok) throw new Error("Error al obtener los pacientes");
+
+                    const result = await response.json();
+                    const pacientes = result.data || [];
+
+                    const tbody = document.querySelector("#pacientes-content table tbody");
+                    tbody.innerHTML = ""; // Limpiar lista
+
+                    if (pacientes.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="4" class="text-center text-gray-500 py-4">
+                                    No se encontraron pacientes.
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+
+                    pacientes.forEach(p => {
+                        const row = document.createElement("tr");
+
+                        row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                ${p.dni}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                ${p.nombre} ${p.apellido}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                ${p.ultima_fecha_atendido ? p.ultima_fecha_atendido : "-"}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button class="ver-historial text-indigo-600 hover:text-indigo-900 font-semibold flex items-center"
+                                        data-id="${p.id}">
+                                    <i class="ph ph-eye text-lg mr-1"></i>
+                                    Ver Historial
+                                </button>
+                            </td>
+                        `;
+
+                        tbody.appendChild(row);
+                    });
+
+                    // ⭐ Activar los botones de "Ver Historial"
+                    document.querySelectorAll(".ver-historial").forEach(btn => {
+                        btn.addEventListener("click", () => {
+                            const idPaciente = btn.dataset.id;
+                            window.location.href = `/historial/${idPaciente}`;
+                        });
+                    });
+
+                } catch (error) {
+                    console.error("Error al cargar pacientes:", error);
+                }
+            };
+            
+            const historyList = document.getElementById("history-list");
+
+            const fetchHistorialMedico = async () => {
+                try {
+                    const response = await fetch(`/api/agenda/medico/${window.MEDICO_ID}/historial`);
+                    if (!response.ok) throw new Error("Error al obtener el historial");
+
+                    const turnos = await response.json();
+
+                    historyList.innerHTML = "";
+
+                    if (!turnos.data || turnos.data.length === 0) {
+                        historyList.innerHTML = `<p class="text-gray-500">No se encontraron turnos atendidos.</p>`;
+                        return;
+                    }
+
+                    turnos.data.forEach(turno => {
+                        const paciente = turno.paciente || {};
+                        const pacienteNombre = paciente.nombre || "Sin nombre";
+                        const pacienteApellido = paciente.apellido || "";
+                        const pacienteDni = paciente.dni || "-";
+                        const fecha = turno.fecha || "-";
+                        const hora = turno.hora || "-";
+                        const nota = turno.nota || "";
+
+                        const card = document.createElement("div");
+                        card.className = "bg-white p-5 rounded-xl border border-gray-200 shadow-md mb-4";
+                        
+                        card.innerHTML = `
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <p class="font-bold text-lg text-gray-800">${pacienteNombre} ${pacienteApellido}</p>
+                                    <p class="text-sm text-gray-500">DNI: ${pacienteDni}</p>
+                                </div>
+                                <span class="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">Atendido</span>
+                            </div>
+                            <div class="text-sm text-gray-500 mb-2">
+                                <i class="ph ph-calendar-blank mr-1"></i> ${fecha} 
+                                <i class="ph ph-clock-afternoon ml-3 mr-1"></i> ${hora}
+                            </div>
+                        `;
+
+                        historyList.appendChild(card);
+                    });
+
+                } catch (error) {
+                    console.error("Error cargando historial:", error);
+                    historyList.innerHTML = `<p class="text-red-500">No se pudo cargar el historial.</p>`;
+                }
+            };
 
             // --- Lógica de Cancelación con Modal ---
             document.querySelectorAll(".btn-cancel").forEach(btn => {

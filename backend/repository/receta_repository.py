@@ -1,7 +1,7 @@
 from backend.data_base.connection import DataBaseConnection
 from backend.clases.receta import Receta
-from backend.clases.paciente import Paciente
 from backend.clases.visita import Visita
+from backend.repository.enfermedades_repository import EnfermedadRepository
 from backend.repository.repository import Repository
 from backend.repository.visita_repository import VisitaRepository
 from backend.repository.paciente_repository import PacienteRepository
@@ -12,17 +12,19 @@ class RecetaRepository(Repository):
         self.db = DataBaseConnection()
         self.visita_repo = VisitaRepository()
         self.paciente_repo = PacienteRepository()
+        self.enfermedad_repo = EnfermedadRepository()
 
     def save(self, receta: Receta):
         query = """
-            INSERT INTO receta (id_visita, id_paciente, descripcion, fecha_emision)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO receta (id_visita, id_paciente, descripcion, fecha_emision, id_enfermedad)
+            VALUES (?, ?, ?, ?, ?)
         """
         params = (
             receta.visita.id if receta.visita else None,
             receta.paciente.id if receta.paciente else None,
             receta.descripcion,
-            receta.fecha_emision
+            receta.fecha_emision,
+            receta.enfermedad.id if receta.enfermedad else None
         )
 
         conn = self.db.connect()
@@ -55,13 +57,16 @@ class RecetaRepository(Repository):
 
         visita = self.visita_repo.get_by_id(row["id_visita"]) if row["id_visita"] else None
         paciente = self.paciente_repo.get_by_id(row["id_paciente"]) if row["id_paciente"] else None
+        enfermedad = self.enfermedad_repo.get_by_id(row["id_enfermedad"]) if row["id_enfermedad"] else None
 
         return Receta(
             id=row["id"],
             visita=visita,
             paciente=paciente,
             descripcion=row["descripcion"] if row["descripcion"] else "",
-            fecha_emision=row["fecha_emision"]
+            fecha_emision=row["fecha_emision"],
+            enfermedad=enfermedad
+
         )
 
     def get_all(self):
@@ -72,25 +77,28 @@ class RecetaRepository(Repository):
             for row in rows:
                 visita = self.visita_repo.get_by_id(row["id_visita"]) if row["id_visita"] else None
                 paciente = self.paciente_repo.get_by_id(row["id_paciente"]) if row["id_paciente"] else None
+                enfermedad = self.enfermedad_repo.get_by_id(row["id_enfermedad"]) if row["id_enfermedad"] else None
 
                 recetas.append(Receta(
                     id=row["id"],
                     visita=visita,
                     paciente=paciente,
                     descripcion=row["descripcion"] if row["descripcion"] else "",
-                    fecha_emision=row["fecha_emision"]
+                    fecha_emision=row["fecha_emision"],
+                    enfermedad=enfermedad
                 ))
         return recetas
 
     def modify(self, receta: Receta):
         query = """
             UPDATE receta
-            SET id_visita = ?, id_paciente = ?, descripcion = ?, fecha_emision = ?
+            SET id_visita = ?, id_paciente = ?, descripcion = ?, fecha_emision = ?, id_enfermedad = ?
             WHERE id = ?
         """
         params = (
             receta.visita.id if receta.visita else None,
             receta.paciente.id if receta.paciente else None,
+            receta.enfermedad.id if receta.enfermedad else None,
             receta.descripcion,
             receta.fecha_emision,
             receta.id
@@ -111,11 +119,14 @@ class RecetaRepository(Repository):
         if rows:
             for row in rows:
                 paciente = self.paciente_repo.get_by_id(row["id_paciente"]) if row["id_paciente"] else None
-                visita = Visita(id=row["id_visita"]) if row["id_visita"] else None
+                visita = self.visita_repo.get_by_id(row["id_visita"]) if row["id_visita"] else None
+                enfermedad = self.enfermedad_repo.get_by_id(row["id_enfermedad"]) if row["id_enfermedad"] else None
+
                 recetas.append(Receta(
                     id=row["id"],
                     paciente=paciente,
                     visita=visita,
+                    enfermedad=enfermedad,
                     descripcion=row["descripcion"] if row["descripcion"] else "",
                     fecha_emision=row["fecha_emision"]
                 ))

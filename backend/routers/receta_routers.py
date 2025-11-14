@@ -122,7 +122,7 @@ def eliminar_receta(id):
 @recetas_bp.route("/paciente/<int:id_paciente>", methods=["GET"])
 def recetas_por_paciente(id_paciente):
     try:
-        recetas = RecetaService.get_by_paciente(id_paciente)
+        recetas = receta_service.get_by_paciente(id_paciente=id_paciente)
         return jsonify({"success": True, "data": recetas, "count": len(recetas)}), 200
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500

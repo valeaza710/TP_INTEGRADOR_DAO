@@ -97,26 +97,59 @@ document.addEventListener("DOMContentLoaded", () => {
                             <label class="block text-sm font-medium text-gray-700 mb-1">Medicamento</label>
                             <input type="text" class="w-full p-2 border border-gray-300 rounded-lg" placeholder="Ej: Amoxicilina 500mg">
                         </div>
-                        <div class="flex space-x-4">
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Dosis</label>
-                                <input type="text" class="w-full p-2 border border-gray-300 rounded-lg" placeholder="Ej: 1 cápsula">
-                            </div>
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Frecuencia</label>
-                                <input type="text" class="w-full p-2 border border-gray-300 rounded-lg" placeholder="Ej: Cada 12 horas">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Duración</label>
-                            <input type="text" class="w-full p-2 border border-gray-300 rounded-lg" placeholder="Ej: 10 días">
-                        </div>
                     </div>
                 </div>
             `;
             recipeDialog.style.display = "flex";
         }
     });
+
+    // ------------------- GUARDAR RECETA -------------------
+    document.getElementById("generate-pdf-btn").addEventListener("click", async () => {
+        
+        // Obtener enfermedad seleccionada
+        const enfermedadId = document.getElementById("enfermedad-select").value;
+        
+        // Observaciones
+        const obs = document.querySelector("#recipe-form textarea").value.trim();
+
+        // Medicamentos (inputs dentro de .medication-block)
+        const meds = [...document.querySelectorAll(".medication-block input")]
+            .map(inp => inp.value.trim())
+            .filter(v => v !== "");
+
+        const descripcion = meds.join("\n") + (obs ? "\nOBS: " + obs : "");
+
+        // Estos datos deben ser set cuando se abre el modal
+        const payload = {
+            visita_id: window.currentVisitaId,
+            paciente_id: window.currentPacienteId,
+            enfermedad_id: enfermedadId,
+            descripcion: descripcion,
+            fecha_emision: new Date().toISOString().split("T")[0]
+        };
+
+        try {
+            const resp = await fetch("/api/recetas", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            if (!resp.ok) {
+                alert("❌ Error al guardar receta");
+                return;
+            }
+
+            alert("✅ Receta guardada correctamente");
+            recipeDialog.style.display = "none";
+
+        } catch (error) {
+            console.error("Error guardando receta:", error);
+            alert("❌ Error inesperado al guardar receta");
+        }
+    });
+
 
     // ------------------- CERRAR MODAL CANCELAR -------------------
     closeDialogBtn.addEventListener("click", () => {
@@ -181,7 +214,43 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    // ------------------- FETCH ENFERMEDADES -------------------
+    const fetchEnfermedades = async () => {
+        const select = document.getElementById("enfermedad-select");
+        if (!select) return;
+
+        try {
+            const response = await fetch("/api/enfermedades");
+            if (!response.ok) throw new Error("Error al obtener enfermedades");
+
+            const enfermedades = await response.json();
+
+            // Validar que vengan enfermedades
+            if (!enfermedades.success || !Array.isArray(enfermedades.data)) {
+                select.innerHTML = `<option value="">No se pudieron cargar</option>`;
+                return;
+            }
+
+            select.innerHTML = `<option value="">Seleccione una enfermedad</option>`;
+
+            // Recorrer enfermedades.data
+            enfermedades.data.forEach(e => {
+                const opt = document.createElement("option");
+                opt.value = e.id;
+                opt.textContent = e.nombre;
+                select.appendChild(opt);
+            });
+
+
+        } catch (error) {
+            console.error("Error cargando enfermedades:", error);
+            select.innerHTML = `<option value="">No se pudieron cargar</option>`;
+        }
+    };
+
+
     // ------------------- LLAMADA INICIAL -------------------
     console.log("DOM listo, container:", turnosContainer);
     fetchTurnosHoy();
+    fetchEnfermedades();
 });

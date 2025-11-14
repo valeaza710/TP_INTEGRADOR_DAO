@@ -1,6 +1,7 @@
 from backend.repository.receta_repository import RecetaRepository
 from backend.clases.receta import Receta
 from backend.clases.visita import Visita
+from backend.clases.enfermedad import Enfermedad
 from backend.clases.paciente import Paciente
 from datetime import date
 
@@ -51,11 +52,17 @@ class RecetaService:
 
             fecha = data.get("fecha_emision") or date.today()
 
+            # Si viene enfermedad desde el front, se crea solo con ID
+            enfermedad = None
+            if data.get("id_enfermedad"):
+                enfermedad = Enfermedad(id=data["id_enfermedad"])
+
             nueva = Receta(
                 visita=visita,
                 paciente=paciente,
                 descripcion=data["descripcion"],
-                fecha_emision=fecha
+                fecha_emision=fecha,
+                enfermedad=enfermedad
             )
 
             guardada = self.repository.save(nueva)

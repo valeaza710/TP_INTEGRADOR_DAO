@@ -106,48 +106,53 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ------------------- GUARDAR RECETA -------------------
     document.getElementById("generate-pdf-btn").addEventListener("click", async () => {
-        
-        // Obtener enfermedad seleccionada
+
+        // DNI desde la info del paciente
+        const patientInfo = patientInfoElement.textContent.match(/DNI: (\d+)/);
+        const dniPaciente = patientInfo ? patientInfo[1] : null;
+
+        // Medicamentos (corregido)
+        const medicamentos = Array.from(document.querySelectorAll('.medication-block')).map(block => ({
+            nombre: block.querySelector('input').value
+        }));
+
+        // Observaciones (corregido)
+        const observaciones = document.getElementById("obs-receta").value;
+
+        // Enfermedad seleccionada
         const enfermedadId = document.getElementById("enfermedad-select").value;
-        
-        // Observaciones
-        const obs = document.querySelector("#recipe-form textarea").value.trim();
 
-        // Medicamentos (inputs dentro de .medication-block)
-        const meds = [...document.querySelectorAll(".medication-block input")]
-            .map(inp => inp.value.trim())
-            .filter(v => v !== "");
-
-        const descripcion = meds.join("\n") + (obs ? "\nOBS: " + obs : "");
-
-        // Estos datos deben ser set cuando se abre el modal
+        // JSON FINAL CORRECTO PARA EL BACKEND
         const payload = {
-            visita_id: window.currentVisitaId,
-            paciente_id: window.currentPacienteId,
-            enfermedad_id: enfermedadId,
-            descripcion: descripcion,
+            visita: { id: window.currentVisitaId },
+            paciente: { id: window.currentPacienteId },
+            enfermedad: enfermedadId ? { id: enfermedadId } : null,
+            medicamentos: medicamentos,
+            observaciones: observaciones,
             fecha_emision: new Date().toISOString().split("T")[0]
         };
 
+        console.log("JSON ENVIADO AL BACKEND:", payload);
+
         try {
-            const resp = await fetch("/api/recetas", {
+            const response = await fetch("/api/guardar_receta", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
             });
 
-            if (!resp.ok) {
-                alert("❌ Error al guardar receta");
-                return;
+            if (response.ok) {
+                alert("Receta médica registrada correctamente!");
+                recipeDialog.style.display = "none";
+            } else {
+                const error = await response.json();
+                alert("Error al guardar la receta: " + error.message);
             }
 
-            alert("✅ Receta guardada correctamente");
-            recipeDialog.style.display = "none";
-
-        } catch (error) {
-            console.error("Error guardando receta:", error);
-            alert("❌ Error inesperado al guardar receta");
-        }
+        } catch (err) {
+            console.error(err);
+            alert("Error inesperado al guardar receta.");
+        }
     });
 
 

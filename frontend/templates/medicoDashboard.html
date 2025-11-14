@@ -438,7 +438,7 @@
                         <!-- Observaciones -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
-                            <textarea rows="3" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-cyan-500 focus:border-cyan-500" placeholder="Indicaciones adicionales, precauciones, etc."></textarea>
+                            <textarea id="obs-receta" rows="3" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-cyan-500 focus:border-cyan-500" placeholder="Indicaciones adicionales, precauciones, etc."></textarea>
                         </div>
                     </form>
                 </div>
@@ -521,7 +521,7 @@
             confirmCancelBtn.addEventListener("click", () => {
                 if (selectedTurnoId) {
                     console.log(`Simulando cancelación del turno con ID: ${selectedTurnoId}`);
-                    // Simulación de eliminación de la tarjeta de la interfaz
+                    patientInfoElement.textContent = `Paciente: ${patientName} - DNI: ${patientDni}`;
                     const cardToRemove = document.querySelector(`[data-id="${selectedTurnoId}"]`);
                     if (cardToRemove) {
                         cardToRemove.remove();
@@ -532,7 +532,6 @@
             });
             
             // --- Lógica de Generar Receta con Modal (NUEVO) ---
-
             // Función para generar un nuevo bloque de medicamento
             let medicationCounter = 1;
             const createMedicationBlock = () => {
@@ -618,10 +617,7 @@
                 
                 // Recolectar datos de los medicamentos
                 const medicamentos = Array.from(document.querySelectorAll('.medication-block')).map(block => ({
-                    nombre: block.querySelector('input[placeholder^="Ej:"]').value,
-                    dosis: block.querySelector('input[placeholder*="comprimido"], input[placeholder*="cápsula"]').value,
-                    frecuencia: block.querySelector('input[placeholder*="Cada"]').value,
-                    duracion: block.querySelector('input[placeholder*="días"]').value
+                    nombre: block.querySelector('input').value,
                 }));
 
                 // Observaciones
@@ -632,7 +628,8 @@
                     dni_paciente: dniPaciente,
                     medicamentos: medicamentos,
                     observaciones: observaciones,
-                    medico_id: window.MEDICO_ID
+                    medico_id: window.MEDICO_ID,
+                    enfermedad_id: document.getElementById("enfermedad-select").value   
                 };
 
                 try {

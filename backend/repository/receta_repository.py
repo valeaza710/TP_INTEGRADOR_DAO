@@ -20,7 +20,7 @@ class RecetaRepository(Repository):
             VALUES (?, ?, ?, ?, ?)
         """
         params = (
-            receta.visita.id if receta.visita else None,
+            receta.visita.get("id") if receta.visita else None,
             receta.paciente.id if receta.paciente else None,
             receta.descripcion,
             receta.fecha_emision,

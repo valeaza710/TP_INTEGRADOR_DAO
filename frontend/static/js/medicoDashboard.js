@@ -82,9 +82,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Receta
         if (e.target.closest(".btn-recipe")) {
-            const turnoId = card.dataset.id;
-            window.currentTurnoId = turnoId;
-
+            const turnoId = card.dataset.id;  // <--- ESTE ES EL ID DEL TURNO
+            window.currentTurnoId = turnoId;  // lo guardamos globalmente o como prefieras
             const pacienteNombre = card.querySelector("p.font-semibold")?.textContent || "Paciente";
             const pacienteDni = card.querySelector("p.text-sm")?.textContent.split(": ")[1] || "-";
 
@@ -137,7 +136,8 @@ document.addEventListener("DOMContentLoaded", () => {
             enfermedad: enfermedadId ? { id: enfermedadId } : null,
             medicamentos: medicamentos,
             observaciones: observaciones,
-            fecha_emision: new Date().toISOString().split("T")[0]
+            fecha_emision: new Date().toISOString().split("T")[0],
+            id_agenda_turno: window.currentTurnoId,
         };
 
         console.log("JSON ENVIADO AL BACKEND:", payload);
@@ -160,7 +160,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         } catch (err) {
             console.error(err);
-            alert("Error inesperado al guardar receta.");
         }
     });
 

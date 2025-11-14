@@ -577,6 +577,8 @@
                     const card = e.target.closest(".card");
                     
                     // Obtener info del paciente
+                    const turnoId = card.dataset.id;  // <--- ESTE ES EL ID DEL TURNO
+                    window.currentTurnoId = turnoId;
                     const patientName = card.dataset.patientName;
                     const patientDni = card.dataset.patientDni;
                     
@@ -644,11 +646,12 @@
                     medicamentos: medicamentos,
                     observaciones: observaciones,
                     medico_id: window.MEDICO_ID,
-                    enfermedad_id: document.getElementById("enfermedad-select").value   
+                    enfermedad_id: document.getElementById("enfermedad-select").value,
+                    id_agenda_turno: window.currentTurnoId,   
                 };
 
                 try {
-                    const response = await fetch("/api/guardar_receta", {
+                    const response = await fetch("/api/recetas", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(data)

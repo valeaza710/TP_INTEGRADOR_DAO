@@ -339,6 +339,10 @@ function renderMedicos(medicos) {
             <td class="px-4 py-3">${espStr || "-"}</td>
             <td class="px-4 py-3 text-right flex justify-end gap-2">
                 <button class="px-4 py-1 bg-blue-500 text-white rounded">Generar horario</button>
+                <button onclick="generarAgenda(${m.id})" 
+                    class="px-4 py-1 bg-green-500 text-white rounded">
+                Generar Agenda
+            </button>
             </td>
         `;
 
@@ -540,11 +544,6 @@ function openScheduleModal(medicoId, medicoNombre) {
     for (let y = currentYear; y <= currentYear + 2; y++) anioSelect.innerHTML += `<option value="${y}">${y}</option>`;
 }
 
-// Cerrar modal
-function closeScheduleModal() {
-    document.getElementById("scheduleModal").classList.add("hidden");
-    document.getElementById("confirmationMessage").classList.add("hidden");
-}
 
 
 // Enviar formulario
@@ -556,11 +555,12 @@ document.getElementById("scheduleForm").addEventListener("submit", async functio
         anio: document.getElementById("anio").value,
         dia_semana: document.getElementById("dia_semana").value,
         hora_inicio: document.getElementById("hora_inicio").value,
-        duracion_turno: document.getElementById("duracion_turno").value
+        duracion_turno_min: document.getElementById("duracion_turno_min").value,
+        hora_fin: document.getElementById("hora_fin").value
     };
 
     try {
-        const res = await fetch("/api/horario_medico", {
+        const res = await fetch("/api/horarios_medico", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
@@ -578,3 +578,9 @@ document.getElementById("scheduleForm").addEventListener("submit", async functio
         alert("Error generando horario");
     }
 });
+
+// Cerrar modal
+function closeScheduleModal() {
+    document.getElementById("scheduleModal").classList.add("hidden");
+    document.getElementById("confirmationMessage").classList.add("hidden");
+}

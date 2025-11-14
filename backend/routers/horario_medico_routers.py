@@ -12,7 +12,7 @@ def crear_horario():
     data = request.json
     horario = service.create(data)
     if horario:
-        return jsonify({"mensaje": "Horario creado correctamente", "horario": horario.__dict__}), 201
+        return jsonify({"mensaje": "Horario creado correctamente", "horario": horario}), 201
     return jsonify({"error": "No se pudo crear el horario"}), 400
 
 # -----------------------------------

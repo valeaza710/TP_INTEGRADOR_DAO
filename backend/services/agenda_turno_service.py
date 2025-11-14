@@ -10,6 +10,11 @@ from backend.repository.paciente_repository import PacienteRepository # Necesita
 # 🚨 IMPORTANTE: Necesitas un PacienteRepository para buscar por ID
 from backend.repository.paciente_repository import PacienteRepository 
 # 🚨 Asumiendo que PacienteRepository tiene get_by_id
+from datetime import datetime, timedelta
+import calendar
+# Asegúrate de importar tu modelo AgendaTurno y el repositorio
+from backend.clases.agenda_turno import AgendaTurno 
+from backend.repository.agenda_turno_repository import AgendaTurnoRepository 
 
 
 class AgendaTurnoService:
@@ -18,6 +23,108 @@ class AgendaTurnoService:
         self.paciente_repo = PacienteRepository()
         
 
+    def generar_turnos_para_horario(self, horario):
+        """
+        Genera los slots de turnos disponibles basados en un objeto HorarioMedico
+        y los guarda en la base de datos.
+        :param horario: Objeto HorarioMedico recién creado.
+        :return: Número de turnos generados.
+        """
+        print(f"⚙️ Iniciando generación para Horario ID: {horario.id}")
+        
+        # Mapeo de días de la semana (Lunes=0, Domingo=6)
+        dias_semana_map = {
+            "Lunes": 0,
+            "Martes": 1,
+            "Miercoles": 2,
+            "Jueves": 3,
+            "Viernes": 4,
+            "Sabado": 5, # Añadí Sábado y Domingo por si acaso
+            "Domingo": 6
+        }
+        
+        # 🚨 CORRECCIÓN CLAVE: CONVERTIR MES Y AÑO A ENTEROS (int) 🚨
+        try:
+            anio_int = int(horario.anio)
+            mes_int = int(horario.mes)
+        except ValueError:
+            raise ValueError("El año o el mes deben ser números válidos.")
+
+
+        # 1. Validación y Cálculo de Días
+        dia_target = dias_semana_map.get(horario.dia_semana)
+        if dia_target is None:
+            raise ValueError(f"Día de la semana inválido: {horario.dia_semana}")
+            
+        # calendar.monthrange devuelve (día_semana_del_primer_día, num_días_en_el_mes)
+        try:
+            #  Usamos las variables convertidas a INT
+            num_dias = calendar.monthrange(anio_int, mes_int)[1] 
+        except ValueError as e:
+            #  Referencia a las variables INT
+            raise ValueError(f"Fecha inválida (Año: {anio_int}, Mes: {mes_int}): {e}")
+
+        # 2. Encontrar todas las fechas que coinciden con el día de la semana dentro del mes/año
+        fechas = [
+            #  Usamos las variables convertidas a INT
+            datetime(anio_int, mes_int, d)
+            for d in range(1, num_dias + 1)
+            # Usamos las variables convertidas a INT
+            if datetime(anio_int, mes_int, d).weekday() == dia_target 
+        ]
+        
+        if not fechas:
+            print("⚠️ No se encontraron días coincidentes en el mes. No se generaron turnos.")
+            return 0
+
+
+        # 3. Calcular slots de tiempo
+        # Convertir hora_inicio y hora_fin de string ("HH:MM") a objeto datetime
+        # Debemos usar una fecha base para poder operar, la usaremos como referencia.
+        
+        # Usamos la primera fecha encontrada como referencia para parsear el tiempo
+        fecha_referencia = fechas[0].strftime("%Y-%m-%d") 
+        
+        # Parseamos hora_inicio y hora_fin
+        # Nota: La fecha es irrelevante aquí, solo importa la hora
+        hora_inicio = datetime.strptime(f"{fecha_referencia} {horario.hora_inicio}", "%Y-%m-%d %H:%M")
+        hora_fin = datetime.strptime(f"{fecha_referencia} {horario.hora_fin}", "%Y-%m-%d %H:%M")
+        
+        try:
+            duracion_min_int = int(horario.duracion_turno_min)
+        except ValueError:
+            raise ValueError("La duración del turno (duracion_turno_min) debe ser un número entero válido.")
+
+        duracion = timedelta(minutes=duracion_min_int)
+
+        turnos_a_guardar = []
+
+        # 4. Generar slots
+        for fecha in fechas:
+            current = hora_inicio.replace(year=fecha.year, month=fecha.month, day=fecha.day)
+            fin_del_dia = hora_fin.replace(year=fecha.year, month=fecha.month, day=fecha.day)
+            
+            # Recorrer desde la hora de inicio hasta la hora de fin
+            while current + duracion <= fin_del_dia:
+                
+                # Crear el objeto AgendaTurno para guardar
+                turnos_a_guardar.append(
+                    AgendaTurno(
+                        fecha=fecha.strftime("%Y-%m-%d"),
+                        hora=current.strftime("%H:%M"),
+                        paciente=None, # Disponible (Ningún paciente asignado)
+                        estado_turno=1, # Asume que 1 es el ID para 'Libre'
+                        horario_medico=horario.id # Enlazar al horario original
+                    )
+                )
+                current += duracion
+
+        # 5. Guardar en la Base de Datos
+        if turnos_a_guardar:
+            return self.repository.save_many(turnos_a_guardar)
+        
+        return 0
+   
     # ------------------------------------
     # GET ALL
     # ------------------------------------
@@ -259,9 +366,11 @@ class AgendaTurnoService:
             print(f"Error en get_by_paciente: {e}")
             raise Exception("Error al obtener las agendas del paciente")
 
+
     def get_pacientes_by_medico(self, id_medico: int):
         try:
             return self.repository.get_pacientes_by_medico(id_medico)
         except Exception as e:
             print(f"❌ Error en get_pacientes_by_medico: {e}")
             raise Exception("Error al obtener pacientes del médico")
+

@@ -196,9 +196,9 @@ class HorarioMedicoRepository(Repository):
         success = self.db.execute_query(query, params)
         return self.get_by_id(horario.id) if success else None
 
-    def delete(self, horario: HorarioMedico):
+    def delete(self, horario_id):
         query = "DELETE FROM horario_medico WHERE id = ?"
-        success = self.db.execute_query(query, (horario.id,))
+        success = self.db.execute_query(query, (horario_id,))
         return success
     
     def get_horarios_por_filtro(self, id_especialidad, id_medico, mes, anio, dia_semana):

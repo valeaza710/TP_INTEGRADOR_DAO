@@ -540,11 +540,6 @@ function openScheduleModal(medicoId, medicoNombre) {
     for (let y = currentYear; y <= currentYear + 2; y++) anioSelect.innerHTML += `<option value="${y}">${y}</option>`;
 }
 
-// Cerrar modal
-function closeScheduleModal() {
-    document.getElementById("scheduleModal").classList.add("hidden");
-    document.getElementById("confirmationMessage").classList.add("hidden");
-}
 
 
 // Enviar formulario
@@ -556,11 +551,12 @@ document.getElementById("scheduleForm").addEventListener("submit", async functio
         anio: document.getElementById("anio").value,
         dia_semana: document.getElementById("dia_semana").value,
         hora_inicio: document.getElementById("hora_inicio").value,
-        duracion_turno: document.getElementById("duracion_turno").value
+        duracion_turno_min: document.getElementById("duracion_turno_min").value,
+        hora_fin: document.getElementById("hora_fin").value
     };
 
     try {
-        const res = await fetch("/api/horario_medico", {
+        const res = await fetch("/api/horarios_medico", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
@@ -571,10 +567,16 @@ document.getElementById("scheduleForm").addEventListener("submit", async functio
             document.getElementById("confirmationMessage").classList.remove("hidden");
             console.log("Horario generado:", result);
         } else {
-            alert(result.error || "Error generando horario");
+            alert(result.error || "Error generando horario (horarios duplicados)");
         }
     } catch (err) {
         console.error(err);
         alert("Error generando horario");
     }
 });
+
+// Cerrar modal
+function closeScheduleModal() {
+    document.getElementById("scheduleModal").classList.add("hidden");
+    document.getElementById("confirmationMessage").classList.add("hidden");
+}

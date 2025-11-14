@@ -499,7 +499,11 @@
     <routine id="190" parent="1" name="fts3_tokenizer"/>
     <schema id="191" parent="1" name="main">
       <Current>1</Current>
+<<<<<<< HEAD
       <LastIntrospectionLocalTimestamp>2025-11-14.01:57:55</LastIntrospectionLocalTimestamp>
+=======
+      <LastIntrospectionLocalTimestamp>2025-11-14.06:16:49</LastIntrospectionLocalTimestamp>
+>>>>>>> origin/Xio3
     </schema>
     <argument id="192" parent="16">
       <ArgumentDirection>R</ArgumentDirection>
@@ -1624,8 +1628,12 @@
       <Position>3</Position>
       <StoredType>TEXT|0s</StoredType>
     </column>
+<<<<<<< HEAD
     <column id="573" parent="555" name="id_paciente">
       <NotNull>1</NotNull>
+=======
+    <column id="574" parent="555" name="id_paciente">
+>>>>>>> origin/Xio3
       <Position>4</Position>
       <StoredType>INTEGER|0s</StoredType>
     </column>
@@ -1764,8 +1772,57 @@
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
+<<<<<<< HEAD
     <check id="601" parent="560">
       <Predicate>dia_semana IN (&apos;Lunes&apos;,&apos;Martes&apos;,&apos;Miercoles&apos;,&apos;Jueves&apos;,&apos;Viernes&apos;)</Predicate>
+=======
+    <column id="602" parent="560" name="id_historial">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StoredType>INTEGER|0s</StoredType>
+    </column>
+    <column id="603" parent="560" name="id_enfermedad">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>INTEGER|0s</StoredType>
+    </column>
+    <column id="604" parent="560" name="fecha_diagnostico">
+      <Position>3</Position>
+      <StoredType>TEXT|0s</StoredType>
+    </column>
+    <column id="605" parent="560" name="observaciones">
+      <Position>4</Position>
+      <StoredType>TEXT|0s</StoredType>
+    </column>
+    <foreign-key id="606" parent="560">
+      <ColNames>id_historial</ColNames>
+      <OnDelete>cascade</OnDelete>
+      <OnUpdate>cascade</OnUpdate>
+      <RefColNames>id</RefColNames>
+      <RefTableName>historial_clinico</RefTableName>
+    </foreign-key>
+    <foreign-key id="607" parent="560">
+      <ColNames>id_enfermedad</ColNames>
+      <OnDelete>cascade</OnDelete>
+      <OnUpdate>cascade</OnUpdate>
+      <RefColNames>id</RefColNames>
+      <RefTableName>enfermedades</RefTableName>
+    </foreign-key>
+    <index id="608" parent="560" name="sqlite_autoindex_historial_enfermedad_1">
+      <ColNames>id_historial
+id_enfermedad</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Unique>1</Unique>
+    </index>
+    <key id="609" parent="560">
+      <ColNames>id_historial
+id_enfermedad</ColNames>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>sqlite_autoindex_historial_enfermedad_1</UnderlyingIndexName>
+    </key>
+    <check id="610" parent="561">
+      <Predicate>dia_semana IN (&apos;Lunes&apos;, &apos;Martes&apos;, &apos;Miercoles&apos;, &apos;Jueves&apos;, &apos;Viernes&apos;, &apos;Sabado&apos;, &apos;Domingo&apos;)</Predicate>
+>>>>>>> origin/Xio3
     </check>
     <column id="602" parent="560" name="id">
       <AutoIncrement>1</AutoIncrement>

@@ -155,7 +155,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             } else {
                 const error = await response.json();
-                alert("Error al guardar la receta: " + error.message);
             }
 
         } catch (err) {

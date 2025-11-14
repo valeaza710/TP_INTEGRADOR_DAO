@@ -231,7 +231,7 @@ class RecetaService:
 
             visita_pro = Visita(
                 historial_clinico = receta.visita.get("historial_clinico_id"),
-                turno = receta.visita.get("turno_id"),
+                agenda_turno = receta.visita.get("turno_id"),
                 comentario = receta.visita.get("comentario"),
                 id = receta.visita.get("id")
             )

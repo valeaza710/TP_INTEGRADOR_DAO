@@ -342,4 +342,48 @@ class AgendaTurnoRepository(Repository):
             print(f"   ❌ Error construyendo AgendaTurno: {e}")
             raise
 
+    def get_pacientes_by_medico(self, id_medico: int):
+        """
+        Devuelve todos los pacientes que alguna vez tuvo el médico,
+        más la fecha del último turno atendido (a.id_estado_turno = 3).
+        """
+        query = """
+            SELECT 
+                p.*,
+                (
+                    SELECT a2.fecha
+                    FROM agenda_turno a2
+                    JOIN horario_medico h2 ON a2.id_horario_medico = h2.id
+                    WHERE h2.id_medico = ?
+                      AND a2.id_paciente = p.id
+                      AND a2.id_estado_turno = 3
+                    ORDER BY a2.fecha DESC, a2.hora DESC
+                    LIMIT 1
+                ) AS ultima_fecha_atendido
+            FROM agenda_turno a
+            JOIN horario_medico h ON a.id_horario_medico = h.id
+            JOIN paciente p ON a.id_paciente = p.id
+            WHERE h.id_medico = ? AND a.id_estado_turno = 3
+            GROUP BY p.id
+            ORDER BY p.apellido, p.nombre
+        """
+
+        rows = self.db.execute_query(query, (id_medico, id_medico), fetch=True)
+        if not rows:
+            return []
+
+        pacientes = []
+        for r in rows:
+            pacientes.append({
+                "id": r["id"],
+                "nombre": r["nombre"],
+                "apellido": r["apellido"],
+                "dni": r["dni"],
+                "telefono": r.get("telefono"),
+                "obra_social": r.get("obra_social"),
+                "ultima_fecha_atendido": r["ultima_fecha_atendido"]
+            })
+        return pacientes
+
+
   

@@ -499,7 +499,7 @@
     <routine id="190" parent="1" name="fts3_tokenizer"/>
     <schema id="191" parent="1" name="main">
       <Current>1</Current>
-      <LastIntrospectionLocalTimestamp>2025-11-14.00:08:41</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2025-11-14.01:57:55</LastIntrospectionLocalTimestamp>
     </schema>
     <argument id="192" parent="16">
       <ArgumentDirection>R</ArgumentDirection>
@@ -1617,7 +1617,7 @@
     <column id="571" parent="555" name="fecha">
       <NotNull>1</NotNull>
       <Position>2</Position>
-      <StoredType>DATE|0s</StoredType>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="572" parent="555" name="hora">
       <NotNull>1</NotNull>

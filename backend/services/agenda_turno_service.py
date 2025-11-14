@@ -216,6 +216,7 @@ class AgendaTurnoService:
             "paciente": {
                 "id": getattr(a.paciente, "id", None),
                 "nombre": getattr(a.paciente, "nombre", None),
+                "apellido": getattr(a.paciente, "apellido", None),
                 "dni": getattr(a.paciente, "dni", None)
             } if a.paciente else None,
             "estado_turno": {
@@ -228,7 +229,8 @@ class AgendaTurnoService:
                 "hora_fin": str(getattr(a.horario_medico, "hora_fin", "")),
                 "medico": {
                     "id": getattr(a.horario_medico.medico, "id", None),
-                    "nombre": getattr(a.horario_medico.medico, "apellido", None),
+                    "nombre": getattr(a.horario_medico.medico, "nombre", None),
+                    "apellido": getattr(a.horario_medico.medico, "apellido", None),
                     "especialidad": [
                     getattr(e, "nombre", None) for e in getattr(a.horario_medico.medico, "especialidades", [])
                 ] if getattr(a.horario_medico.medico, "especialidades", None) else []
@@ -255,3 +257,10 @@ class AgendaTurnoService:
         except Exception as e:
             print(f"Error en get_by_paciente: {e}")
             raise Exception("Error al obtener las agendas del paciente")
+
+    def get_pacientes_by_medico(self, id_medico: int):
+        try:
+            return self.repository.get_pacientes_by_medico(id_medico)
+        except Exception as e:
+            print(f"❌ Error en get_pacientes_by_medico: {e}")
+            raise Exception("Error al obtener pacientes del médico")

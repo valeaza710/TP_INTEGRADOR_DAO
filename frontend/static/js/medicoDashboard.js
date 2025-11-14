@@ -16,135 +16,174 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const target = tab.getAttribute("data-tab");
             tabContents.forEach(c => c.classList.remove("active"));
-            document.getElementById(target).classList.add("active");
+            const targetEl = document.getElementById(target);
+            if (targetEl) targetEl.classList.add("active");
         });
     });
 
     // ------------------- MODAL CANCELAR -------------------
     const cancelDialog = document.getElementById("cancel-dialog");
-    const closeDialogBtn = document.getElementById("close-dialog");
+    const closeDialogBtn = document.getElementById("close-cancel-dialog"); // corregido
     const confirmCancelBtn = document.getElementById("confirm-cancel");
-    let selectedId = null;
+    let selectedTurnoId = null;
 
-    // Delegación de eventos: funciona para tarjetas dinámicas
-    document.getElementById("agenda").addEventListener("click", (e) => {
-        if(e.target.closest(".btn-cancel")) {
-            selectedId = e.target.closest(".card").dataset.id;
+    // ------------------- MODAL RECETA -------------------
+    const recipeDialog = document.getElementById("recipe-dialog");
+    const patientInfoElement = document.getElementById("patient-info");
+    const medicationContainer = document.getElementById("medication-container");
+    let medicationCounter = 1;
+
+    // ------------------- TURNOS -------------------
+    const turnosContainer = document.getElementById("turnos-container");
+    const turnosCount = document.getElementById("turnos-count");
+    const turnosCountText = document.getElementById("turnos-count-text");
+
+    // ------------------- DELEGACIÓN DE EVENTOS -------------------
+    turnosContainer.addEventListener("click", async (e) => {
+        const card = e.target.closest(".card");
+        if (!card) return;
+
+        // CANCELAR TURNO
+        if (e.target.closest(".btn-cancel")) {
+            selectedTurnoId = card.dataset.id;
             cancelDialog.style.display = "flex";
         }
-    });
 
-    closeDialogBtn.addEventListener("click", () => {
-        cancelDialog.style.display = "none";
-        selectedId = null;
-    });
+        // RECETA
+        if (e.target.closest(".btn-recipe")) {
+            const pacienteNombre = card.querySelector("p.font-semibold")?.textContent || "Paciente";
+            const pacienteDni = card.querySelector("p.text-sm")?.textContent.split(": ")[1] || "-";
 
-    confirmCancelBtn.addEventListener("click", async () => {
-        if(selectedId) {
-            try {
-                const response = await fetch("/cancel", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ id: selectedId })
-                });
+            patientInfoElement.textContent = `Paciente: ${pacienteNombre} - DNI: ${pacienteDni}`;
 
-                if(response.ok){
-                    const elementToRemove = document.querySelector(`[data-id="${selectedId}"]`);
-                    if(elementToRemove) elementToRemove.remove();
-                } else {
-                    console.error("Error al cancelar el turno:", response.statusText);
-                }
+            medicationCounter = 1;
 
-            } catch(error){
-                console.error("Error de red al cancelar:", error);
-            } finally {
-                cancelDialog.style.display = "none";
-                selectedId = null;
-            }
+            // Si hay un bloque de medicamento inicial, lo clona; si no, crea uno vacío
+            const template = document.querySelector('.medication-block');
+            medicationContainer.innerHTML = template ? template.outerHTML : `
+                <div class="medication-block p-4 border rounded-lg bg-gray-50">
+                    <h4 class="font-semibold text-gray-800 mb-3">Medicamento 1</h4>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Medicamento</label>
+                            <input type="text" class="w-full p-2 border border-gray-300 rounded-lg" placeholder="Ej: Amoxicilina 500mg">
+                        </div>
+                        <div class="flex space-x-4">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Dosis</label>
+                                <input type="text" class="w-full p-2 border border-gray-300 rounded-lg" placeholder="Ej: 1 cápsula">
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Frecuencia</label>
+                                <input type="text" class="w-full p-2 border border-gray-300 rounded-lg" placeholder="Ej: Cada 12 horas">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Duración</label>
+                            <input type="text" class="w-full p-2 border border-gray-300 rounded-lg" placeholder="Ej: 10 días">
+                        </div>
+                    </div>
+                </div>
+            `;
+            recipeDialog.style.display = "flex";
         }
     });
 
-    // ------------------- TURNOS DE HOY -------------------
-    const user = JSON.parse(localStorage.getItem("user"));
-    console.log("ID del médico logueado:", user?.id);
-    if(user && user.rol && user.rol.toUpperCase() === "MEDICO") {
+    // ------------------- CERRAR MODAL CANCELAR -------------------
+    closeDialogBtn.addEventListener("click", () => {
+        cancelDialog.style.display = "none";
+        selectedTurnoId = null;
+    });
 
-        (async () => {
-            try {
-                const response = await fetch(`http://localhost:5000/api/agenda/medico/${user.id}/hoy`);
-                const data = await response.json();
+    // ------------------- CONFIRMAR CANCELACIÓN -------------------
+    confirmCancelBtn.addEventListener("click", async () => {
+        if (!selectedTurnoId) return;
 
-                if(data.success){
-                    const turnos = data.data;
-                    console.log("📅 Turnos de hoy:", turnos);
+        try {
+            const response = await fetch("/cancel", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: selectedTurnoId })
+            });
 
-                    // Contenedor de turnos
-                    const agendaContainer = document.getElementById("agenda").querySelector(".space-y-6");
-                    agendaContainer.innerHTML = ""; // Limpiamos tarjetas actuales
-
-                    // Actualizamos contadores
-                    const turnosCount = document.getElementById("turnos-count");
-                    const turnosCountText = document.getElementById("turnos-count-text");
-                    if(turnosCount) turnosCount.textContent = turnos.length;
-                    if(turnosCountText) turnosCountText.textContent = turnos.length;
-
-                    // Creamos tarjetas por turno
-                    turnos.forEach(turno => {
-                        const card = document.createElement("div");
-                        card.className = "card bg-white p-6 rounded-xl shadow-lg border border-gray-200 transition duration-300 hover:shadow-xl";
-                        card.dataset.id = `turno-${turno.id}`;
-                        card.dataset.patientName = turno.paciente_nombre;
-                        card.dataset.patientDni = turno.paciente_dni;
-
-                        card.innerHTML = `
-                            <div class="flex justify-between items-start mb-4">
-                                <div class="flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                    </svg>
-                                    <div>
-                                        <h4 class="text-lg font-semibold text-gray-900">${turno.paciente_nombre}</h4>
-                                        <p class="text-sm text-gray-500">DNI: ${turno.paciente_dni}</p>
-                                    </div>
-                                </div>
-                                <span class="text-lg font-bold text-gray-700">${turno.hora}</span>
-                            </div>
-
-                            <div class="bg-gray-50 p-3 rounded-lg border border-gray-100 mb-4">
-                                <p class="text-sm font-medium text-gray-600">Motivo: ${turno.motivo}</p>
-                                <p class="text-xs text-gray-400 mt-1">${turno.fecha}</p>
-                            </div>
-
-                            <div class="flex space-x-3">
-                                <button data-appointment-id="appointment-${turno.id}" class="btn-atendido bg-emerald-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-emerald-700 transition duration-150 flex items-center shadow-md">
-                                    <i class="ph ph-check-circle-light text-xl mr-2"></i>
-                                    Turno Atendido
-                                </button>
-                                <button class="btn-recipe btn-action bg-cyan-500 text-white hover:bg-cyan-600 flex-1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                    Generar Receta
-                                </button>
-                                <button class="btn-cancel btn-action bg-red-500 text-white hover:bg-red-600 flex-1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    Cancelar Turno
-                                </button>
-                            </div>
-                        `;
-                        agendaContainer.appendChild(card);
-                    });
-
-                } else {
-                    console.error("❌ Error al obtener turnos de hoy:", data.message);
-                }
-
-            } catch(error){
-                console.error("Error al conectar con el backend:", error);
+            if (response.ok) {
+                const elementToRemove = document.querySelector(`[data-id="${selectedTurnoId}"]`);
+                if (elementToRemove) elementToRemove.remove();
+            } else {
+                console.error("Error al cancelar el turno:", response.statusText);
             }
-        })();
-    }
 
+        } catch (error) {
+            console.error("Error de red al cancelar:", error);
+        } finally {
+            cancelDialog.style.display = "none";
+            selectedTurnoId = null;
+            actualizarContadores();
+        }
+    });
+
+    // ------------------- FUNCIONES AUXILIARES -------------------
+    const actualizarContadores = () => {
+        const cantidad = turnosContainer.querySelectorAll(".card").length;
+        turnosCount.textContent = cantidad;
+        turnosCountText.textContent = cantidad;
+    };
+
+    // ------------------- FETCH TURNOS DE HOY -------------------
+    const fetchTurnosHoy = async () => {
+        try {
+            const response = await fetch(`/api/agenda/medico/${window.MEDICO_ID}/hoy`);
+            if (!response.ok) throw new Error("Error al obtener los turnos");
+
+            const turnos = await response.json();
+            turnosContainer.innerHTML = "";
+
+            if (!turnos.data || turnos.data.length === 0) {
+                turnosContainer.innerHTML = `<p class="text-gray-500">No hay turnos programados para hoy.</p>`;
+                actualizarContadores();
+                return;
+            }
+
+            turnos.data.forEach(turno => {
+                const paciente = turno.paciente || {};
+                const pacienteNombre = paciente.nombre || "Sin nombre";
+                const pacienteApellido = paciente.apellido || "";
+                const pacienteDni = paciente.dni || "-";
+
+                const card = document.createElement("div");
+                card.className = "bg-white p-6 rounded-xl shadow-lg border border-gray-200 flex justify-between items-center card";
+                card.dataset.id = turno.id;
+
+                card.innerHTML = `
+                    <div>
+                        <p class="font-semibold text-gray-900">${pacienteNombre} ${pacienteApellido}</p>
+                        <p class="text-sm text-gray-500">DNI: ${pacienteDni}</p>
+                        <p class="text-sm text-gray-500">Motivo: ${turno.motivo || 'Consulta'}</p>
+                    </div>
+                    <div class="flex flex-col items-end space-y-2">
+                        <span class="text-gray-600 text-sm">${turno.hora}</span>
+                        <div class="flex space-x-2">
+                            <button class="btn-recipe bg-cyan-600 text-white px-3 py-1 rounded hover:bg-cyan-700 text-sm flex items-center">
+                                <i class="ph ph-note mr-1"></i> Receta
+                            </button>
+                            <button class="btn-cancel bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-sm flex items-center">
+                                <i class="ph ph-x-circle mr-1"></i> Cancelar
+                            </button>
+                        </div>
+                    </div>
+                `;
+                turnosContainer.appendChild(card);
+            });
+
+            actualizarContadores();
+
+        } catch (error) {
+            console.error(error);
+            turnosContainer.innerHTML = `<p class="text-red-500">No se pudieron cargar los turnos.</p>`;
+        }
+    };
+
+    // ------------------- LLAMADA INICIAL -------------------
+    console.log("DOM listo, container:", turnosContainer);
+    fetchTurnosHoy();
 });

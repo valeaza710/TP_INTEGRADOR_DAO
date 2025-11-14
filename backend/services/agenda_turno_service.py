@@ -192,11 +192,15 @@ class AgendaTurnoService:
         Devuelve los turnos del día actual del médico.
         """
         try:
+            print(f"⚙️ [SERVICE] Consultando turnos para médico ID={id_medico}")
             turnos = self.repository.get_turnos_hoy_by_medico(id_medico)
+            print(f"✅ [SERVICE] Turnos obtenidos: {len(turnos)}")
             return [self._to_dict(t) for t in turnos]
+
         except Exception as e:
-            print(f"❌ Error en get_turnos_hoy_by_medico: {e}")
+            print(f"❌ Error en get_turnos_hoy_by_medico (service): {e}")
             raise Exception("Error al obtener los turnos de hoy del médico")
+
 
     # ------------------------------------------------------------
     # Convertir turno a diccionario
@@ -215,8 +219,8 @@ class AgendaTurnoService:
                 "dni": getattr(a.paciente, "dni", None)
             } if a.paciente else None,
             "estado_turno": {
-                "id": getattr(a.estado_turno, "id", None),
-                "nombre": getattr(a.estado_turno, "nombre", None)
+                "id": a.estado_turno.id,
+                "estado": a.estado_turno.nombre
             } if a.estado_turno else None,
             "horario_medico": {
                 "id": getattr(a.horario_medico, "id", None),

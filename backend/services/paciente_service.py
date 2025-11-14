@@ -23,11 +23,21 @@ class PacienteService:
     # ------------------------------------
     def get_by_id(self, paciente_id: int):
         try:
+            print(f"🔹 Buscando paciente con ID={paciente_id}")  # debug
             paciente = self.repository.get_by_id(paciente_id)
-            return self._to_dict(paciente) if paciente else None
+            print(f"🔹 Resultado raw de repository.get_by_id: {paciente}")  # debug
+
+            if paciente:
+                paciente_dict = self._to_dict(paciente)
+                print(f"✅ Paciente convertido a dict: {paciente_dict}")  # debug
+                return paciente_dict
+            else:
+                print("ℹ️ No se encontró paciente")
+                return None
         except Exception as e:
-            print(f"Error en get_by_id: {e}")
+            print(f"❌ Error en get_by_id: {e}")
             raise Exception("Error al obtener paciente")
+
 
     # ------------------------------------
     # CREATE

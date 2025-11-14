@@ -71,11 +71,25 @@ class PacienteRepository(Repository):
 
     def get_by_id(self, paciente_id: int):
         """Buscar paciente por ID"""
-        query = "SELECT * FROM paciente WHERE id = ?"
-        data = self.db.execute_query(query, (paciente_id,), fetch=True)
-        if not data:
-            return None
-        return self._build_paciente(data[0])
+        try:
+            print(f"🔹 Buscando paciente con ID={paciente_id}")  # debug
+
+            query = "SELECT * FROM paciente WHERE id = ?"
+            data = self.db.execute_query(query, (paciente_id,), fetch=True)
+            print(f"🔹 Resultado raw de la query: {data}")  # debug
+
+            if not data:
+                print("ℹ️ No se encontró ningún paciente")
+                return None
+
+            paciente = self._build_paciente(data[0])
+            print(f"✅ Paciente construido: {paciente}")  # debug
+            return paciente
+
+        except Exception as e:
+            print(f"❌ Error en get_by_id: {e}")
+            raise Exception("Error al obtener paciente")
+
 
     def get_by_dni(self, dni: str):
         """Buscar paciente por DNI"""

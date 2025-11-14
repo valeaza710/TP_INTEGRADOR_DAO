@@ -56,42 +56,89 @@ class MedicoRepository(Repository):
         return medico
 
     def get_by_id(self, medico_id: int):
-        query = "SELECT * FROM medico WHERE id = ?"
-        data = self.db.execute_query(query, (medico_id,), fetch=True)
-        if not data:
-            return None
-        row = data[0]
+        print(f"🔹 med_repo.get_by_id - medico_id={medico_id}")
 
-        # cargar usuario si existe
+        # -------------------------------
+        # Buscar médico
+        # -------------------------------
+        try:
+            data = self.db.execute_query("SELECT * FROM medico WHERE id = ?", (medico_id,), fetch=True)
+            print(f"   🔹 Filas obtenidas: {len(data)}")
+        except Exception as e:
+            print(f"   ❌ Error ejecutando query medico: {e}")
+            raise
+
+        if not data:
+            print("   ℹ️ No se encontró el médico")
+            return None
+
+        row = data[0]
+        print(f"   🔹 Procesando row: {row}")
+
+        # -------------------------------
+        # Cargar usuario asociado
+        # -------------------------------
         usuario = None
         if row.get("id_usuario"):
-            udata = self.db.execute_query("SELECT * FROM usuario WHERE id = ?", (row["id_usuario"],), fetch=True)
-            if udata:
-                u = udata[0]
-                usuario = Usuario(id=u["id"], nombre_usuario=u["nombre_usuario"], contrasena=u["contrasena"], tipo_usuario=None)
+            try:
+                print(f"      🔹 Obteniendo usuario ID={row['id_usuario']}")
+                udata = self.db.execute_query("SELECT * FROM usuario WHERE id = ?", (row["id_usuario"],), fetch=True)
+                print(f"      🔹 Filas usuario obtenidas: {len(udata)}")
+                if udata:
+                    u = udata[0]
+                    usuario = Usuario(
+                        id=u["id"],
+                        nombre_usuario=u["nombre_usuario"],
+                        contrasena=u["contrasena"],
+                        tipo_usuario=None
+                    )
+                    print(f"Usuario obtenido: {usuario}")
+            except Exception as e:
+                print(f"Error obteniendo usuario: {e}")
+                raise
+        else:
+            print("No hay usuario asociado")
 
-        # cargar especialidades asociadas
+        # -------------------------------
+        # Cargar especialidades
+        # -------------------------------
         especialidades = []
-        esp_ids = self.mxesp_repo.list_especialidad_ids_for_medico(row["id"])
-        if esp_ids:
-            placeholders = ", ".join(["?"] * len(esp_ids))
-            q = f"SELECT * FROM especialidad WHERE id IN ({placeholders})"
-            esp_rows = self.db.execute_query(q, tuple(esp_ids), fetch=True)
-            for er in esp_rows:
-                especialidades.append(Especialidad(id=er["id"], nombre=er["nombre"]))
+        try:
+            esp_ids = self.mxesp_repo.list_especialidad_ids_for_medico(row["id"])
+            print(f"      🔹 Especialidades IDs: {esp_ids}")
+            if esp_ids:
+                placeholders = ", ".join(["?"] * len(esp_ids))
+                q = f"SELECT * FROM especialidad WHERE id IN ({placeholders})"
+                esp_rows = self.db.execute_query(q, tuple(esp_ids), fetch=True)
+                for er in esp_rows:
+                    especialidades.append(Especialidad(id=er["id"], nombre=er["nombre"]))
+                print(f"      ✅ Especialidades obtenidas: {especialidades}")
+        except Exception as e:
+            print(f"      ❌ Error obteniendo especialidades: {e}")
+            raise
 
-        return Medico(
-            id=row["id"],
-            nombre=row["nombre"],
-            apellido=row["apellido"],
-            dni=row.get("dni"),
-            matricula=row.get("matricula"),
-            telefono=row.get("telefono"),
-            mail=row.get("mail"),
-            direccion=row.get("direccion"),
-            especialidades=especialidades,
-            usuario=usuario
-        )
+        # -------------------------------
+        # Construir objeto Medico
+        # -------------------------------
+        try:
+            medico = Medico(
+                id=row["id"],
+                nombre=row["nombre"],
+                apellido=row["apellido"],
+                dni=row.get("dni"),
+                matricula=row.get("matricula"),
+                telefono=row.get("telefono"),
+                mail=row.get("mail"),
+                direccion=row.get("direccion"),
+                especialidades=especialidades,
+                usuario=usuario
+            )
+            print(f"   ✅ Medico mapeado correctamente: {medico}")
+            return medico
+        except Exception as e:
+            print(f"   ❌ Error construyendo objeto Medico: {e}")
+            raise
+
 
     def get_all(self):
         query = "SELECT * FROM medico"

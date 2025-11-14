@@ -6,6 +6,12 @@
     <title>Panel del Médico - Gestión de Turnos</title>
     <!-- Carga de Tailwind CSS para utilities -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.MEDICO_ID = {{ medico_id }};
+    </script>
+
+
+
     <style>
         /* Definición de fuente y colores principales */
         :root {
@@ -63,6 +69,7 @@
             display: none !important;
         }
     </style>
+    
 </head>
 <body class="p-4 md:p-8">
 
@@ -78,8 +85,10 @@
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold text-gray-800">Dr. Roberto Sánchez</h1>
-                    <p class="text-sm text-gray-500">Médico Clínico</p>
+                        <h1 class="text-xl font-bold text-gray-800">Dr. {{ medico_apellido }}, {{ medico_nombre }}</h1>
+                        <p class="text-sm text-gray-500">
+                            {{ medico_especialidades | join(', ') }}
+                        </p>
                 </div>
             </div>
             <button class="flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 transition">
@@ -92,7 +101,9 @@
 
         <!-- Título principal de la sección -->
         <section class="mb-8">
-            <h2 class="text-3xl font-extrabold text-gray-900">¡Bienvenido Roberto Sanchez!</h2>
+            <h2 class="text-3xl font-extrabold text-gray-900">
+                ¡Bienvenido {{ medico_apellido }} {{ medico_nombre }}!
+            </h2>
             <p class="text-gray-500">Gestiona tus turnos y pacientes</p>
         </section>
 
@@ -117,7 +128,7 @@
         <!-- CONTENIDO DE LA PESTAÑA: PACIENTES -->
         <section id="pacientes-content" class="tab-content" role="tabpanel" aria-labelledby="tab-pacientes">
             <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                <i class="ph ph-users-three text-2xl mr-2 text-indigo-600"></i>
+                <i class="ph ph-users_to_dicthoy-three text-2xl mr-2 text-indigo-600"></i>
                 Gestión de Pacientes
             </h3>
             
@@ -217,7 +228,6 @@
             <p class="text-gray-500 mb-6 text-sm">Tienes <span id="turnos-count-text">0</span> turnos programados para hoy</p>
 
             <div id="turnos-container" class="space-y-6">
-
             </div>
         </div>
 
@@ -448,17 +458,12 @@
             </div>
         </div>
     
-    <script>
-        const medico_id = {{ medico_id | tojson }};
-    </script>
 
     <!-- Script JavaScript Integrado -->
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             // --- Declaración de Elementos de los Modales ---
-            
-            console.log("Medico ID:", medico_id);
-            
+                        
             // Modal de Cancelación
             const cancelDialog = document.getElementById("cancel-dialog");
             const closeCancelDialogBtn = document.getElementById("close-cancel-dialog");
@@ -624,6 +629,6 @@
             });
         });
     </script>
-    
+    <script src="{{ url_for('static', filename='js/medicoDashboard.js') }}" defer></script>
 </body>
 </html>

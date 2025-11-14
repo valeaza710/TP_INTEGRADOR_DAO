@@ -92,12 +92,12 @@ class MedicoRepository(Repository):
                         contrasena=u["contrasena"],
                         tipo_usuario=None
                     )
-                    print(f"      ✅ Usuario obtenido: {usuario}")
+                    print(f"Usuario obtenido: {usuario}")
             except Exception as e:
-                print(f"      ❌ Error obteniendo usuario: {e}")
+                print(f"Error obteniendo usuario: {e}")
                 raise
         else:
-            print("      ℹ️ No hay usuario asociado")
+            print("No hay usuario asociado")
 
         # -------------------------------
         # Cargar especialidades

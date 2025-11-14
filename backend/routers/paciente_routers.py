@@ -35,9 +35,12 @@ def obtener_paciente(id):
         if not paciente:
             return jsonify({'success': False, 'error': 'Paciente no encontrado'}), 404
 
+        # paciente ya es dict, no necesitamos reconstruirlo
         return jsonify({'success': True, 'data': paciente}), 200
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
 
 
 # -----------------------------------

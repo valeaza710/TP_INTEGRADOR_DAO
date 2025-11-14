@@ -165,6 +165,7 @@ class AgendaTurnoRepository(Repository):
             "paciente": {
                 "id": a.paciente.id,
                 "nombre": a.paciente.nombre,
+                "apellido": a.paciente.apellido,
                 "dni": a.paciente.dni
             } if a.paciente else None,
             "estado_turno": {
@@ -189,6 +190,7 @@ class AgendaTurnoRepository(Repository):
                 }
             } if a.horario_medico else None
         }
+
 
 
     # -------------------------------------------------------------------------

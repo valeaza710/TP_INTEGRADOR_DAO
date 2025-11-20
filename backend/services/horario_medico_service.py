@@ -99,7 +99,7 @@ class HorarioMedicoService:
         agenda_repo = AgendaTurnoRepository()
         estado_repo = EstadoTurnoRepository()
 
-        estado_disponible = estado_repo.get_by_id(1)
+        estado_disponible = estado_repo.get_by_id(5)
 
         anio = horario.anio
         mes = horario.mes
